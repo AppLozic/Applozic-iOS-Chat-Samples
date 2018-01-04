@@ -12,6 +12,8 @@
 #import "ALConversationProxy.h"
 
 #define CHANNEL_SPECIAL_CASE 7
+#define CHANNEL_DEFAULT_MUTE @"MUTE"
+
 /*********************
  type = 7 SPECIAL CASE
 *********************/
@@ -26,6 +28,7 @@ typedef enum
     BROADCAST = 5,
     OPEN = 6,
     GROUP_OF_TWO = 7,
+    CONTACT_GROUP = 9,
     BROADCAST_ONE_BY_ONE = 106
 } CHANNEL_TYPE;
 

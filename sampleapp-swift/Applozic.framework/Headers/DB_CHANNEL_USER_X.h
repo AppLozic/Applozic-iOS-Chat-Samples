@@ -10,10 +10,14 @@
 
 @interface DB_CHANNEL_USER_X : NSManagedObject
 
+
 @property (nonatomic, retain) NSNumber *channelKey;
 @property (nonatomic, retain) NSNumber *parentGroupKey;
 @property (nonatomic, retain) NSString *userId;
 @property (nonatomic) short status;
 @property (nonatomic, retain) NSNumber * unreadCount;
+@property (nonatomic,retain) NSNumber * role;
+
+
 
 @end

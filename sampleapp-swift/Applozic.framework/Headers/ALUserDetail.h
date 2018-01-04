@@ -26,6 +26,8 @@
 @property (nonatomic, strong)  NSString * userIdString;
 @property (nonatomic, strong) NSNumber * userTypeId;
 @property (nonatomic, strong) NSNumber * deletedAtTime;
+@property (nonatomic, strong) NSNumber * roleType;
+@property (nonatomic,retain) NSMutableDictionary * metadata;
 
 -(void)setUserDetails:(NSString *)jsonString;
 

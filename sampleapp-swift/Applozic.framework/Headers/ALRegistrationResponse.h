@@ -22,6 +22,11 @@
 @property NSString *statusMessage;
 @property NSString *encryptionKey;
 @property short pricingPackage;
+@property NSString *displayName;
+@property NSString* notificationSoundFileName;
+@property  NSMutableDictionary * metadata;
+@property NSString *roleName;
+@property short roleType;
 
 -(BOOL)isRegisteredSuccessfully;
 

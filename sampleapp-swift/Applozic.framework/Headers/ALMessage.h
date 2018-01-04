@@ -22,6 +22,17 @@
 #define ALMESSAGE_CHANNEL_NOTIFICATION 10
 #define ALMESSAGE_CONTENT_CUSTOM 101
 #define ALMESSAGE_CONTENT_HIDDEN 11
+#define CATEGORY_PUSHNNOTIFICATION @"PUSHNOTIFICATION"
+#define CATEGORY_HIDDEN @"HIDDEN"
+#define AL_MESSAGE_REPLY_KEY @"AL_REPLY"
+#define OUT_BOX @"5"
+#define IN_BOX  @"4"
+
+typedef enum {
+    AL_NOT_A_REPLY,
+    AL_A_REPLY,
+    AL_REPLY_BUT_HIDDEN,
+}ALReplyType;
 
 
 @interface ALMessage : ALJson
@@ -89,19 +100,38 @@
 
 @property (nonatomic,retain) NSMutableDictionary * metadata;
 
+@property (nonatomic,copy)NSNumber* messageReplyType;
+
+
 -(NSString *)getCreatedAtTime:(BOOL)today;
 
 -(id)initWithDictonary:(NSDictionary*)messageDictonary;
 
--(BOOL)isDownloadRequire;
+-(BOOL)isDownloadRequired;
 -(BOOL)isUploadRequire;
 -(BOOL)isHiddenMessage;
+-(BOOL)isVOIPNotificationMessage;
+
 
 -(NSString *)getCreatedAtTimeChat:(BOOL)today;
 -(NSNumber *)getGroupId;
 -(NSString *)getNotificationText;
 -(NSMutableDictionary *)getMetaDataDictionary:(NSString *)string;
+-(NSString *)getVOIPMessageText;
 -(BOOL)isMsgHidden;
+-(BOOL)isPushNotificationMessage;
+-(BOOL)isMessageCategoryHidden;
+-(ALReplyType)getReplyType;
+
+-(BOOL)isAReplyMessage;
+
+-(BOOL)isSentMessage;
+-(BOOL)isReceivedMessage;
+
+-(BOOL)isLocationMessage;
+-(BOOL)isContactMessage;
+-(BOOL)isDocumentMessage;
+
 
 @property (nonatomic,assign) BOOL deleted;
 @property (nonatomic, assign) BOOL msgHidden;

@@ -45,8 +45,7 @@
 
 -(NSMutableArray*)getAllChannelKeyAndName;
 
--(void)updateChannel:(NSNumber *)channelKey andNewName:(NSString *)newName
-          orImageURL:(NSString *)imageURL orChildKeys:(NSMutableArray *)childKeysList isUpdatingMetaData:(BOOL)flag;
+-(void)updateChannel:(NSNumber *)channelKey andNewName:(NSString *)newName orImageURL:(NSString *)imageURL orChildKeys:(NSMutableArray *)childKeysList isUpdatingMetaData:(BOOL)flag  orChannelUsers:(NSMutableArray *)channelUsers;
 
 -(void)processArrayAfterSyncCall:(NSMutableArray *)channelArray;
 
@@ -81,5 +80,22 @@
 -(NSMutableArray *)fetchChildChannels:(NSNumber *)parentGroupKey;
 
 -(void)updateMuteAfterTime:(NSNumber*)notificationAfterTime andChnnelKey:(NSNumber*)channelKey;
+
+
+-(DB_CHANNEL_USER_X *)getChannelUserX:(NSNumber *)channelKey;
+
+-(ALChannelUserX *)loadChannelUserX:(NSNumber *)channelKey;
+
+-(ALChannelUserX *)loadChannelUserXByUserId:(NSNumber *)channelKey andUserId:(NSString *)userId;
+
+
+-(void)updateParentKeyInChannelUserX:(NSNumber *)channelKey andWithParentKey:(NSNumber *)parentKey addUserId :(NSString *) userId;
+
+
+-(void)updateRoleInChannelUserX:(NSNumber *)channelKey andUserId:(NSString *)userId withRoleType:(NSNumber*)role;
+
+-(NSMutableArray *)getListOfAllUsersInChannelByNameForContactsGroup:(NSString *)channelName;
+
+-(DB_CHANNEL *)getContactsGroupChannelByName:(NSString *)channelName;
 
 @end

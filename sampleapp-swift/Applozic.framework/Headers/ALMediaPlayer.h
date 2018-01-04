@@ -32,5 +32,5 @@
 -(BOOL) stopPlaying;
 -(void) pauseAudio;
 -(void) resumeAudio;
-
++(NSString *)getTotalDuration:(NSString *)path;
 @end

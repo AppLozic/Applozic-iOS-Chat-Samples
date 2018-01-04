@@ -45,6 +45,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *typingLabel;
 
 -(void)setHeightOfTextViewDynamically;
+-(void)setHeightOfTextViewDynamically:(BOOL)scroll;
+
 @property (weak, nonatomic) IBOutlet UIImageView *beakImageView;
 -(void)subProcessSetHeightOfTextViewDynamically;
 

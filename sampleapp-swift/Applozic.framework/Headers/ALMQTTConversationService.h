@@ -50,4 +50,7 @@
 -(void)unSubscribeToChannelConversation:(NSNumber *)channelKey;
 -(void)subscribeToChannelConversation:(NSNumber *)channelKey;
 
+-(void)subscribeToOpenChannel:(NSNumber *)channelKey;
+-(void)unSubscribeToOpenChannel:(NSNumber *)channelKey;
+
 @end

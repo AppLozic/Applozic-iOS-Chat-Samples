@@ -11,6 +11,7 @@
 #import "ALContact.h"
 #import "ALContactsResponse.h"
 #import "ALUserDetailListFeed.h"
+#import "AlApplicationInfoFeed.h"
 
 @interface ALUserClientService : NSObject
 
@@ -48,5 +49,8 @@
               withCompletion:(void (^)(id theJson, NSError * error))completionHandler;
 
 -(void)subProcessUserDetailServerCallPOST:(ALUserDetailListFeed *)ob withCompletion:(void(^)(NSMutableArray * userDetailArray, NSError * theError))completionMark;
+
+-(void) updateApplicationInfoDeatils:(AlApplicationInfoFeed *)applicationInfoDeatils withCompletion:(void (^)(NSString *json, NSError *error))completion;
+
 
 @end

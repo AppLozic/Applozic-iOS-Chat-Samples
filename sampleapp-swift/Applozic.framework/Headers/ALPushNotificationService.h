@@ -34,6 +34,7 @@
 #define MT_SYNC_PENDING @"MT_SYNC_PENDING"
 
 #define APPLOZIC_PREFIX @"APPLOZIC_"
+#define APPLOZIC_CATEGORY_KEY @"category"
 
 
 #import <Foundation/Foundation.h>

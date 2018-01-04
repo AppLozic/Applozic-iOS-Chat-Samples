@@ -5,6 +5,9 @@
 //  Created by devashish on 18/09/2015.
 //  Copyright (c) 2015 AppLogic. All rights reserved.
 //
+#define INVALID_APPLICATIONID @"INVALID_APPLICATIONID"
+#define VERSION_CODE @"109"
+#define LOGOUT_URL @"/rest/ws/device/logout"
 
 #import <Foundation/Foundation.h>
 #import "ALRegistrationResponse.h"

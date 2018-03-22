@@ -20,6 +20,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
+        registerForNotification()
+        
         let alApplocalNotificationHnadler : ALAppLocalNotifications =  ALAppLocalNotifications.appLocalNotificationHandler();
         alApplocalNotificationHnadler.dataConnectionNotificationHandler();
         
@@ -140,6 +142,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        alPushNotificationService.processPushNotification(userInfo, updateUI: appState)
         alPushNotificationService.notificationArrived(to: application, with: userInfo)
         completionHandler(UIBackgroundFetchResult.newData)
+    }
+    
+    func registerForNotification() {
+        if #available(iOS 10.0, *) {
+            UNUserNotificationCenter.current().requestAuthorization(options:[.badge, .alert, .sound]) { (granted, error) in
+                
+                if granted {
+                    DispatchQueue.main.async {
+                        UIApplication.shared.registerForRemoteNotifications()
+                    }
+                }
+            }
+        } else {
+            // Fallback on earlier versions
+            let settings = UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
+            UIApplication.shared.registerUserNotificationSettings(settings)
+            UIApplication.shared.registerForRemoteNotifications()
+            
+        }
     }
     
 }

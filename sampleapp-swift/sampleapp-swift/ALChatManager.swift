@@ -260,8 +260,7 @@ class ALChatManager: NSObject {
  func getApplicationKey() -> NSString {
     
     let appKey = ALUserDefaultsHandler.getApplicationKey() as NSString?
-//    let applicationKey = (appKey != nil) ? appKey : ALChatManager.applicationId
-     let applicationKey = appKey
+    let applicationKey = (appKey != nil) ? appKey : ALChatManager.applicationId as NSString?
     return applicationKey!;
     
 }

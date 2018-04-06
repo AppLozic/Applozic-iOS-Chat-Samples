@@ -62,4 +62,6 @@
 
 -(void)updateUserApplicationInfo;
 
+-(void)updatePassword:(NSString*)oldPassword withNewPassword :(NSString *) newPassword withCompletion:(void(^)( ALAPIResponse* alAPIResponse, NSError *theError))completion;
+
 @end

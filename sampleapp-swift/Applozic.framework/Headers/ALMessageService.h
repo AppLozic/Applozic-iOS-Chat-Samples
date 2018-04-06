@@ -78,5 +78,8 @@ withAttachmentAtLocation:(NSString *)attachmentLocalPath
 -(ALMessage *)getALMessageByKey:(NSString*)messageReplyId;
 
 +(void)addBroadcastMessageToDB:(ALMessage *)alMessage;
++(void)addOpenGroupMessage:(ALMessage*)alMessage;
+
+
 
 @end

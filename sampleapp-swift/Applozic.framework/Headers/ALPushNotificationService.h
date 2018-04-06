@@ -59,4 +59,5 @@
 -(void)notificationArrivedToApplication:(UIApplication*)application withDictionary:(NSDictionary *)userInfo;
 +(void)applicationEntersForeground;
 +(void)userSync;
+-(BOOL) checkForLaunchNotification:(NSDictionary *)dictionary;
 @end

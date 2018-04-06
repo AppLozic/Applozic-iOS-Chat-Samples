@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
-#import "DB_Contact.h"
+#import "DB_CONTACT.h"
 
 @class ALContact;
 

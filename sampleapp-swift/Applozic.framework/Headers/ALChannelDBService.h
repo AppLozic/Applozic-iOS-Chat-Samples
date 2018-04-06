@@ -62,6 +62,7 @@
 -(BOOL)isChannelLeft:(NSNumber *)groupId;
 
 -(BOOL)isChannelDeleted:(NSNumber *)groupId;
+-(BOOL)isConversaionClosed:(NSNumber *)groupId;
 
 -(void) updateChannelParentKey:(NSNumber *)channelKey
               andWithParentKey:(NSNumber *)channelParentKey isAdding:(BOOL)flag;

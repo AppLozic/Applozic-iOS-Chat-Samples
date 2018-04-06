@@ -41,4 +41,6 @@
 
 -(void)getCurrentMessageInformation:(NSString *)messageKey withCompletionHandler:(void(^)(ALMessageInfoResponse *msgInfo, NSError *theError))completion;
 
+-(void)getMessageListForUser:(MessageListRequest *)messageListRequest withOpenGroup:(BOOL)isOpenGroup withCompletion:(void (^)(NSMutableArray *, NSError *, NSMutableArray *))completion;
+
 @end

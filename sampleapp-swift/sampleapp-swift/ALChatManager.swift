@@ -34,7 +34,8 @@ class ALChatManager: NSObject {
         
         let alChatLauncher: ALChatLauncher = ALChatLauncher(applicationId: getApplicationKey() as String)
         ALDefaultChatViewSettings()
-
+        alUser.applicationId = getApplicationKey() as String
+        alUser.appModuleName = ALUserDefaultsHandler.getAppModuleName()
         let registerUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
         registerUserClientService.initWithCompletion(alUser, withCompletion: { (response, error) in
             
@@ -61,7 +62,8 @@ class ALChatManager: NSObject {
     
         let alChatLauncher: ALChatLauncher = ALChatLauncher(applicationId: getApplicationKey() as String)
         ALDefaultChatViewSettings()
-        
+        alUser.applicationId = getApplicationKey() as String
+        alUser.appModuleName = ALUserDefaultsHandler.getAppModuleName()
         let registerUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
     
         registerUserClientService.initWithCompletion(alUser, withCompletion: { (response, error) in
@@ -139,10 +141,11 @@ class ALChatManager: NSObject {
             user = ALChatManager.getUserDetail()
         }else {
             user = alUser!;
-
         }
         ALDefaultChatViewSettings();
-
+        user.applicationId = getApplicationKey() as String
+        user.appModuleName = ALUserDefaultsHandler.getAppModuleName()
+        
         // register and launch...
         let registerUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
         registerUserClientService.initWithCompletion(user, withCompletion: { (response, error) in
@@ -179,6 +182,8 @@ class ALChatManager: NSObject {
         }
         
         let alUser : ALUser = ALChatManager.getUserDetail()
+        alUser.applicationId = getApplicationKey() as String
+        alUser.appModuleName = ALUserDefaultsHandler.getAppModuleName()
         let alRegisterUser  = ALRegisterUserClientService()
         alRegisterUser.initWithCompletion(alUser, withCompletion: { (rResponse, error) in
             

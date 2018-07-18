@@ -15,6 +15,9 @@
 #import "NSString+Encode.h"
 #import "ALAPIResponse.h"
 #import "ALUserDetailListFeed.h"
+#import "AlApplicationInfoFeed.h"
+
+
 
 @implementation ALUserClientService
 
@@ -319,6 +322,13 @@
             return;
         }
         
+        NSString *json = (NSString *)theJson;
+        
+        if(json && [json isEqualToString:AL_EMPTY_JSON_STRING]){
+            completionMark(nil, theError);
+            return;
+        }
+            
         NSLog(@"SEVER_RESPONSE_FOR_ONLINE_CONTACT_LIMIT_JSON : %@", (NSString *)theJson);
         NSArray * jsonArray = [NSArray arrayWithArray:(NSArray *)theJson];
         if(jsonArray.count)
@@ -328,9 +338,12 @@
             for (NSDictionary * theDictionary in JSONDictionary)
             {
                 ALUserDetail * userDetail = [[ALUserDetail alloc] initWithDictonary:theDictionary];
+                userDetail.unreadCount = 0;
                 [ALLUserDetailArray addObject:userDetail];
             }
             completionMark(ALLUserDetailArray, theError);
+        }else{
+            completionMark(nil, theError);
         }
     }];
 }
@@ -433,6 +446,58 @@
         }
     }];
 }
+
+
+//========================================================================================================================
+#pragma mark UPDATE Application info
+//========================================================================================================================
+
+-(void) updateApplicationInfoDeatils:(AlApplicationInfoFeed *)applicationInfoDeatils withCompletion:(void (^)(NSString *json, NSError *error))completion{
+    
+    NSString * theUrlString = [NSString stringWithFormat:@"%@/apps/customer/application/info/update",KBASE_URL];
+    NSError *error;
+    NSData * postdata = [NSJSONSerialization dataWithJSONObject:applicationInfoDeatils.dictionary options:0 error:&error];
+    NSString *paramString = [[NSString alloc] initWithData:postdata encoding:NSUTF8StringEncoding];
+    
+    NSMutableURLRequest * theRequest = [ALRequestHandler createPOSTRequestWithUrlString:theUrlString paramString:paramString];
+    
+    [ALResponseHandler processRequest:theRequest andTag:@"UPDATE_APPLICATION_INFO" WithCompletionHandler:^(id theJson, NSError *theError) {
+        
+        NSLog(@"Update Application Info reponse  :: %@",(NSString *)theJson);
+        NSString * jsonString  = (NSString *)theJson;
+        
+        if(jsonString != nil  && [jsonString isEqualToString:@"/success/"] ){
+            completion(theJson, theError);
+        }else{
+            NSError * reponseError = [NSError errorWithDomain:@"Applozic" code:1
+                                                     userInfo:[NSDictionary dictionaryWithObject:@"ERROR IN JSON FOR UPDATEING THE APPLICATION INFO"
+                                                                                          forKey:NSLocalizedDescriptionKey]];
+            completion(theJson, reponseError);
+            return ;
+        }
+        
+    }];
+    
+}
+
+-(void) updatePassword:(NSString*)oldPassword withNewPassword :(NSString *) newPassword withCompletion:(void(^)(id theJson, NSError *theError))completion
+{
+    
+    NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/user/update/password", KBASE_URL];
+    NSString * theParamString = [NSString stringWithFormat:@"oldPassword=%@&newPassword=%@", oldPassword,
+                                 newPassword];
+    
+    NSMutableURLRequest * theRequest = [ALRequestHandler createGETRequestWithUrlString:theUrlString paramString:theParamString];
+    
+    [ALResponseHandler processRequest:theRequest andTag:@"UPDATE_USER_PASSWORD" WithCompletionHandler:^(id theJson, NSError *theError) {
+        
+        completion(theJson, theError);
+        
+    }];
+    
+    
+}
+
 
 
 @end

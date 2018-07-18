@@ -29,7 +29,7 @@
 }
 
 - (void)open {
-    DDLogVerbose(@"[MQTTSSLSecurityPolicyTransport] open");
+    ALDDLogVerbose(@"[MQTTSSLSecurityPolicyTransport] open");
     self.state = MQTTTransportOpening;
 
     NSError* connectError;

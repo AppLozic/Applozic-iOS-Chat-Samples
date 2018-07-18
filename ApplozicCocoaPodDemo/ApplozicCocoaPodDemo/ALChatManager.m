@@ -428,12 +428,6 @@
     /******************************************** NOTIIFCATION SETTINGS  ********************************************/
     
     
-    if([ALUtilityClass isThisDebugBuild]){
-        [ALUserDefaultsHandler setDeviceApnsType:(short)DEVELOPMENT];
-    }else{
-        [ALUserDefaultsHandler setDeviceApnsType:(short)DISTRIBUTION];
-    }
-    
     NSString * appName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
     [ALApplozicSettings setNotificationTitle:appName];
     

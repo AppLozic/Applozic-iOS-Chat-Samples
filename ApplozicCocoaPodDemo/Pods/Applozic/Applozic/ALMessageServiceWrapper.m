@@ -14,7 +14,7 @@
 #import <Applozic/ALMessageClientService.h>
 #include <tgmath.h>
 #import <MobileCoreServices/MobileCoreServices.h>
-
+#import <Applozic/ALApplozicSettings.h>
 
 
 @implementation ALMessageServiceWrapper
@@ -35,6 +35,23 @@
 }
 
 
+-(void)sendTextMessage:(NSString*)messageText andtoContact:(NSString*)contactId orGroupId:(NSNumber*)channelKey{
+    
+    ALMessage * almessage = [self createMessageEntityOfContentType:ALMESSAGE_CONTENT_DEFAULT toSendTo:contactId withText:messageText];
+    
+    almessage.groupId=channelKey;
+    
+    [ALMessageService sendMessages:almessage withCompletion:^(NSString *message, NSError *error) {
+        
+        if(error)
+        {
+            NSLog(@"REACH_SEND_ERROR : %@",error);
+            return;
+        }
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"UPDATE_MESSAGE_SEND_STATUS" object:almessage];
+    }];
+}
+
 -(void) sendMessage:(ALMessage *)alMessage
 withAttachmentAtLocation:(NSString *)attachmentLocalPath
 andWithStatusDelegate:(id)statusDelegate
@@ -46,6 +63,7 @@ andWithStatusDelegate:(id)statusDelegate
     theMessage.imageFilePath = attachmentLocalPath.lastPathComponent;
     
     //File Meta Creation
+    theMessage.fileMeta = [self getFileMetaInfo];
     theMessage.fileMeta.name = [NSString stringWithFormat:@"AUD-5-%@", attachmentLocalPath.lastPathComponent];
     if(alMessage.contactIds){
         theMessage.fileMeta.name = [NSString stringWithFormat:@"%@-5-%@",alMessage.contactIds, attachmentLocalPath.lastPathComponent];
@@ -91,6 +109,22 @@ andWithStatusDelegate:(id)statusDelegate
 }
 
 
+-(ALFileMetaInfo *)getFileMetaInfo
+{
+    ALFileMetaInfo *info = [ALFileMetaInfo new];
+    
+    info.blobKey = nil;
+    info.contentType = @"";
+    info.createdAtTime = nil;
+    info.key = nil;
+    info.name = @"";
+    info.size = @"";
+    info.userKey = @"";
+    info.thumbnailUrl = @"";
+    info.progressValue = 0;
+    
+    return info;
+}
 
 -(ALMessage *)createMessageEntityOfContentType:(int)contentType
                                       toSendTo:(NSString*)to
@@ -135,8 +169,13 @@ andWithStatusDelegate:(id)statusDelegate
         ALMessage * message = [dbService createMessageEntity:dbMessage];
         NSError * theJsonError = nil;
         NSDictionary *theJson = [NSJSONSerialization JSONObjectWithData:connection.mData options:NSJSONReadingMutableLeaves error:&theJsonError];
-        NSDictionary *fileInfo = [theJson objectForKey:@"fileMeta"];
-        [message.fileMeta populate:fileInfo];
+
+        if(ALApplozicSettings.isS3StorageServiceEnabled){
+            [message.fileMeta populate:theJson];
+        }else{
+            NSDictionary *fileInfo = [theJson objectForKey:@"fileMeta"];
+            [message.fileMeta populate:fileInfo];
+        }
         ALMessage * almessage =  [ALMessageService processFileUploadSucess:message];
         [ALMessageService sendMessages:almessage withCompletion:^(NSString *message, NSError *error) {
             

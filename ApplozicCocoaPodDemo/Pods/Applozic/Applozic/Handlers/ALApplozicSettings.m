@@ -91,7 +91,7 @@
     NSData *barColorData = [NSKeyedArchiver archivedDataWithRootObject:barColor];
     [[NSUserDefaults standardUserDefaults] setObject:barColorData forKey:NAVIGATION_BAR_COLOUR];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    
+
 }
 
 +(UIColor *)getColorForNavigation
@@ -106,7 +106,7 @@
     NSData *barItemColorData = [NSKeyedArchiver archivedDataWithRootObject:barItemColor];
     [[NSUserDefaults standardUserDefaults] setObject:barItemColorData forKey:NAVIGATION_BAR_ITEM_COLOUR];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    
+
 }
 
 +(UIColor *)getColorForNavigationItem
@@ -144,15 +144,19 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
+
 +(NSString *)getTitleForBackButtonChatVC
 {
-    return [[NSUserDefaults standardUserDefaults] valueForKey:BACK_BUTTON_TITLE_CHATVC];
+    NSString * text = [[NSUserDefaults standardUserDefaults] valueForKey:BACK_BUTTON_TITLE_CHATVC];
+    return text ? text : NSLocalizedStringWithDefaultValue(@"chatViewBack", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Back", @"");
+
 }
+
 
 +(void)setNotificationTitle:(NSString *)notificationTitle
 {
     [[NSUserDefaults standardUserDefaults] setValue:notificationTitle forKey:NOTIFICATION_TITLE];
-    
+
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
@@ -238,7 +242,7 @@
 }
 
 +(void)setCustomMessageBackgroundColor:(UIColor *)color{
-    
+
     NSData * recievedCustomBackgroundColorData = [NSKeyedArchiver archivedDataWithRootObject:color];
     [[NSUserDefaults standardUserDefaults] setValue:recievedCustomBackgroundColorData
                                              forKey:CUSTOM_MSG_BACKGROUND_COLOR];
@@ -322,14 +326,14 @@
 
 +(BOOL)getCallOption
 {
-     return [[NSUserDefaults standardUserDefaults] boolForKey:USER_CALL_OPTION];
+    return [[NSUserDefaults standardUserDefaults] boolForKey:USER_CALL_OPTION];
 }
 
 /*
-NOTIFICATION_ENABLE_SOUND = 0,
-NOTIFICATION_DISABLE_SOUND = 1,
-NOTIFICATION_DISABLE = 2
-*/
+ NOTIFICATION_ENABLE_SOUND = 0,
+ NOTIFICATION_DISABLE_SOUND = 1,
+ NOTIFICATION_DISABLE = 2
+ */
 +(void)enableNotificationSound
 {
     [ALUserDefaultsHandler setNotificationMode:NOTIFICATION_ENABLE_SOUND];
@@ -415,7 +419,7 @@ NOTIFICATION_DISABLE = 2
 +(NSString *)getEmptyConversationText
 {
     NSString * text = [[NSUserDefaults standardUserDefaults] valueForKey:EMPTY_CONVERSATION_TEXT];
-    return text ? text : @"You have no conversations yet";
+    return text ? text : NSLocalizedStringWithDefaultValue(@"noConversationTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"You have no conversations yet", @"");
 }
 
 +(void)setVisibilityNoConversationLabelChatVC:(BOOL)flag
@@ -459,7 +463,7 @@ NOTIFICATION_DISABLE = 2
 
 +(BOOL)getCustomNavRightButtonMsgVC
 {
-   return [[NSUserDefaults standardUserDefaults] boolForKey:CUSTOM_NAV_RIGHT_BUTTON_MSGVC];
+    return [[NSUserDefaults standardUserDefaults] boolForKey:CUSTOM_NAV_RIGHT_BUTTON_MSGVC];
 }
 
 +(void)setColorForToastBackground:(UIColor *)toastBGColor
@@ -601,7 +605,8 @@ NOTIFICATION_DISABLE = 2
 +(NSString *)getAbuseWarningText
 {
     NSString * msg = [[NSUserDefaults standardUserDefaults] valueForKey:ABUSE_WORDS_WARNING_TEXT];
-    return msg ? msg : @"AVOID USE OF ABUSE WORDS";
+    return msg ? msg :  NSLocalizedStringWithDefaultValue(@"restrictionWorldInfo", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"AVOID USE OF ABUSE WORDS", @"");
+    ;
 }
 
 +(void)setAbuseWarningText:(NSString *)warningText
@@ -649,7 +654,7 @@ NOTIFICATION_DISABLE = 2
     return color ? color : [UIColor blackColor];
 }
 
-+(void)setReceiverUserProfileOption:(BOOL)flag  
++(void)setReceiverUserProfileOption:(BOOL)flag
 {
     [[NSUserDefaults standardUserDefaults] setBool:flag forKey:ENABLE_RECEIVER_USER_PROFILE];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -672,12 +677,12 @@ NOTIFICATION_DISABLE = 2
     return size ? size : 14;
 }
 
-+(void)setCustomMessageFont:(NSString *)font 
++(void)setCustomMessageFont:(NSString *)font
 {
     [[NSUserDefaults standardUserDefaults] setValue:font forKey:CUSTOM_MSG_FONT];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
- 
+
 +(NSString *)getCustomMessageFont
 {
     NSString * font = [[NSUserDefaults standardUserDefaults] valueForKey:CUSTOM_MSG_FONT];
@@ -710,6 +715,7 @@ NOTIFICATION_DISABLE = 2
 +(void) setContactTypeToFilter:(NSMutableArray*)arrayWithIds
 {
     [[NSUserDefaults standardUserDefaults] setObject:arrayWithIds forKey:FILTER_ONLY_CONTACT_TYPE_ID];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 +(NSMutableArray*) getContactTypeToFilter
@@ -729,7 +735,7 @@ NOTIFICATION_DISABLE = 2
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-+(void)setSubGroupLaunchFlag:(BOOL)flag 
++(void)setSubGroupLaunchFlag:(BOOL)flag
 {
     [[NSUserDefaults standardUserDefaults] setBool:flag forKey:SUB_GROUP_LAUNCH];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -738,6 +744,28 @@ NOTIFICATION_DISABLE = 2
 +(BOOL)getSubGroupLaunchFlag
 {
     return [[NSUserDefaults standardUserDefaults] boolForKey:SUB_GROUP_LAUNCH];
+}
+
++(void)setGroupOfTwoFlag:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:GROUP_OF_TWO_FLAG];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)getGroupOfTwoFlag
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:GROUP_OF_TWO_FLAG];
+}
+
++(void)setBroadcastGroupEnable:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:BROADCAST_GROUP_ENABLE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isBroadcastGroupEnable
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:BROADCAST_GROUP_ENABLE];
 }
 
 +(void)setListOfViewControllers:(NSArray *)viewList
@@ -762,10 +790,31 @@ NOTIFICATION_DISABLE = 2
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
++(void)setAudioVideoClassName:(NSString *)className
+{
+    [[NSUserDefaults standardUserDefaults] setValue:className forKey:AUDIO_VIDEO_CLASS];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSString *)getAudioVideoClassName
+{
+    return [[NSUserDefaults standardUserDefaults] valueForKey:AUDIO_VIDEO_CLASS];
+}
+
++(void)setClientStoryBoard:(NSString *)storyboard
+{
+    [[NSUserDefaults standardUserDefaults] setValue:storyboard forKey:CLIENT_STORYBOARD];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSString *)getClientStoryBoard
+{
+    return [[NSUserDefaults standardUserDefaults] valueForKey:CLIENT_STORYBOARD];
+}
 +(NSString *)getGroupDeletedTitle
 {
     NSString * title = [[NSUserDefaults standardUserDefaults] stringForKey:GROUP_DELETED_TITLE];
-    return title ? title : @"This Group has been Deleted";
+    return title ? title : NSLocalizedStringWithDefaultValue(@"groupDeletedInfo", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"This Group has been Deleted", @"");;
 }
 
 +(void)setGroupDeletedTitle:(NSString *)title;
@@ -777,7 +826,7 @@ NOTIFICATION_DISABLE = 2
 +(NSString *)getUserDeletedText
 {
     NSString *text = [[NSUserDefaults standardUserDefaults] valueForKey:USER_DELETED_TEXT];
-    return text ? text : @"User has been deleted";
+    return text ? text :NSLocalizedStringWithDefaultValue(@"userDeletedInfo", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"User has been deleted", @"");
 }
 
 +(void)setUserDeletedText:(NSString *)text
@@ -803,7 +852,7 @@ NOTIFICATION_DISABLE = 2
 +(NSString *)getChatListTabTitle
 {
     NSString *stringtext = [[NSUserDefaults standardUserDefaults] valueForKey:CHAT_LIST_TAB_TITLE];
-    return (stringtext && stringtext.length) ? stringtext : @"Chats";
+    return (stringtext && stringtext.length) ? stringtext :NSLocalizedStringWithDefaultValue(@"tabbarChatsTitle", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Chats", @"");
 }
 
 +(void)setChatListTabTitle:(NSString *)title
@@ -829,12 +878,301 @@ NOTIFICATION_DISABLE = 2
 +(NSString *)getProfileTabTitle
 {
     NSString *stringtext = [[NSUserDefaults standardUserDefaults] valueForKey:USER_PROFILE_TAB_TITLE];
-    return (stringtext && stringtext.length) ? stringtext : @"Profile";
+    return (stringtext && stringtext.length) ? stringtext : NSLocalizedStringWithDefaultValue(@"tabbarProfileTitle", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Profile", @"");
 }
 
 +(void)setProfileTabTitle:(NSString *)title
 {
     [[NSUserDefaults standardUserDefaults] setValue:title forKey:USER_PROFILE_TAB_TITLE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(void)openChatOnTapUserProfile:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:OPEN_CHAT_ON_USER_PROFILE_TAP];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isChatOnTapUserProfile
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:OPEN_CHAT_ON_USER_PROFILE_TAP];
+}
+
++(void)replyOptionEnabled:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:MESSAGE_REPLY_ENABLED];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isReplyOptionEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:MESSAGE_REPLY_ENABLED];
+}
+
++(void)setAudioVideoEnabled:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:AV_ENABLED];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isAudioVideoEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:AV_ENABLED];
+}
+
++(void)enableOrDisableContactsGroup:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:CONTACTS_GROUP];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isContactsGroupEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:CONTACTS_GROUP];
+}
+
++(void)setContactsGroupId:(NSString *)contactsGroupId
+{
+    [[NSUserDefaults standardUserDefaults] setValue:contactsGroupId forKey:CONTACTS_GROUP_ID];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSString *)getContactsGroupId
+{
+    return [[NSUserDefaults standardUserDefaults] valueForKey:CONTACTS_GROUP_ID];
+}
+
++(void)setContactGroupIdList:(NSArray *)contactsGroupIdList
+{
+    [[NSUserDefaults standardUserDefaults] setObject:contactsGroupIdList forKey:CONTACTS_GROUP_ID_LIST];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSArray*)getContactGroupIdList
+{
+    return [[NSUserDefaults standardUserDefaults] valueForKey:CONTACTS_GROUP_ID_LIST];
+}
+
+
++(void)forwardOptionEnableOrDisable:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:FORWARD_OPTION];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isForwardOptionEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:FORWARD_OPTION];
+}
+
++(void)setSwiftFramework:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:SWIFT_FRAMEWORK];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isSwiftFramework
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:SWIFT_FRAMEWORK];
+}
+
++(BOOL)isStorageServiceEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:DEDICATED_SERVER];
+}
+
++(void)enableStorageService:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:DEDICATED_SERVER];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isGoogleCloudServiceEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:GOOGLE_CLOUD_SERVICE_ENABLE];
+}
+
++(void)enableGoogleCloudService:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:GOOGLE_CLOUD_SERVICE_ENABLE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(void) setHideAttachmentsOption:(NSMutableArray*)array{
+
+    [[NSUserDefaults standardUserDefaults] setObject:array forKey:HIDE_ATTACHMENT_OPTION];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSArray*) getHideAttachmentsOption{
+    return [[NSUserDefaults standardUserDefaults] objectForKey:HIDE_ATTACHMENT_OPTION];
+}
+
++(void) setTemplateMessages:(NSMutableDictionary*)dictionary{
+    
+    [[NSUserDefaults standardUserDefaults] setObject:dictionary forKey:TEMPLATE_MESSAGES];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+
++(NSMutableDictionary*) getTemplateMessages{
+    
+    return [[NSUserDefaults standardUserDefaults] objectForKey:TEMPLATE_MESSAGES];
+}
+
++(BOOL)isTemplateMessageEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:TEMPLATE_MESSAGE_VIEW];
+}
+
++(void)enableTeamplateMessage:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:TEMPLATE_MESSAGE_VIEW];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL) isCameraOptionHidden{
+
+    return ([[self getHideAttachmentsOption] containsObject:@":camera"]);
+}
+
++(BOOL) isPhotoGalleryOptionHidden{
+
+    return ([[self getHideAttachmentsOption] containsObject:@":gallery"]);
+}
+
++(BOOL) isSendAudioOptionHidden{
+    return ([[self getHideAttachmentsOption] containsObject:@":audio"]);
+}
+
++(BOOL) isSendVideoOptionHidden{
+    return ([[self getHideAttachmentsOption] containsObject:@":video"]);
+}
+
++(BOOL) isLocationOptionHidden{
+    return ([[self getHideAttachmentsOption] containsObject:@":location"]);
+
+}
+
++(BOOL) isBlockUserOptionHidden{
+    return ([[self getHideAttachmentsOption] containsObject:@":blockUser"]);
+}
+
++(BOOL) isShareContactOptionHidden{
+    return ([[self getHideAttachmentsOption] containsObject:@":shareContact"]);
+}
+
++(BOOL) isAttachmentButtonHidden{
+    return ([[self getHideAttachmentsOption] containsObject:@":attachmentbutton"]);
+}
+
++(BOOL)isS3StorageServiceEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:S3_STORAGE_SERVICE];
+}
+
++(void)enableS3StorageService:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:S3_STORAGE_SERVICE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+// This will set the default group type (to be used when "Create Group" button is pressed).
++(void) setDefaultGroupType:(NSInteger)type {
+    [[NSUserDefaults standardUserDefaults] setInteger:type forKey:DEFAULT_GROUP_TYPE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSInteger) getDefaultGroupType {
+    return([[NSUserDefaults standardUserDefaults] integerForKey:DEFAULT_GROUP_TYPE ]);
+}
+
+/// If enabled, all the videos (recieved or sent) will be saved in the gallery.
++(void) enableSaveVideosToGallery:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey: SAVE_VIDEOS_TO_GALLERY];
+}
+
++(BOOL) isSaveVideoToGalleryEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:SAVE_VIDEOS_TO_GALLERY];
+}
+
++(void) enableQuickAudioRecording:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:ENABLE_QUICK_AUDIO_RECORDING];
+}
+
++(BOOL) isQuickAudioRecordingEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:ENABLE_QUICK_AUDIO_RECORDING];
+}
+
++(void)setUserRoleName:(NSString*)roleName{
+    [[NSUserDefaults standardUserDefaults] setValue:roleName forKey:AL_USER_ROLE_NAME];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+
+}
+
++(NSString*)getUserRoleName{
+
+    NSString *stringtext = [[NSUserDefaults standardUserDefaults] valueForKey:AL_USER_ROLE_NAME];
+    return stringtext ? stringtext : @"USER";
+}
+
+
++(void)setConversationCloseButton:(BOOL)option
+{
+    [[NSUserDefaults standardUserDefaults] setBool:option forKey:AL_GROUP_CONVEERSATION_CLOSE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isConversationCloseButtonEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:AL_GROUP_CONVEERSATION_CLOSE];
+}
+
++(void)setDropShadowInNavigationBar:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:DROP_IN_SHADOW_IN_NAVIGATION_BAR];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isDropShadowInNavigationBarEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:DROP_IN_SHADOW_IN_NAVIGATION_BAR];
+}
+
++(void)setLocalizableName:(NSString *)localizableName
+{
+    [[NSUserDefaults standardUserDefaults] setValue:localizableName forKey:APPLOZIC_LOCALIZABLE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSString *)getLocalizableName
+{
+   return [[NSUserDefaults standardUserDefaults] valueForKey:APPLOZIC_LOCALIZABLE];
+
+}
+
++(void)setCategoryName:(NSString*)categoryName{
+    [[NSUserDefaults standardUserDefaults] setValue:categoryName forKey:AL_CATEGORY_NAME];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+}
+
++(NSString*)getCategoryName{
+    return [[NSUserDefaults standardUserDefaults] valueForKey:AL_CATEGORY_NAME];
+}
+
++(BOOL)isDeleteConversationOptionEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:DELETE_CONVERSATION_OPTION];
+}
+
++(void)setDeleteConversationOption:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:DELETE_CONVERSATION_OPTION];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 

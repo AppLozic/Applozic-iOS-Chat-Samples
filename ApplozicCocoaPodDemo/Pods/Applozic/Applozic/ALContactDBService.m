@@ -146,10 +146,18 @@
     for (DB_CONTACT * userContact in result) {
         
         userContact.userId = contact.userId;
-        userContact.email = contact.email;
-        userContact.fullName = contact.fullName;
-        userContact.contactNumber = contact.contactNumber;
-        userContact.contactImageUrl = contact.contactImageUrl;
+        if(contact.email){
+            userContact.email = contact.email;
+        }
+        if(contact.fullName){
+            userContact.fullName = contact.fullName;
+        }
+        if(contact.contactNumber){
+            userContact.contactNumber = contact.contactNumber;
+        }
+        if(contact.contactImageUrl){
+            userContact.contactImageUrl = contact.contactImageUrl;
+        }
         userContact.unreadCount = contact.unreadCount ? contact.unreadCount : [NSNumber numberWithInt:0];
         userContact.userStatus = contact.userStatus;
         userContact.connected = contact.connected;
@@ -161,7 +169,11 @@
             userContact.contactType = contact.contactType;
         }
         userContact.localImageResourceName = contact.localImageResourceName;
-        userContact.deletedAtTime = contact.deletedAtTime;
+        if(contact.deletedAtTime){
+            userContact.deletedAtTime = contact.deletedAtTime;
+        }
+        userContact.roleType = contact.roleType;
+        userContact.metadata = contact.metadata.description;
     }
     
     NSError *error = nil;
@@ -170,7 +182,7 @@
     
     if (!success) {
         
-        NSLog(@"updateContact DB ERROR :%@",error);
+        NSLog(@"updateContactFERROR :%@",error);
     }
     
     return success;
@@ -185,50 +197,83 @@
     [fetchRequest setEntity:entity];
     [fetchRequest setPredicate:predicate];
     NSError *fetchError = nil;
-    
-    
+
+
     NSArray *result = [dbHandler.managedObjectContext executeFetchRequest:fetchRequest error:&fetchError];
-    
+
     if(result.count > 0)
     {
         DB_CONTACT * dbContact = [result objectAtIndex:0];
         dbContact.unreadCount = [NSNumber numberWithInt:0];
     }
-    
+
     NSError *error = nil;
     if (![dbHandler.managedObjectContext save:&error]) {
-        
+
         NSLog(@"DB ERROR :%@",error);
         return NO;
     }
-    
+
     return YES;
-    
+
 }
 
 #pragma mark - Add Contacts API -
 
 - (BOOL)addListOfContacts:(NSArray *)contacts {
-    
+
     BOOL result = NO;
-    
+
     for (ALContact *contact in contacts) {
-        
+
         result = [self addContact:contact];
-        
+
         if (!result) {
             break;
         }
     }
-    
+
     return result;
+}
+
+-(void)addListOfContactsInBackground:(NSArray *)contacts completionHandler:(void(^)(BOOL))response {
+    dispatch_group_t group = dispatch_group_create();
+    for (ALContact *contact in contacts) {
+        dispatch_group_enter(group);
+        [self addContactInBackgroundThread:contact completionHandler:^void(BOOL response) {
+            dispatch_group_leave(group);
+        }];
+    }
+    dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),^{
+
+        // All group blocks have now completed
+        response(YES);
+    });
+}
+
+-(void)addContactInBackgroundThread:(ALContact *)contact completionHandler:(void(^)(BOOL))response {
+    ALDBHandler * dbHandler = [ALDBHandler sharedInstance];
+
+    DB_CONTACT* existingContact = [self getContactByKey:@"userId" value:[contact userId]];
+    if (existingContact) {
+        [self updateContact:contact];
+        response(NO);
+    }
+
+    if (@available(iOS 10.0, *)) {
+        [dbHandler.persistentContainer performBackgroundTask:^void(NSManagedObjectContext* context) {
+            response([self insertNewContact:contact inContext:context]);
+        }];
+    } else {
+        response([self insertNewContact:contact inContext:dbHandler.managedObjectContext]);
+    }
 }
 
 - (ALContact *) loadContactByKey:(NSString *) key value:(NSString*) value
 {
     DB_CONTACT *dbContact = [self getContactByKey:key value:value];
     ALContact *contact = [[ALContact alloc] init];
-    
+
     if (!dbContact) {
         contact.userId = value;
         contact.displayName = value;
@@ -248,6 +293,8 @@
     contact.blockBy = dbContact.blockBy;
     contact.userStatus = dbContact.userStatus;
     contact.deletedAtTime = dbContact.deletedAtTime;
+    contact.metadata = [contact getMetaDataDictionary:dbContact.metadata];
+    contact.roleType = dbContact.roleType;
     
     return contact;
 }
@@ -281,42 +328,15 @@
 }
 
 -(BOOL)addContact:(ALContact *)userContact {
-    
+
     ALDBHandler * dbHandler = [ALDBHandler sharedInstance];
 
     DB_CONTACT* existingContact = [self getContactByKey:@"userId" value:[userContact userId]];
     if (existingContact) {
-        return NO;
+        [self updateContact:userContact];
+        return(NO);
     }
-    
-    BOOL result = NO;
-    
-    DB_CONTACT * contact = [NSEntityDescription insertNewObjectForEntityForName:@"DB_CONTACT" inManagedObjectContext:dbHandler.managedObjectContext];
-    
-    contact.userId = userContact.userId;
-    contact.fullName = userContact.fullName;
-    contact.contactNumber = userContact.contactNumber;
-    contact.displayName = userContact.displayName;
-    contact.email = userContact.email;
-    contact.contactImageUrl = userContact.contactImageUrl;
-    contact.localImageResourceName = userContact.localImageResourceName;
-    contact.unreadCount = userContact.unreadCount ? userContact.unreadCount : [NSNumber numberWithInt:0];
-    contact.lastSeenAt = userContact.lastSeenAt;
-    contact.userStatus = userContact.userStatus;
-    contact.connected = userContact.connected;
-    contact.contactType = userContact.contactType;
-    contact.userTypeId = userContact.userTypeId;
-    contact.deletedAtTime = userContact.deletedAtTime;
-    
-    NSError *error = nil;
-    
-    result = [dbHandler.managedObjectContext save:&error];
-    
-    if (!result) {
-        NSLog(@"addContact DB ERROR :%@",error);
-    }
-    
-    return result;
+    return([self insertNewContact:userContact inContext:dbHandler.managedObjectContext]);
 }
 
 
@@ -324,6 +344,15 @@
 {
     for(ALUserDetail *theUserDetail in userDetails)
     {
+        [self updateUserDetail:theUserDetail];
+    }
+}
+
+-(void)addUserDetailsWithoutUnreadCount:(NSMutableArray *)userDetails
+{
+    for(ALUserDetail *theUserDetail in userDetails)
+    {
+        theUserDetail.unreadCount = 0;
         [self updateUserDetail:theUserDetail];
     }
 }
@@ -361,10 +390,10 @@
         DB_CONTACT * dbContact = [result objectAtIndex:0];
         dbContact.lastSeenAt = userDetail.lastSeenAtTime;
         dbContact.connected = userDetail.connected;
-        if(![userDetail.unreadCount isEqualToNumber:[NSNumber numberWithInt:0]])
-        {
+        if(userDetail.unreadCount != nil && [userDetail.unreadCount  compare:[NSNumber numberWithInt:0]] != NSOrderedSame){
             dbContact.unreadCount = userDetail.unreadCount;
-        }        
+        }
+        
         if(userDetail.displayName)
         {
             dbContact.displayName = userDetail.displayName;
@@ -373,6 +402,8 @@
         dbContact.contactNumber = userDetail.contactNumber;
         dbContact.userStatus = userDetail.userStatus;
         dbContact.deletedAtTime = userDetail.deletedAtTime;
+        dbContact.metadata = userDetail.metadata.description;
+        dbContact.roleType = userDetail.roleType;
 
     }
     else
@@ -388,7 +419,8 @@
         contact.connected = userDetail.connected;
         contact.userStatus = userDetail.userStatus;
         contact.deletedAtTime = userDetail.deletedAtTime;
-        
+        contact.roleType = userDetail.roleType;
+        contact.metadata = userDetail.metadata;
         [self addContact:contact];
     }
     
@@ -441,18 +473,6 @@
 -(NSUInteger)markConversationAsDeliveredAndRead:(NSString*)contactId
 {
     NSArray *messages =  [self getUnreadMessagesForIndividual:contactId];
-//    if(messages.count > 0)
-//    {
-//        NSBatchUpdateRequest *req= [[NSBatchUpdateRequest alloc] initWithEntityName:@"DB_Message"];
-//        req.predicate = [NSPredicate predicateWithFormat:@"contactId==%@ and groupId=0",contactId];
-//        req.propertiesToUpdate = @{
-//                                   @"status" : @(DELIVERED_AND_READ)
-//                                   };
-//        req.resultType = NSUpdatedObjectsCountResultType;
-//        ALDBHandler * dbHandler = [ALDBHandler sharedInstance];
-//        NSBatchUpdateResult *res = (NSBatchUpdateResult *)[dbHandler.managedObjectContext executeRequest:req error:nil];
-//        NSLog(@"%@ objects updated", res.result);
-//    }
 
     ALDBHandler * dbHandler = [ALDBHandler sharedInstance];
     for (DB_Message *dbMessage in messages)
@@ -462,7 +482,6 @@
     NSError *error = nil;
     [dbHandler.managedObjectContext save:&error];
     NSLog(@"ERROR(IF-ANY) WHILE UPDATING DELIVERED_AND_READ : %@",error.description);
-    
     
     return messages.count;
 }
@@ -601,6 +620,7 @@
     NSMutableArray * contactArray = [NSMutableArray new];
     for(ALUserDetail * userDetail in contactsResponse.userDetailList)
     {
+        userDetail.unreadCount = 0;
         [self updateUserDetail:userDetail];
         ALContact * contact = [self loadContactByKey:@"userId" value: userDetail.userId];
         [contactArray addObject:contact];
@@ -631,6 +651,8 @@
         contact.userStatus = dbContact.userStatus;
         contact.connected = dbContact.connected;
         contact.deletedAtTime = dbContact.deletedAtTime;
+        contact.roleType = dbContact.roleType;
+        contact.metadata = [contact getMetaDataDictionary:dbContact.metadata];
         
         [contactList addObject:contact];
     }
@@ -656,6 +678,40 @@
 {
     ALContact * contact = [self loadContactByKey:@"userId" value:userId];
     return contact.deletedAtTime ? YES : NO;
+}
+
+-(DB_CONTACT*)replaceContact:(DB_CONTACT*)originalContact with:(ALContact*)updatedContact
+{
+    originalContact.userId = updatedContact.userId;
+    originalContact.fullName = updatedContact.fullName;
+    originalContact.contactNumber = updatedContact.contactNumber;
+    originalContact.displayName = updatedContact.displayName;
+    originalContact.email = updatedContact.email;
+    originalContact.contactImageUrl = updatedContact.contactImageUrl;
+    originalContact.localImageResourceName = updatedContact.localImageResourceName;
+    originalContact.unreadCount = updatedContact.unreadCount ? updatedContact.unreadCount : [NSNumber numberWithInt:0];
+    originalContact.lastSeenAt = updatedContact.lastSeenAt;
+    originalContact.userStatus = updatedContact.userStatus;
+    originalContact.connected = updatedContact.connected;
+    originalContact.contactType = updatedContact.contactType;
+    originalContact.userTypeId = updatedContact.userTypeId;
+    originalContact.deletedAtTime = updatedContact.deletedAtTime;
+    originalContact.metadata = updatedContact.metadata.description;
+    originalContact.roleType = updatedContact.roleType;
+    return originalContact;
+}
+
+-(BOOL)insertNewContact:(ALContact*)contact inContext:(NSManagedObjectContext*)context
+{
+    DB_CONTACT * dbContact = [NSEntityDescription insertNewObjectForEntityForName:@"DB_CONTACT" inManagedObjectContext:context];
+    dbContact = [self replaceContact:dbContact with:contact];
+
+    NSError *error = nil;
+    BOOL result = [context save:&error];
+    if (!result) {
+        NSLog(@"addContact DB ERROR :%@",error);
+    }
+    return result;
 }
 
 @end

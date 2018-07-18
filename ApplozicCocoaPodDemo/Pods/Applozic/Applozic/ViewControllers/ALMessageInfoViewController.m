@@ -12,6 +12,7 @@
 #import "ALDataNetworkConnection.h"
 #import "ALNotificationView.h"
 #import "TSMessageView.h"
+#import "ALMessageClientService.h"
 
 @interface ALMessageInfoViewController ()
 {
@@ -33,7 +34,6 @@
     
     self.alTableView.delegate = self;
     self.alTableView.dataSource = self;
-    
     [self.view bringSubviewToFront:self.activityIndicator];
     [self.activityIndicator startAnimating];
 }
@@ -119,11 +119,11 @@
     }
     else if(section == 1)
     {
-        return [self customHeaderView:section withTitle:@"Read" andName:@"ic_action_read.png"];
+        return [self customHeaderView:section withTitle:NSLocalizedStringWithDefaultValue(@"read", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Read", @"") andName:@"ic_action_read.png"];
     }
     else
     {
-        return [self customHeaderView:section withTitle:@"Delivered" andName:@"ic_action_message_delivered.png"];
+        return [self customHeaderView:section withTitle:NSLocalizedStringWithDefaultValue(@"delivered", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Delivered", @"")  andName:@"ic_action_message_delivered.png"];
     }
 }
 
@@ -132,7 +132,7 @@
     ALContactCell *contactCell = (ALContactCell *)[tableView dequeueReusableCellWithIdentifier:@"userCell"];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-       
+        
         [self setTableCellView: contactCell];
         ALMessageInfo *msgInfo;
         if(indexPath.section == 1)
@@ -166,7 +166,7 @@
     if(!alMessage.sentToServer)
     {
         [[TSMessageView appearance] setTitleTextColor:[UIColor whiteColor]];
-        [TSMessage showNotificationWithTitle:@"Message is in processing" type:TSMessageNotificationTypeWarning];
+        [TSMessage showNotificationWithTitle:NSLocalizedStringWithDefaultValue(@"messageProccessText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Message is in processing", @"") type:TSMessageNotificationTypeWarning];
         completion([self customError]);
         return;
     }
@@ -190,7 +190,7 @@
                 {
                     [readList addObject:info];
                 }
-
+                
                 if(info.messageStatus == (short)DELIVERED)
                 {
                     [deliveredList addObject:info];
@@ -209,7 +209,7 @@
     self.userName = (UILabel *)[contactCell viewWithTag:503];
     self.dateLabel = (UILabel *)[contactCell viewWithTag:502];
     [self.dateLabel setTextColor:[UIColor grayColor]];
-//    self.timeLabel = (UILabel *)[contactCell viewWithTag:501];
+    //    self.timeLabel = (UILabel *)[contactCell viewWithTag:501];
     
     [self.firstAlphabet setTextColor:[UIColor whiteColor]];
     self.userImage.layer.cornerRadius = self.userImage.frame.size.width/2;
@@ -232,7 +232,7 @@
     self.tickImageView = [[UIImageView alloc] init];
     [self.tickImageView setBackgroundColor:[UIColor clearColor]];
     
-    UIView * headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 60)];
+    UIView * headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 20)];
     [headerView setBackgroundColor:[UIColor colorWithRed:238.0/255 green:238.0/255 blue:238.0/255 alpha:1.0]];
     
     [self.tickImageView setFrame:CGRectMake(headerView.frame.origin.x + 10, headerView.frame.origin.y + 10, 30, 30)];
@@ -252,9 +252,8 @@
 {
     ALContactDBService * alContactDBService = [ALContactDBService new];
     ALContact *alContact = [alContactDBService loadContactByKey:@"userId" value:msgInfo.userId];
-    
-    NSURL * theUrl = [NSURL URLWithString:alContact.contactImageUrl];
-    [self.userImage sd_setImageWithURL:theUrl];
+    ALMessageClientService * messageClientService = [[ALMessageClientService alloc]init];
+    [messageClientService downloadImageUrlAndSet:alContact.contactImageUrl imageView:self.userImage defaultImage:nil];
     [self.firstAlphabet setHidden:YES];
     [self.userName setText:[alContact getDisplayName]];
     
@@ -279,7 +278,7 @@
 
 -(UIView *)populateCellForMessage:(CGSize)cellSize
 {
-    CGFloat maxWidth = cellSize.width - 120;
+    CGFloat maxWidth = cellSize.width - 150;
     
     UIImageView *bubbleView = [[UIImageView alloc] init];
     [bubbleView setBackgroundColor:[ALApplozicSettings getSendMsgColor]];
@@ -291,7 +290,6 @@
     imageView.layer.cornerRadius = 5;
     imageView.layer.masksToBounds = YES;
     
-    
     CGRect frameImage = CGRectMake(cellSize.width - 265, 10, maxWidth, maxWidth);
     
     if(self.almessage.contentType == ALMESSAGE_CONTENT_LOCATION)
@@ -299,7 +297,7 @@
         frameImage = CGRectMake(cellSize.width - 265, 10, maxWidth, self.msgHeaderHeight);
     }
     
-    CGRect subFrameImage = CGRectMake(frameImage.origin.x + 5, frameImage.origin.y + 5, frameImage.size.width - 10,  frameImage.size.height - 10);
+    CGRect subFrameImage = CGRectMake(frameImage.origin.x + 5, frameImage.origin.y + 5, frameImage.size.width - 10,  frameImage.size.height-10);
     
     UITextView *textView = [[UITextView alloc] init];
     [textView setFont:[UIFont fontWithName:@"Helvetica" size:14]];
@@ -316,19 +314,33 @@
     
     bubbleView.frame = frameImage;
     imageView.frame = subFrameImage;
-    
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.msgHeaderHeight + 20)];
     
     if([self.almessage.fileMeta.contentType hasPrefix:@"audio"])
     {
-        [imageView setImage:[ALUtilityClass getImageFromFramworkBundle:@"itmusic1.png"]];
-        [imageView setContentMode:UIViewContentModeScaleAspectFit];
+        
+        
+        
+        textSize  =  [ALUtilityClass getSizeForText:self.almessage.fileMeta.name maxWidth:maxWidth + 5 font:textView.font.fontName fontSize:textView.font.pointSize];
+        [textView setFont:[UIFont fontWithName:@"Helvetica" size:12]];
+        
+        
+        
+        [imageView setImage:[ALUtilityClass getImageFromFramworkBundle:@"ic_mic.png"]];
+        
+        bubbleView.frame = CGRectMake(cellSize.width - 265, 10, maxWidth, self.msgHeaderHeight);
+        imageView.frame = CGRectMake(bubbleView.frame.origin.x + 5, bubbleView.frame.origin.y + 5, self.msgHeaderHeight - 10, self.msgHeaderHeight - 10);
+        textView.frame = CGRectMake(imageView.frame.origin.x+  25, bubbleView.frame.origin.y +25, textSize.width, textSize.height);
+        textView.hidden = NO;
+        
+        [textView setText:self.almessage.fileMeta.name];
+        
+        [view addSubview:textView];
         [view addSubview:imageView];
+        
     }
     else if ([self.almessage.fileMeta.contentType hasPrefix:@"video"])
     {
-        [imageView setImage:[ALUtilityClass getImageFromFramworkBundle:@"VIDEO.png"]];
-        [view addSubview:imageView];
         if(self.almessage.message.length)
         {
             CGSize textSize = [ALUtilityClass getSizeForText:self.almessage.message
@@ -339,10 +351,33 @@
             bubbleView.frame = CGRectMake(cellSize.width - 265, 10, maxWidth, self.msgHeaderHeight);
             imageView.frame = CGRectMake(bubbleView.frame.origin.x + 5, bubbleView.frame.origin.y + 5, bubbleView.frame.size.width - 10, maxWidth - 40);
             textView.frame = CGRectMake(imageView.frame.origin.x, imageView.frame.origin.y + imageView.frame.size.height + 5,
-                                        imageView.frame.size.width, textSize.height + 20);
+                                        imageView.frame.size.width, textSize.height );
             [view addSubview:textView];
             [textView setText:self.almessage.message];
         }
+        
+        
+        
+        if(self.almessage.imageFilePath != nil && self.almessage.fileMeta.blobKey)
+        {
+            NSString * docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+            NSString * filePath = [docDir stringByAppendingPathComponent:self.almessage.imageFilePath];
+            [imageView setImage: [ALUtilityClass setVideoThumbnail:filePath]];
+            
+            
+        }
+        else
+        {
+            [imageView setImage:[ALUtilityClass getImageFromFramworkBundle:@"VIDEO.png"]];
+            
+        }
+        
+        [imageView setContentMode:UIViewContentModeScaleAspectFill];
+        
+        
+        [view addSubview:imageView];
+        
+        
     }
     else if ([self.almessage.fileMeta.contentType hasPrefix:@"image"] || self.almessage.contentType == ALMESSAGE_CONTENT_LOCATION)
     {
@@ -375,7 +410,7 @@
         {
             imageView.frame = CGRectMake(bubbleView.frame.origin.x + 10, bubbleView.frame.origin.y + 5, 50, 50);
             imageView.layer.cornerRadius = imageView.frame.size.width/2;
-
+            
             [imageView setImage: [ALUtilityClass getImageFromFramworkBundle:@"ic_contact_picture_holo_light.png"]];
             if(IS_OS_EARLIER_THAN_10)
             {
@@ -407,7 +442,7 @@
                                         bubbleView.frame.size.width - imageView.frame.size.width - 10,
                                         bubbleView.frame.size.height - 10);
         }
-
+        
         
         [view addSubview:textView];
         [view addSubview:imageView];
@@ -427,8 +462,16 @@
     [view bringSubviewToFront:textView];
     [view bringSubviewToFront:imageView];
     
+    if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
+        textView.textAlignment = NSTextAlignmentRight;
+        imageView.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+        
+    }
+    
     return view;
 }
+
+
 
 -(NSError *)customError
 {

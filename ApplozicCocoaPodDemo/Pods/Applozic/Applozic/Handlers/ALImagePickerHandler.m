@@ -8,6 +8,10 @@
 
 #import "ALImagePickerHandler.h"
 #import "UIImage+Utility.h"
+#import <AVFoundation/AVAsset.h>
+#import <AVFoundation/AVAssetExportSession.h>
+#import <AVFoundation/AVMediaFormat.h>
+#import "ALApplozicSettings.h"
 
 @implementation ALImagePickerHandler
 
@@ -22,17 +26,45 @@
     return filePath;
 }
 
-+(NSString *) saveVideoToDocDirectory:(NSURL *)videoURL
++(void) saveVideoToDocDirectory:(NSURL *)videoURL handler:(void (^)(NSString *))handler
 {
-    NSData * videoData = [NSData dataWithContentsOfURL:videoURL];
-    NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString * documentsDirectory = [paths objectAtIndex:0];
-    NSString * tempPath = [documentsDirectory stringByAppendingString:[NSString stringWithFormat:@"/VID-%f.mp4",[[NSDate date] timeIntervalSince1970] * 1000]];
-    [videoData writeToFile:tempPath atomically:YES];
+    NSString * videoPath1 = @"";
+    NSString * tempPath =@"";
+    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    videoPath1 =[docDir stringByAppendingString:[NSString stringWithFormat:@"/VID-%f.mov",[[NSDate date] timeIntervalSince1970] * 1000]];
+    NSData *videoData = [NSData dataWithContentsOfURL:videoURL];
+    [videoData writeToFile:videoPath1 atomically:NO];
 
-    return tempPath;
+    AVURLAsset *avAsset = [AVURLAsset URLAssetWithURL:[NSURL fileURLWithPath:videoPath1] options:nil];
+    NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:avAsset];
+    if ([compatiblePresets containsObject:AVAssetExportPresetLowQuality])
+    {
+        AVAssetExportSession *exportSession = [[AVAssetExportSession alloc]initWithAsset:avAsset presetName:AVAssetExportPresetPassthrough];
+        tempPath  = [docDir stringByAppendingString:[NSString stringWithFormat:@"/VID-%f.mp4",[[NSDate date] timeIntervalSince1970] * 1000]];
+        exportSession.outputURL = [NSURL fileURLWithPath:tempPath];
+        NSLog(@"Final file = %@",tempPath);
+        exportSession.outputFileType = AVFileTypeMPEG4;
+        [exportSession exportAsynchronouslyWithCompletionHandler:^{
+            switch ([exportSession status]) {
+                case AVAssetExportSessionStatusFailed:
+                    NSLog(@"Export failed: %@", [[exportSession error] localizedDescription]);
+                    break;
+                case AVAssetExportSessionStatusCancelled:
+                    NSLog(@"Export canceled");
+                    break;
+                case AVAssetExportSessionStatusCompleted:
+                    NSLog(@"completed");
+                default:
+                    break;
+            }
+            // If 'save video to gallery' is enabled then save to gallery
+            if([ALApplozicSettings isSaveVideoToGalleryEnabled]) {
+                UISaveVideoAtPathToSavedPhotosAlbum(tempPath, self, nil, nil);
+            }
+            handler(tempPath);
+        }];
+    }
 }
 
-
-
 @end
+

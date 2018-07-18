@@ -27,6 +27,7 @@
 #import "ALContactService.h"
 #import "ALUserDefaultsHandler.h"
 #import "ALApplozicSettings.h"
+#import "NSString+Encode.h"
 
 @implementation ALUserService
 {
@@ -55,9 +56,8 @@
         return;
     }
     
-    
-    for(NSString* strr in contactIdsArr){
-        [repString appendString:strr];
+    for(NSString *strr in contactIdsArr){
+        [repString appendString:[NSString stringWithFormat:@"%@",[strr urlEncodeUsingNSUTF8StringEncoding]]];
     }
     
     NSLog(@"USER_ID_STRING :: %@",repString);
@@ -65,7 +65,7 @@
     ALUserClientService * client = [ALUserClientService new];
     [client subProcessUserDetailServerCall:repString withCompletion:^(NSMutableArray * userDetailArray, NSError * error) {
         
-        if(error)
+        if(error || !userDetailArray)
         {
             completionMark();
             return;
@@ -90,6 +90,7 @@
          NSMutableArray* lastSeenUpdateArray=   messageFeed.lastSeenArray;
         ALContactDBService *contactDBService =  [[ALContactDBService alloc]init];
         for (ALUserDetail * userDetail in lastSeenUpdateArray){
+            userDetail.unreadCount = 0;
             [contactDBService updateUserDetail:userDetail];
         }
         completionMark(lastSeenUpdateArray);
@@ -114,6 +115,7 @@
        
         if(userDetail)
         {
+            userDetail.unreadCount = 0;
             ALContactDBService *contactDB = [ALContactDBService new];
             [contactDB updateUserDetail:userDetail];
         }
@@ -281,7 +283,12 @@
 -(void)getListOfRegisteredUsersWithCompletion:(void(^)(NSError * error))completion
 {
     ALUserClientService * clientService = [ALUserClientService new];
-    NSNumber * startTime = [ALApplozicSettings getStartTime];
+    NSNumber * startTime;
+    if(![ALUserDefaultsHandler isContactServerCallIsDone]){
+        startTime = 0;
+    }else{
+        startTime  = [ALApplozicSettings getStartTime];
+    }
     NSUInteger pageSize = (NSUInteger)CONTACT_PAGE_SIZE;
     
     [clientService getListOfRegisteredUsers:startTime andPageSize:pageSize withCompletion:^(ALContactsResponse * response, NSError * error) {
@@ -292,6 +299,7 @@
             return;
         }
         
+        [ALApplozicSettings setStartTime:response.lastFetchTime];
         ALContactDBService * dbServie = [ALContactDBService new];
         [dbServie updateFilteredContacts:response];
         completion(error);
@@ -299,7 +307,6 @@
     }];
     
 }
-
 //===============================================================================================
 #pragma ONLINE FETCH CONTACT API
 //===============================================================================================
@@ -399,11 +406,81 @@
         
         if(userDetailArray && userDetailArray.count)
         {
-            [dbService addUserDetails:userDetailArray];
+            [dbService addUserDetailsWithoutUnreadCount:userDetailArray];
         }
         completion(userDetailArray,theError);
     }];
     
 }
+
+-(void)getUserDetail:(NSString*)userId withCompletion:(void(^)(ALContact *contact))completion
+{
+
+        ALContactService *contactService = [ALContactService new];
+        ALContactDBService *contactDBService = [ALContactDBService new];
+
+        if(![contactService isContactExist:userId])
+        {
+            NSLog(@"###contact is not found");
+
+            [ALUserService userDetailServerCall:userId withCompletion:^(ALUserDetail *alUserDetail) {
+                
+                [contactDBService updateUserDetail:alUserDetail];
+                ALContact * alContact = [contactDBService loadContactByKey:@"userId" value:userId];
+                completion(alContact);
+            }];
+        }
+        else
+        {
+            NSLog(@" contact is found");
+
+            ALContact * alContact = [contactDBService loadContactByKey:@"userId" value:userId];
+            completion(alContact);
+        }
+}
+
+-(void)updateUserApplicationInfo{
+    
+    AlApplicationInfoFeed *userApplicationInfo = [AlApplicationInfoFeed new];
+    userApplicationInfo.applicationKey = [ALUserDefaultsHandler getApplicationKey];
+    userApplicationInfo.bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+    
+    ALUserClientService *clientService = [ALUserClientService new];
+    [clientService updateApplicationInfoDeatils:userApplicationInfo withCompletion:^(NSString *json, NSError *error) {
+        NSLog(@"Response For user application update reponse :%@",json);
+    }];
+    
+}
+
+
+-(void)updatePassword:(NSString*)oldPassword withNewPassword :(NSString *) newPassword  withCompletion:(void (^)(ALAPIResponse *apiResponse, NSError *error))completion{
+    
+    if(!oldPassword || !newPassword){
+        completion(nil, nil);
+    }
+    
+    ALUserClientService *clientService = [ALUserClientService new];
+    [clientService updatePassword:oldPassword  withNewPassword: newPassword  withCompletion:^(id theJson, NSError *theError) {
+        
+        ALAPIResponse *alAPIResponse = [[ALAPIResponse alloc] initWithJSONString:(NSString *)theJson];
+        
+        if(!theError){
+            
+            if([alAPIResponse.status isEqualToString:@"error"])
+            {
+                NSError * reponseError = [NSError errorWithDomain:@"Applozic" code:1
+                                                         userInfo:[NSDictionary dictionaryWithObject:@"ERROR IN UPDATING PASSWORD "
+                                                                                              forKey:NSLocalizedDescriptionKey]];
+                completion(alAPIResponse, reponseError);
+                return;
+            }
+            [ALUserDefaultsHandler setPassword:newPassword];
+        }
+        
+        completion(alAPIResponse, theError);
+    }];
+    
+}
+
 
 @end

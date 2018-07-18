@@ -5,7 +5,6 @@
 //  Copyright (c) 2015 AppLozic. All rights reserved.
 //
 
-#define MESSAGE_TEXT_SIZE 14
 #define DATE_LABEL_SIZE 12
 
 #import "ALChatCell.h"
@@ -20,7 +19,7 @@
 #import "ALColorUtility.h"
 #import "ALMessageInfoViewController.h"
 #import "ALChatViewController.h"
-#import "ALUIConstant.h"
+#import "ALMessageClientService.h"
 
 // Constants
 #define MT_INBOX_CONSTANT "4"
@@ -44,7 +43,7 @@
 
 #define CHANNEL_PADDING_X 10
 #define CHANNEL_PADDING_Y 2
-#define CHANNEL_PADDING_WIDTH 30
+#define CHANNEL_PADDING_WIDTH 100
 #define CHANNEL_PADDING_HEIGHT 20
 
 #define DATE_PADDING_X 20
@@ -57,7 +56,8 @@
 @implementation ALChatCell
 {
     CGFloat msgFrameHeight;
-    UITapGestureRecognizer * tapForCustomView;
+    UITapGestureRecognizer * tapForCustomView, *tapGestureRecognizerForCell;
+    
 }
 
 -(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -79,6 +79,19 @@
         self.mBubleImageView.backgroundColor = [UIColor whiteColor];
         self.mBubleImageView.layer.cornerRadius = 5;
         [self.contentView addSubview:self.mBubleImageView];
+        
+        
+        self.replyParentView = [[UIImageView alloc] init];
+        self.replyParentView.contentMode = UIViewContentModeScaleToFill;
+        self.replyParentView.backgroundColor = [UIColor whiteColor];
+        self.replyParentView.layer.cornerRadius = 5;
+        [self.replyParentView setUserInteractionEnabled:YES];
+        
+        UITapGestureRecognizer * replyViewTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGestureForReplyView:)];
+        replyViewTapGesture.numberOfTapsRequired=1;
+        [self.replyParentView addGestureRecognizer:replyViewTapGesture];
+        
+        [self.contentView addSubview:self.replyParentView];
         
         self.mNameLabel = [[UILabel alloc] init];
         [self.mNameLabel setTextColor:[UIColor whiteColor]];
@@ -127,10 +140,29 @@
         tapForCustomView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(processTapGesture)];
         tapForCustomView.numberOfTapsRequired = 1;
         
+        UITapGestureRecognizer *tapForOpenChat = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(processOpenChat)];
+        tapForOpenChat.numberOfTapsRequired = 1;
+        [self.mUserProfileImageView setUserInteractionEnabled:YES];
+        [self.mUserProfileImageView addGestureRecognizer:tapForOpenChat];
+        
         self.hyperLinkArray = [NSMutableArray new];
+        
+       if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
+           
+           self.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+           self.replyParentView.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+           self.mNameLabel.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+           self.mChannelMemberName.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+           self.mMessageLabel.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+           self.mDateLabel.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+           self.mMessageStatusImageView.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+       }
     }
     
-    
+    UITapGestureRecognizer * menuTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(proccessTapForMenu:)];
+    menuTapGesture.cancelsTouchesInView = NO;
+    [self.contentView setUserInteractionEnabled:YES];
+    [self.contentView addGestureRecognizer:menuTapGesture];
     return self;
     
 }
@@ -171,6 +203,7 @@
     [self.mMessageLabel setTextAlignment:NSTextAlignmentLeft];
     [self.mChannelMemberName setHidden:YES];
     [self.mNameLabel setHidden:YES];
+    [self.replyParentView setHidden:YES];
     self.mMessageStatusImageView.hidden = YES;
     [self.contentView bringSubviewToFront:self.mMessageStatusImageView];
     self.mUserProfileImageView.backgroundColor = [UIColor whiteColor];
@@ -206,18 +239,22 @@
         self.mNameLabel.frame = self.mUserProfileImageView.frame;
         [self.mNameLabel setText:[ALColorUtility getAlphabetForProfileImage:receiverName]];
         
+        //  ===== Intial bubble View image =========//
+        
+        CGFloat requiredBubbleWidth = theTextSize.width + BUBBLE_PADDING_WIDTH;
+        CGFloat requiredBubbleHeight =  theTextSize.height + BUBBLE_PADDING_HEIGHT;
+        
+
         self.mBubleImageView.frame = CGRectMake(self.mUserProfileImageView.frame.size.width + 13,
-                                                0, theTextSize.width + BUBBLE_PADDING_WIDTH,
-                                                theTextSize.height + BUBBLE_PADDING_HEIGHT);
+                                                0, requiredBubbleWidth,
+                                                requiredBubbleHeight);
         
         self.mBubleImageView.layer.shadowOpacity = 0.3;
         self.mBubleImageView.layer.shadowOffset = CGSizeMake(0, 2);
         self.mBubleImageView.layer.shadowRadius = 1;
         self.mBubleImageView.layer.masksToBounds = NO;
-        
-        self.mMessageLabel.frame = CGRectMake(self.mBubleImageView.frame.origin.x + MESSAGE_PADDING_X ,
-                                              self.mBubleImageView.frame.origin.y + MESSAGE_PADDING_Y,
-                                              theTextSize.width, theTextSize.height);
+
+        CGFloat mMessageLabelY = self.mBubleImageView.frame.origin.y + MESSAGE_PADDING_Y;
         
         if([alMessage getGroupId])
         {
@@ -227,23 +264,48 @@
             
             if(theTextSize.width < receiverNameSize.width)
             {
-                theTextSize.width = receiverNameSize.width;
+                theTextSize.width = receiverNameSize.width+5;
+                requiredBubbleWidth = theTextSize.width + CHANNEL_PADDING_X;
             }
-            
-            self.mBubleImageView.frame = CGRectMake(self.mUserProfileImageView.frame.size.width + BUBBLE_PADDING_X, 0,
-                                                    theTextSize.width + BUBBLE_PADDING_WIDTH,
-                                                    theTextSize.height + BUBBLE_PADDING_HEIGHT_GRP);
+        
             
             self.mChannelMemberName.frame = CGRectMake(self.mBubleImageView.frame.origin.x + CHANNEL_PADDING_X,
                                                        self.mBubleImageView.frame.origin.y + CHANNEL_PADDING_Y,
                                                        self.mBubleImageView.frame.size.width + CHANNEL_PADDING_WIDTH, CHANNEL_PADDING_HEIGHT);
             
-            self.mMessageLabel.frame = CGRectMake(self.mChannelMemberName.frame.origin.x,
-                                                  self.mChannelMemberName.frame.origin.y + self.mChannelMemberName.frame.size.height + MESSAGE_PADDING_Y_GRP,
-                                                  theTextSize.width, theTextSize.height);
-            
             [self.mChannelMemberName setText:receiverName];
+            
+            mMessageLabelY = mMessageLabelY +  self.mChannelMemberName.frame.size.height;
+            requiredBubbleHeight = requiredBubbleHeight + self.mChannelMemberName.frame.size.height;
         }
+        
+        if( alMessage.isAReplyMessage )
+        {
+            [self processReplyOfChat:alMessage andViewSize:viewSize];
+            mMessageLabelY = mMessageLabelY + self.replyParentView.frame.size.height;
+            requiredBubbleHeight = requiredBubbleHeight + self.replyParentView.frame.size.height;
+            requiredBubbleWidth = self.replyParentView.frame.size.width + 10;
+        }
+        //resize bubble
+        
+        if(self.replyParentView.frame.size.width>theTextSize.width){
+            theTextSize.width = self.replyParentView.frame.size.width;
+        }
+        
+        self.mBubleImageView.frame = CGRectMake(self.mUserProfileImageView.frame.size.width + 13,
+                                                0, requiredBubbleWidth,
+                                                requiredBubbleHeight);
+        
+        self.mMessageLabel.frame = CGRectMake(self.mChannelMemberName.frame.origin.x,
+                                              self.mChannelMemberName.frame.origin.y + self.mChannelMemberName.frame.size.height + MESSAGE_PADDING_Y_GRP,
+                                              theTextSize.width, theTextSize.height);
+
+        
+        self.mMessageLabel.frame = CGRectMake(self.mBubleImageView.frame.origin.x + MESSAGE_PADDING_X ,
+                                              mMessageLabelY,
+                                              theTextSize.width, theTextSize.height);
+        
+        
         
         self.mMessageLabel.textColor = [ALApplozicSettings getReceiveMsgTextColor];
         
@@ -255,16 +317,15 @@
         
         if(alContact.contactImageUrl)
         {
-            NSURL * theUrl1 = [NSURL URLWithString:alContact.contactImageUrl];
-            [self.mUserProfileImageView sd_setImageWithURL:theUrl1];
+            ALMessageClientService * messageClientService = [[ALMessageClientService alloc]init];
+            [messageClientService downloadImageUrlAndSet:alContact.contactImageUrl imageView:self.mUserProfileImageView defaultImage:@"ic_contact_picture_holo_light.png"];
         }
         else
         {
-            [self.mUserProfileImageView sd_setImageWithURL:[NSURL URLWithString:@""]];
+            [self.mUserProfileImageView sd_setImageWithURL:[NSURL URLWithString:@""] placeholderImage:nil options:SDWebImageRefreshCached];
             [self.mNameLabel setHidden:NO];
             self.mUserProfileImageView.backgroundColor = [ALColorUtility getColorForAlphabet:receiverName];
         }
-        
     }
     else    //Sent Message
     {
@@ -282,21 +343,45 @@
         self.mMessageStatusImageView.hidden = NO;
         
         
+        CGFloat requiredBubbleWidth = theTextSize.width + BUBBLE_PADDING_X_OUTBOX;
+        CGFloat requiredBubbleHeight =  theTextSize.height + BUBBLE_PADDING_HEIGHT;
+        
+
+        
         self.mBubleImageView.frame = CGRectMake((viewSize.width - theTextSize.width - BUBBLE_PADDING_X_OUTBOX) , 0,
-                                                theTextSize.width + BUBBLE_PADDING_WIDTH,
-                                                theTextSize.height + BUBBLE_PADDING_HEIGHT);
+                                                requiredBubbleWidth+10,
+                                                requiredBubbleHeight);
         
         self.mBubleImageView.layer.shadowOpacity = 0.3;
         self.mBubleImageView.layer.shadowOffset = CGSizeMake(0, 2);
         self.mBubleImageView.layer.shadowRadius = 1;
         self.mBubleImageView.layer.masksToBounds = NO;
+        CGFloat mMessageLabelY = self.mBubleImageView.frame.origin.y + MESSAGE_PADDING_Y;
+
+        if(alMessage.isAReplyMessage)
+        {
+            [self processReplyOfChat:alMessage andViewSize:viewSize];
+            mMessageLabelY = mMessageLabelY + self.replyParentView.frame.size.height ;
+            requiredBubbleHeight = requiredBubbleHeight + self.replyParentView.frame.size.height;
+            requiredBubbleWidth = self.replyParentView.frame.size.width + 10;
+
+        }
+        
+        //resize bubble
+        self.mBubleImageView.frame = CGRectMake((viewSize.width - requiredBubbleWidth - BUBBLE_PADDING_X_OUTBOX),
+                                                0, requiredBubbleWidth,
+                                                requiredBubbleHeight);
+        
+        if(self.replyParentView.frame.size.width>theTextSize.width){
+            theTextSize.width = self.replyParentView.frame.size.width;
+        }
         
         msgFrameHeight = self.mBubleImageView.frame.size.height;
         
         self.mMessageLabel.textColor = [ALApplozicSettings getSendMsgTextColor];
         
         self.mMessageLabel.frame = CGRectMake(self.mBubleImageView.frame.origin.x + MESSAGE_PADDING_X,
-                                              MESSAGE_PADDING_Y, theTextSize.width, theTextSize.height);
+                                              mMessageLabelY, theTextSize.width, theTextSize.height);
         
         self.mDateLabel.frame = CGRectMake((self.mBubleImageView.frame.origin.x + self.mBubleImageView.frame.size.width)
                                            - theDateSize.width - DATE_PADDING_X,
@@ -309,10 +394,10 @@
         self.mMessageStatusImageView.frame = CGRectMake(self.mDateLabel.frame.origin.x + self.mDateLabel.frame.size.width,
                                                         self.mDateLabel.frame.origin.y,
                                                         MSG_STATUS_WIDTH, MSG_STATUS_HEIGHT);
+
         
-        UIMenuItem * testMenuItem = [[UIMenuItem alloc] initWithTitle:@"Info" action:@selector(msgInfo:)];
-        [[UIMenuController sharedMenuController] setMenuItems: @[testMenuItem]];
-        [[UIMenuController sharedMenuController] update];
+ 
+        
         
     }
     
@@ -344,7 +429,7 @@
     
     //   CHECKING IF MESSAGE META-DATA DICTIONARY HAVE SOME DATA
     
-    if(self.mMessage.metadata.count)
+    if(self.mMessage.metadata.count && (alMessage.contentType != 102) && (alMessage.contentType != 103))
     {
         [self.mBubleImageView setUserInteractionEnabled:YES];
         [self.mBubleImageView addGestureRecognizer:tapForCustomView];
@@ -380,7 +465,31 @@
         [self setHyperLinkAttribute];
     }
     
+    
+
+    
     return self;
+    
+}
+
+-(void) proccessTapForMenu:(id)tap{
+
+    [self processKeyBoardHideTap];
+    
+     UIMenuItem * messageForward = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"forwardOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Forward", @"") action:@selector(messageForward:)];
+       UIMenuItem * messageReply = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"replyOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Reply", @"") action:@selector(messageReply:)];
+    
+    if ([self.mMessage.type isEqualToString:@MT_INBOX_CONSTANT]){
+       
+        [[UIMenuController sharedMenuController] setMenuItems: @[messageForward,messageReply]];
+
+    }else if ([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT]){
+       
+        UIMenuItem * msgInfo = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"infoOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Info", @"") action:@selector(msgInfo:)];
+        
+        [[UIMenuController sharedMenuController] setMenuItems: @[msgInfo,messageReply,messageForward]];
+    }
+       [[UIMenuController sharedMenuController] update];
     
 }
 
@@ -409,12 +518,32 @@
 
 -(BOOL) canPerformAction:(SEL)action withSender:(id)sender
 {
+    
+    if(self.mMessage.groupId){
+        ALChannelService *channelService = [[ALChannelService alloc] init];
+        ALChannel *channel =  [channelService getChannelByKey:self.mMessage.groupId];
+        if(channel && channel.type == OPEN){
+            return (self.mMessage.isDownloadRequired? NO:(action == @selector(copy:)));
+        }
+    }
+    
     if([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT] && self.mMessage.groupId)
     {
-        return (action == @selector(copy:) || action == @selector(delete:) || action == @selector(msgInfo:));
+        return (self.mMessage.isDownloadRequired? (action == @selector(delete:) || action == @selector(msgInfo:) || action == @selector(copy:)) : (action == @selector(delete:)|| action == @selector(msgInfo:)|| [self isForwardMenuEnabled:action]  || [self isMessageReplyMenuEnabled:action] || action == @selector(copy:)));
     }
-    return (action == @selector(copy:) || action == @selector(delete:));
+    
+    return (self.mMessage.isDownloadRequired? (action == @selector(delete:)):(action == @selector(delete:) ||[self isForwardMenuEnabled:action]|| [self isMessageReplyMenuEnabled:action] )|| (action == @selector(copy:)));
+    
+    
 }
+
+
+-(void) messageForward:(id)sender
+{
+    NSLog(@"Message forward option is pressed");
+    [self.delegate processForwardMessage:self.mMessage];
+}
+
 
 // Default copy method
 - (void)copy:(id)sender
@@ -470,9 +599,29 @@
     }];
 }
 
+
+-(void) messageReply:(id)sender
+{
+    NSLog(@"Message forward option is pressed");
+    [self.delegate processMessageReply:self.mMessage];
+    
+}
+
+-(void) processKeyBoardHideTap
+{
+    [self.delegate handleTapGestureForKeyBoard];
+    
+}
+
 -(void)processTapGesture
 {
     [self.delegate processALMessage:self.mMessage];
+}
+
+-(void)processOpenChat
+{
+    [self processKeyBoardHideTap];
+    [self.delegate openUserChat:self.mMessage];
 }
 
 -(void)processHyperLink
@@ -534,6 +683,104 @@
     [self.mMessageLabel setLinksForSubstrings:nsArrayLink withLinkHandler: handler];
 }
 
+-(void)processReplyOfChat:(ALMessage*)almessage andViewSize:(CGSize)viewSize
+{
+    
+    if(!almessage.isAReplyMessage)
+    {
+        return;
+    }
+    
+    NSString * messageReplyId = [almessage.metadata valueForKey:AL_MESSAGE_REPLY_KEY];
+    ALMessage * replyMessage = [[ALMessageService new] getALMessageByKey:messageReplyId];
+    
+    if(replyMessage == nil){
+        return;
+        
+    }
+    
+    self.replyParentView.hidden=NO;
+    
+    self.replyUIView = [[MessageReplyView alloc] init];
+    
+    [self.replyUIView setBackgroundColor:[UIColor clearColor]];
+    
+    
+    CGFloat replyWidthRequired = [self.replyUIView getWidthRequired:replyMessage andViewSize:viewSize];
+    
+    if(self.mBubleImageView.frame.size.width> replyWidthRequired )
+    {
+        replyWidthRequired = (self.mBubleImageView.frame.size.width);
+        NSLog(@" replyWidthRequired is less from parent one : %d", replyWidthRequired);
+    }
+    else
+    {
+        NSLog(@" replyWidthRequired is grater from parent one : %d", replyWidthRequired);
+        
+    }
+    
+    CGFloat bubbleXposition = self.mBubleImageView.frame.origin.x +5;
+    
+    if(almessage.isSentMessage)
+    {
+        bubbleXposition  = (viewSize.width - replyWidthRequired - BUBBLE_PADDING_X_OUTBOX -5);
+        
+    }
+    
+    if(almessage.groupId && almessage.isReceivedMessage)
+    {
+        
+        self.replyParentView.frame =
+        CGRectMake( bubbleXposition+2,
+                   self.mChannelMemberName.frame.origin.y + self.mChannelMemberName.frame.size.height,
+                   replyWidthRequired+5,
+                   60);
+        
+    }
+    else if(!almessage.groupId & !almessage.isSentMessage  ){
+        self.replyParentView.frame =
+        CGRectMake( bubbleXposition -1 ,
+                   self.mBubleImageView.frame.origin.y+3 ,
+                   replyWidthRequired+5,
+                   60);
+        
+    }else{
+        self.replyParentView.frame =
+        CGRectMake( bubbleXposition -5 ,
+                   self.mBubleImageView.frame.origin.y+3 ,
+                   replyWidthRequired+5,
+                   60);
+        
+    }
+    
+    //clear views if any addeded already
+    NSArray *viewsToRemove = [self.replyParentView subviews];
+    for (UIView *v in viewsToRemove) {
+        [v removeFromSuperview];
+    }
+    
+    [self.replyParentView setBackgroundColor:[UIColor redColor]];
+    [self.replyUIView populateUI:almessage withSuperView:self.replyParentView];
+    [self.replyParentView addSubview:self.replyUIView];
+    
+}
 
+-(void)tapGestureForReplyView:(id)sender{
+    
+    [self.delegate scrollToReplyMessage:self.mMessage];
+    
+}
+
+-(BOOL)isMessageReplyMenuEnabled:(SEL) action
+{
+    
+    return ([ALApplozicSettings isReplyOptionEnabled] && action == @selector(messageReply:));
+    
+}
+
+-(BOOL)isForwardMenuEnabled:(SEL) action;
+{
+    return ([ALApplozicSettings isForwardOptionEnabled] && action == @selector(messageForward:));
+}
 
 @end

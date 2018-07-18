@@ -18,6 +18,7 @@
 #import "ALApplozicSettings.h"
 #import "ALChatLauncher.h"
 #import "ALMessagesViewController.h"
+#import "ALNavigationController.h"
 
 static CGFloat const sendTextViewCornerRadius = 15.0f;
 
@@ -77,6 +78,11 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
     // Set Beak's Color : Dependant of SendMessage-TextView
     self.beakImageView.image = [_beakImageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     [self.beakImageView setTintColor:self.sendMessageTextView.backgroundColor];
+    if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
+        self.sendButton.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+        self.beakImageView.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+        self.sendMessageTextView.textAlignment = NSTextAlignmentRight;
+    }
     
     [self parseRestrictedWordFile];
 }
@@ -122,6 +128,8 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
                                                                                     target:self action:@selector(refreshTable:)];
     
     self.callButton = [[UIBarButtonItem alloc] initWithCustomView:[self customCallButtonView]];
+    self.closeButton = [[UIBarButtonItem alloc] initWithCustomView:[self customCloseButtonView]];
+
     
     if(self.individualLaunch)
     {
@@ -129,12 +137,26 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
     }
     
     self.navRightBarButtonItems = [NSMutableArray new];
+    
 
     if(![ALApplozicSettings isRefreshButtonHidden])
     {
         [self.navRightBarButtonItems addObject:refreshButton];
     }
-
+    
+    if([ALApplozicSettings getCustomNavigationControllerClassName])
+    {
+       ALNavigationController * customnavController = (ALNavigationController*)self.navigationController;
+       
+       NSMutableArray * customButtons = [customnavController getCustomButtons];
+       
+       for(UIView* buttonView in customButtons)
+       {
+           UIBarButtonItem * barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:buttonView];
+           [self.navRightBarButtonItems addObject:barButtonItem];
+       }
+       
+    }
     self.navigationItem.rightBarButtonItems = [self.navRightBarButtonItems mutableCopy];
     
     self.label = [[UILabel alloc] init];
@@ -167,7 +189,10 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
     
 //    [self.view insertSubview:self.noConversationLabel belowSubview:self.typingMessageView];
     
-    [self dropShadowInNavigationBar];
+    if([ALApplozicSettings isDropShadowInNavigationBarEnabled])
+    {
+        [self dropShadowInNavigationBar];
+    }
     
 }
 
@@ -309,7 +334,7 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
 -(void)viewWillDisappear:(BOOL)animated
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"APP_ENTER_IN_FOREGROUND" object:nil];
-    self.navigationController.navigationBar.barTintColor = self.navColor;
+    //self.navigationController.navigationBar.barTintColor = self.navColor;
     
     [self removeRegisteredKeyboardNotifications];
 }
@@ -342,13 +367,13 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
 {
     NSString * theAnimationDuration = [self handleKeyboardNotification:notification];
 
-    self.checkBottomConstraint.constant = self.view.frame.size.height - keyboardEndFrame.origin.y + navigationWidth;
-//    self.noConversationLabel.frame = CGRectMake(0,
-//                                                self.typingLabel.frame.origin.y -
-//                                                (self.typingLabel.frame.size.height+10),
-//                                                tempFrame.size.width,
-//                                                tempFrame.size.height);
-    
+    if (@available(iOS 11.0, *)) {
+        self.checkBottomConstraint.constant = self.view.frame.size.height - keyboardEndFrame.origin.y + navigationWidth - self.view.safeAreaInsets.bottom;
+    } else {
+        // Fallback on earlier versions
+        self.checkBottomConstraint.constant = self.view.frame.size.height - keyboardEndFrame.origin.y + navigationWidth;
+    }
+
     [UIView animateWithDuration:theAnimationDuration.doubleValue animations:^{
         [self.view layoutIfNeeded];
         [self scrollTableViewToBottomWithAnimation:YES];
@@ -389,19 +414,18 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
 -(void)setHeightOfTextViewDynamically
 {
     
-    [self subProcessSetHeightOfTextViewDynamically];
+    [self setHeightOfTextViewDynamically:YES];
     
-//    self.noConversationLabel.frame = CGRectMake(0,
-//                                                self.typingLabel.frame.origin.y -
-//                                                (self.typingLabel.frame.size.height+10),
-//                                                tempFrame.size.width,
-//                                                tempFrame.size.height);
-//    
-   
-    //- (self.textMessageViewHeightConstaint.constant + typingIndicatorHeight + navigationWidth)
+}
 
-
-    [self scrollTableViewToBottomWithAnimation:YES];
+-(void)setHeightOfTextViewDynamically:(BOOL)scroll
+{
+    
+    [self subProcessSetHeightOfTextViewDynamically];
+    if(scroll)
+    {
+        [self scrollTableViewToBottomWithAnimation:YES];
+    }
     [self.view layoutIfNeeded];
     
 }
@@ -413,11 +437,6 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
     self.textViewHeightConstraint.constant =  sizeThatFitsTextView.height;
     
     self.textMessageViewHeightConstaint.constant = (self.typingMessageView.frame.size.height-self.sendMessageTextView.frame.size.height) + sizeThatFitsTextView.height + paddingForTextMessageViewHeight;
-    
-//    self.typingLabel.frame = CGRectMake(0,
-//                                        keyboardEndFrame.origin.y - (self.textMessageViewHeightConstaint.constant + typingIndicatorHeight + navigationWidth),
-//                                        self.view.frame.size.width, typingIndicatorHeight);
-    
 }
 
 -(void) scrollTableViewToBottomWithAnimation:(BOOL) animated
@@ -487,8 +506,31 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
     return view;
 }
 
+-(UIView *)customCloseButtonView
+{
+    UIImageView *imageView = [[UIImageView alloc] initWithImage: [ALUtilityClass getImageFromFramworkBundle:@"ic_clear_white.png"]];
+    [imageView setFrame:CGRectMake(0, 0, 20, 20)];
+    [imageView setTintColor:[UIColor whiteColor]];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, imageView.frame.size.width, imageView.frame.size.height)];
+    view.bounds = CGRectMake(view.bounds.origin.x, view.bounds.origin.y, view.bounds.size.width, view.bounds.size.height);
+    [view addSubview:imageView];
+    [view setBackgroundColor:[UIColor clearColor]];
+    
+    UITapGestureRecognizer * iconTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeConversation)];
+    iconTap.numberOfTapsRequired = 1;
+    [view addGestureRecognizer:iconTap];
+    
+    return view;
+}
+
+
 -(void)phoneCallMethod {
 
+}
+
+-(void)closeConversation {
+    
 }
 
 -(UIView *)setCustomBackButton
@@ -507,6 +549,10 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
     
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, imageView.frame.size.width + label.frame.size.width, imageView.frame.size.height)];
     view.bounds = CGRectMake(view.bounds.origin.x + 8, view.bounds.origin.y - 1, view.bounds.size.width, view.bounds.size.height);
+    if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
+        view.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+        label.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+    }
     [view addSubview:imageView];
     [view addSubview:label];
     
@@ -519,6 +565,7 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
     [view addGestureRecognizer:backTap];
 
     return view;
-}
+}   
+
 
 @end

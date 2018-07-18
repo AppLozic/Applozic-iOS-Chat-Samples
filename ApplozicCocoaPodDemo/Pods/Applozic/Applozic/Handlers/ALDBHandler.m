@@ -30,8 +30,20 @@
 - (id)init {
     
     if (self = [super init]) {
-        
-        
+
+
+    }
+
+    if (@available(iOS 10.0, *)) {
+        NSPersistentContainer * container = [[NSPersistentContainer alloc] initWithName:@"AppLozic" managedObjectModel:self.managedObjectModel];
+
+        [container loadPersistentStoresWithCompletionHandler:^(NSPersistentStoreDescription* store, NSError * error) {
+            NSLog(@"pers url: %@",container.persistentStoreCoordinator.persistentStores.firstObject.URL);
+            if(error != nil) {
+                NSLog(@"%@", error);
+            }
+        }];
+        self.persistentContainer = container;
     }
     return self;
 }
@@ -134,7 +146,7 @@
     _managedObjectContext = [[NSManagedObjectContext alloc] init];
     
     [_managedObjectContext setPersistentStoreCoordinator:coordinator];
-    
+    [_managedObjectContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
     return _managedObjectContext;
 }
 
@@ -297,6 +309,8 @@
         if(contact.contactType){
             userContact.contactType = contact.contactType;
         }
+        userContact.roleType = contact.roleType;
+        userContact.metadata =contact.metadata.description;
     }
     
     NSError *error = nil;
@@ -348,6 +362,8 @@
      contact.connected = dbContact.connected;
      contact.lastSeenAt = dbContact.lastSeenAt;
      contact.contactType = dbContact.contactType;
+     contact.roleType = dbContact.roleType;
+     contact.metadata = [contact getMetaDataDictionary:dbContact.metadata];
 
      return contact;
 }
@@ -406,6 +422,8 @@
     
     contact.localImageResourceName = userContact.localImageResourceName;
     contact.contactType = userContact.contactType;
+    contact.roleType = userContact.roleType;
+    contact.metadata = userContact.metadata.description;
     
     NSError *error = nil;
     

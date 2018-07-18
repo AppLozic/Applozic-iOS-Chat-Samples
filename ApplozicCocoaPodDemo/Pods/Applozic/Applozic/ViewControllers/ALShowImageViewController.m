@@ -34,7 +34,9 @@
     
     [self.navigationBar setTintColor:[ALApplozicSettings getColorForNavigation]];
     [self.navigationBar setBarTintColor:[ALApplozicSettings getColorForNavigation]];
-    self.navigationBar.topItem.title = @"Image Preview";
+    
+    [self.backBarButton setTitle:NSLocalizedStringWithDefaultValue(@"back", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Back", @"")];
+    self.navigationBar.topItem.title = NSLocalizedStringWithDefaultValue(@"imagePreview", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Image Preview", @"");
     self.navigationBar.titleTextAttributes = @{
                                                NSForegroundColorAttributeName:[ALApplozicSettings getColorForNavigationItem]
                                                };
@@ -80,7 +82,7 @@
     
     //Custom Activity for Applozic Sharing
     // set "uiActivityArray" for "applicationActivities:nil" instead of nill to add this fuctionality
-//    NSArray *uiActivityArray = @[self.alImageActivity];
+    //    NSArray *uiActivityArray = @[self.alImageActivity];
     
     UIActivityViewController *activityVC = [[UIActivityViewController alloc]
                                             initWithActivityItems:activityItems
@@ -97,14 +99,15 @@
 
 -(void)showContactsToShareImage
 {
-
+    
     UIStoryboard * applozic = [UIStoryboard storyboardWithName:@"Applozic" bundle:[NSBundle bundleForClass:[ALNewContactsViewController class]]];
     
     self.contactsViewController = [applozic instantiateViewControllerWithIdentifier:@"ALNewContactsViewController"];
     self.contactsViewController.forGroup = [NSNumber numberWithInteger:IMAGE_SHARE];
-
     
-    UIBarButtonItem * leftBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(dismissContactViewControllerWithCompletion:)];
+    
+    
+    UIBarButtonItem * leftBarButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"cancelOptionText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Cancel", @"") style:UIBarButtonItemStylePlain target:self action:@selector(dismissContactViewControllerWithCompletion:)];
     
     UINavigationItem * navigationItem = [[UINavigationItem alloc] init];
     navigationItem.leftBarButtonItem = leftBarButton;
@@ -112,7 +115,7 @@
     UINavigationBar * contactsNavigationBar = [[UINavigationBar alloc] initWithFrame:CGRectMake(0,0,CGRectGetWidth(self.view.frame),44)];
     contactsNavigationBar.translucent = NO;
     contactsNavigationBar.items = @[navigationItem];
-
+    
     [self.contactsViewController.view addSubview:contactsNavigationBar];
     
     [self presentViewController:self.contactsViewController animated:YES completion:^{}];

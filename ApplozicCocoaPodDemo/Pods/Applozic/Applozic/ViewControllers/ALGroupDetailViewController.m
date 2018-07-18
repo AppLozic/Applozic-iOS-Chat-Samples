@@ -17,7 +17,8 @@
 #import "ALMQTTConversationService.h"
 #import "ALGroupCreationViewController.h"
 #import "ALPushAssist.h"
-
+#import "ALChannelUser.h"
+#import "ALMessageClientService.h"
 
 @interface ALGroupDetailViewController () <ALGroupInfoDelegate>
 {
@@ -136,7 +137,7 @@
     else if([updateUI isEqualToNumber:[NSNumber numberWithInt:APP_STATE_INACTIVE]])
     {
         NSLog(@"######## GROUP DETAIL VC : APP_STATE_INACTIVE #########");
-
+        
         ALGroupDetailViewController * groupDetailVC = self;
         ALMessagesViewController *msgVC = (ALMessagesViewController *)[self.navigationController.viewControllers objectAtIndex:0];
         
@@ -158,20 +159,20 @@
         [viewsArray removeObject:groupDetailVC];
         msgVC.navigationController.viewControllers = viewsArray;
     }
-
+    
 }
 
 -(void)setNavigationColor
 {
     if([ALApplozicSettings getColorForNavigation] && [ALApplozicSettings getColorForNavigationItem])
     {
-//        self.navigationController.navigationBar.translucent = NO;
+        //        self.navigationController.navigationBar.translucent = NO;
         [self.navigationController.navigationBar setTitleTextAttributes: @{
                                                                            NSForegroundColorAttributeName:[ALApplozicSettings getColorForNavigationItem],
                                                                            NSFontAttributeName: [UIFont fontWithName:[ALApplozicSettings getFontFace]
                                                                                                                 size:18]
                                                                            }];
-
+        
         [self.navigationController.navigationBar addSubview:[ALUtilityClass setStatusBarStyle]];
         [self.navigationController.navigationBar setBarTintColor:[ALApplozicSettings getColorForNavigation]];
         [self.navigationController.navigationBar setTintColor:[ALApplozicSettings getColorForNavigationItem]];
@@ -188,13 +189,13 @@
     
     [self.tabBarController.tabBar setHidden:YES];
     [self setNavigationColor];
-    [self setTitle:@"Group Details"];
+    [self setTitle: NSLocalizedStringWithDefaultValue(@"groupDetailsTitle", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Group Details", @"")];
     
     ALChannelService * channnelService = [[ALChannelService alloc] init];
     self.alChannel = [channnelService getChannelByKey:self.channelKeyID];
     self.groupName = self.alChannel.name;
     isAdmin = [channnelService checkAdmin:self.channelKeyID];
-
+    
     memberNames = [[NSMutableArray alloc] init];
     colors = [[NSArray alloc] initWithObjects:@"#617D8A",@"#628B70",@"#8C8863",@"8B627D",@"8B6F62", nil];
     
@@ -221,7 +222,7 @@
     {
         ALContact * contact = [contactDb loadContactByKey:@"userId" value:userID];
         if([contact.userId isEqualToString:[ALUserDefaultsHandler getUserId]]){
-            contact.displayName = @"You";
+            contact.displayName = NSLocalizedStringWithDefaultValue(@"youText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"You", @"");
         }
         [self.lastSeenMembersArray addObject:[self getLastSeenForMember:userID]];
         [memberNames addObject:[contact getDisplayName]];
@@ -250,7 +251,11 @@
     {
         case 0:
         {
-            if(isAdmin && ![self isThisChannelLeft:self.channelKeyID] && [ALApplozicSettings getGroupMemberAddOption])
+            ALChannelDBService *channelDBService = [[ALChannelDBService alloc] init];
+            
+            ALChannelUserX *alChannelUserX =  [channelDBService loadChannelUserXByUserId:self.channelKeyID andUserId:[ALUserDefaultsHandler getUserId]];
+            
+            if(alChannelUserX.role.intValue != MEMBER && ![self isThisChannelLeft:self.channelKeyID] && [ALApplozicSettings getGroupMemberAddOption])
                 return 3;
             else
                 return 2;
@@ -261,7 +266,7 @@
         }break;
         case 2:
         {
-            if([ALApplozicSettings getGroupExitOption]) 
+            if([ALApplozicSettings getGroupExitOption])
             {
                 return 1;
             }
@@ -276,6 +281,9 @@
         }
     }
 }
+
+
+
 
 #pragma mark - Table Row Height
 //================================
@@ -303,6 +311,11 @@
     {
         case 0:
         {
+            if(indexPath.row == 0){
+                
+                [self updateGroupView];
+                
+            }
             if(indexPath.row == 1){
                 
                 if([self.alChannel isNotificationMuted])
@@ -317,13 +330,16 @@
             else if(indexPath.row==2)
             {
                 [self addNewMember];
-
+                
             }
         }
             break;
         case 1:
         {
-            if(isAdmin
+            ALChannelDBService *channelDBService = [[ALChannelDBService alloc] init];
+            ALChannelUserX *alChannelUserX =  [channelDBService loadChannelUserXByUserId:self.channelKeyID andUserId:[ALUserDefaultsHandler getUserId]];
+            
+            if(alChannelUserX.role.intValue != MEMBER
                && ![self isThisChannelLeft:self.channelKeyID]
                &&  [ALApplozicSettings getGroupMemberRemoveOption]){
                 [self removeMember:indexPath.row];
@@ -331,7 +347,10 @@
         }break;
         case 2:{
             //Exit group
-            [self checkAndconfirm:@"Confirm" withMessage:@"Are you sure?" otherButtonTitle:@"Yes"]; 
+            [self checkAndconfirm: NSLocalizedStringWithDefaultValue(@"confirmText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Confirm", @"")
+                      withMessage:NSLocalizedStringWithDefaultValue(@"areYouSureText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Are you sure?", @"")
+                 otherButtonTitle: NSLocalizedStringWithDefaultValue(@"yes", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Yes", @"")
+             ];
             
         }break;
             
@@ -340,6 +359,7 @@
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
+
 
 #pragma mark - Add New Member Methods
 //==================================
@@ -366,22 +386,22 @@
 }
 
 -(void)addNewMembertoGroup:(ALContact *)alcontact withCompletion:(void(^)(NSError *error,ALAPIResponse *response))completion
-{    
+{
     [[self activityIndicator] startAnimating];
     self.memberIdToAdd = alcontact.userId;
     ALChannelService * channelService = [[ALChannelService alloc] init];
     [channelService addMemberToChannel:self.memberIdToAdd andChannelKey:self.channelKeyID orClientChannelKey:nil
-                          withCompletion:^(NSError *error, ALAPIResponse *response) {
-         
-         if(!error && [response.status isEqualToString:@"success"])
-         {
-             [memberIds addObject:self.memberIdToAdd];
-             [self.tableView reloadData];
-             
-         }
-         [[self activityIndicator] stopAnimating];
-         completion(error,response);
-    }];
+                        withCompletion:^(NSError *error, ALAPIResponse *response) {
+                            
+                            if(!error && [response.status isEqualToString:@"success"])
+                            {
+                                [memberIds addObject:self.memberIdToAdd];
+                                [self.tableView reloadData];
+                                
+                            }
+                            [[self activityIndicator] stopAnimating];
+                            completion(error,response);
+                        }];
 }
 
 -(NSString *)getLastSeenForMember:(NSString*)userID
@@ -411,11 +431,10 @@
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
                                                     message:message
                                                    delegate:self
-                                          cancelButtonTitle:@"Cancel"
+                                          cancelButtonTitle: NSLocalizedStringWithDefaultValue(@"cancelText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Cancel", @"")
                                           otherButtonTitles:buttonTitle, nil];
     [alert show];
 }
-
 #pragma mark - AlertView Delegate Method (Exit Group)
 //====================================================
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
@@ -428,19 +447,19 @@
             ALChannelService * alchannelService = [[ALChannelService alloc] init];
             [alchannelService leaveChannel:self.channelKeyID andUserId:[ALUserDefaultsHandler getUserId]
                         orClientChannelKey:nil withCompletion:^(NSError *error) {
-                
-                if(!error)
-                {
-                    NSMutableArray *allViewControllers = [NSMutableArray arrayWithArray:[self.navigationController viewControllers]];
-                    for (UIViewController *viewController in allViewControllers)
-                    {
-                        if ([viewController isKindOfClass: [ALChatViewController class]])
-                        {
-                            [self.navigationController popToViewController:viewController animated:YES];
-                        }
-                    }
-                }
-            }];
+                            
+                            if(!error)
+                            {
+                                NSMutableArray *allViewControllers = [NSMutableArray arrayWithArray:[self.navigationController viewControllers]];
+                                for (UIViewController *viewController in allViewControllers)
+                                {
+                                    if ([viewController isKindOfClass: [ALChatViewController class]])
+                                    {
+                                        [self.navigationController popToViewController:viewController animated:YES];
+                                    }
+                                }
+                            }
+                        }];
         }
         else
         {
@@ -450,7 +469,7 @@
                 if(error)
                 {
                     NSLog(@"DELETE FAILED: Unable to delete contact conversation : %@", error.description);
-                    [ALUtilityClass displayToastWithMessage:@"Delete failed!"];
+                    [ALUtilityClass displayToastWithMessage:NSLocalizedStringWithDefaultValue(@"deleteFailed", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Delete failed!", @"")];
                     return;
                 }
                 //DELETE CHANNEL FROM LOCAL AND BACK TO MAIN VIEW
@@ -466,7 +485,7 @@
                     NSMutableArray *allViewControllers = [NSMutableArray arrayWithArray:[self.navigationController viewControllers]];
                     for (UIViewController *viewController in allViewControllers)
                     {
-                        if ([viewController isKindOfClass: [ALMessagesViewController class]])
+                        if ([ALPushAssist isViewObjIsMsgVC:viewController] || [ALPushAssist isViewObjIsMsgContainerVC:viewController])
                         {
                             [self.navigationController popToViewController:viewController animated:YES];
                         }
@@ -485,6 +504,7 @@
     return flag;
 }
 
+
 #pragma mark - Remove Memember (for admin)
 //=======================================
 -(void)removeMember:(NSInteger)row
@@ -498,34 +518,91 @@
     }
     else
     {
+        
         UIAlertController * theController = [UIAlertController alertControllerWithTitle:nil
                                                                                 message:nil
                                                                          preferredStyle:UIAlertControllerStyleActionSheet];
         
         [ALUtilityClass setAlertControllerFrame:theController andViewController:self];
         
-        [theController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-        [theController addAction:[UIAlertAction
-                                  actionWithTitle:[NSString stringWithFormat:@"Remove %@",memberNames[row]]
-                                            style:UIAlertActionStyleDefault
-                                            handler:^(UIAlertAction *action) {
-                                                
-
-            [self turnUserInteractivityForNavigationAndTableView:NO];
-            ALChannelService * alchannelService = [[ALChannelService alloc] init];
-            [alchannelService removeMemberFromChannel:removeMemberID andChannelKey:self.channelKeyID orClientChannelKey:nil withCompletion:^(NSError *error, ALAPIResponse *response) {
-                
-                if(!error)
-                {
-                    [memberIds removeObjectAtIndex:row];
-                    [self setupView];
-                    [self.tableView reloadData];
-                }
-
-                [self turnUserInteractivityForNavigationAndTableView:YES];
-            }];
-                  
-        }]];
+        [theController addAction:[UIAlertAction actionWithTitle: NSLocalizedStringWithDefaultValue(@"cancelOptionText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
+        
+        if ([ALApplozicSettings isChatOnTapUserProfile])
+        {
+            [theController addAction:[UIAlertAction actionWithTitle:[NSString stringWithFormat:[NSLocalizedStringWithDefaultValue(@"messageText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Message", @"") stringByAppendingString: @" %@"], memberNames[row]]
+                                                              style:UIAlertActionStyleDefault
+                                                            handler:^(UIAlertAction *action) {
+                                                                
+                                                                [self openChatThreadFor:removeMemberID];
+            }]];
+            
+        }
+        
+        
+        ALChannelDBService *channelDBService = [[ALChannelDBService alloc] init];
+        ALChannelUserX *alChannelUserX =  [channelDBService loadChannelUserXByUserId:self.channelKeyID andUserId:memberIds[row]];
+        
+        ALChannelUserX *alChannelUserXLoggedInUser =  [channelDBService loadChannelUserXByUserId:self.channelKeyID andUserId:[ALUserDefaultsHandler getUserId]];
+        
+        
+        if(alChannelUserXLoggedInUser.role.intValue !=MEMBER && alChannelUserXLoggedInUser.role.intValue != USER){
+            
+            UIAlertAction *removeAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:[NSLocalizedStringWithDefaultValue(@"removeText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Remove", @"") stringByAppendingString: @" %@"], memberNames[row]]
+                                                                   style:UIAlertActionStyleDefault
+                                                                 handler:^(UIAlertAction *action) {
+                                                                     
+                                                                     [self turnUserInteractivityForNavigationAndTableView:NO];
+                                                                     ALChannelService * alchannelService = [[ALChannelService alloc] init];
+                                                                     [alchannelService removeMemberFromChannel:removeMemberID andChannelKey:self.channelKeyID
+                                                                                            orClientChannelKey:nil withCompletion:^(NSError *error, ALAPIResponse *response) {
+                                                                                                
+                                                                                                if(!error)
+                                                                                                {
+                                                                                                    [memberIds removeObjectAtIndex:row];
+                                                                                                    [self setupView];
+                                                                                                    [self.tableView reloadData];
+                                                                                                }
+                                                                                                
+                                                                                                [self turnUserInteractivityForNavigationAndTableView:YES];
+                                                                                            }];
+                                                                     
+                                                                 }];
+            
+            
+            [removeAction setValue:[UIColor redColor] forKey:@"titleTextColor"];
+            [theController addAction:removeAction];
+            
+        }
+        
+        if(alChannelUserX.role.intValue != ADMIN){
+            
+            [theController addAction:[UIAlertAction actionWithTitle:[NSString stringWithFormat:[NSLocalizedStringWithDefaultValue(@"makeAdminText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Make admin", @"") stringByAppendingString: @" %@"]
+                                                                     , memberNames[row]]
+                                                              style:UIAlertActionStyleDefault
+                                                            handler:^(UIAlertAction *action) {
+                                                                
+                                                                ALChannelService *channelService = [ALChannelService new];
+                                                                ALChannelUser * alChannelUsers = [ALChannelUser new];
+                                                                alChannelUsers.role = [NSNumber numberWithInt:1];
+                                                                alChannelUsers.userId = memberIds[row];
+                                                                NSMutableArray * channelUsers = [NSMutableArray new];
+                                                                [channelUsers addObject:alChannelUsers.dictionary];
+                                                                
+                                                                [channelService updateChannel:self.channelKeyID andNewName:nil
+                                                                                  andImageURL:nil orClientChannelKey:nil isUpdatingMetaData:NO metadata:nil orChildKeys:nil orChannelUsers: channelUsers withCompletion:^(NSError *error) {
+                                                                                      
+                                                                                      if(!error)
+                                                                                      {
+                                                                                          
+                                                                                          [ALUtilityClass showAlertMessage: NSLocalizedStringWithDefaultValue(@"groupSuccessFullyUpdateInfo", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Group information successfully updated", @"") andTitle:NSLocalizedStringWithDefaultValue(@"responseText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Reponse", @"")];
+                                                                                          [self setupView];
+                                                                                          [self.tableView reloadData];
+                                                                                      }
+                                                                                  }];
+                                                            }]];
+        }
+        
+        
         
         [self presentViewController:theController animated:YES completion:nil];
     }
@@ -550,15 +627,29 @@
     [self.tableView reloadData];
 }
 
+-(void)openChatThreadFor:(NSString*) contactId {
+    int index = 0;
+    if([self.navigationController.viewControllers.firstObject
+        isKindOfClass: [ALMessagesViewController class]]) {
+        index = 1;
+    }
+    ALChatViewController *chatVC = (ALChatViewController *)[self.navigationController.viewControllers objectAtIndex:index];
+    chatVC.contactIds = contactId;
+
+    chatVC.channelKey = nil;
+    [self.navigationController popViewControllerAnimated:true];
+    chatVC.refresh = true;
+}
+
 #pragma mark - Table View Data Source
 //========================
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     ALContactCell * memberCell = (ALContactCell*)[tableView dequeueReusableCellWithIdentifier:@"memberCell" forIndexPath:indexPath];
     [memberCell setSeparatorInset:UIEdgeInsetsMake(0, 0, 0, 0)];
-   
-    dispatch_async(dispatch_get_main_queue(), ^{
     
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
         [self setupCellItems:memberCell];
         [self.firstLetterLabel setHidden:YES];
         [self.memberIconImageView setHidden:YES];
@@ -580,12 +671,15 @@
                 else if(indexPath.row==1)
                 {
                     self.memberNameLabel.text = [self.alChannel isNotificationMuted]
-                    ? [NSString stringWithFormat:@"Unmute Group"] : [NSString stringWithFormat:@"Mute Group"];
+                    ? [NSString stringWithFormat: NSLocalizedStringWithDefaultValue(@"unMuteGroup", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Unmute Group", @"")]
+                    : [NSString stringWithFormat: NSLocalizedStringWithDefaultValue(@"muteGroup", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Mute Group", @"") ];
                 }
                 else
                 {
+                    
                     self.memberNameLabel.textColor = self.view.tintColor;
-                    self.memberNameLabel.text = @"Add New Member";
+                    self.memberNameLabel.text = NSLocalizedStringWithDefaultValue(@"addNewMember", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Add New Member", @"");
+                    
                 }
             }break;
             case 1:
@@ -595,7 +689,8 @@
             case 2:
             {
                 [self.memberNameLabel setTextColor:[UIColor redColor]];
-                NSString * labelTitle = (![self isThisChannelLeft:self.channelKeyID]) ? @"Exit Group" : @"Delete Group";
+                NSString * labelTitle = (![self isThisChannelLeft:self.channelKeyID]) ?
+                NSLocalizedStringWithDefaultValue(@"exitGroup", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Exit Group", @""):                NSLocalizedStringWithDefaultValue(@"deleteGroup", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Delete Group", @"") ;
                 self.memberNameLabel.text = labelTitle;
             }break;
             default:break;
@@ -605,15 +700,21 @@
     return memberCell;
 }
 
+
 -(void)setMemberIcon:(NSInteger)row
 {
-    if([self.alChannel.adminKey isEqualToString:memberIds[row]])
+    
+    ALChannelDBService *channelDBService = [[ALChannelDBService alloc] init];
+    ALChannelUserX *alChannelUserX = [channelDBService loadChannelUserXByUserId:self.channelKeyID andUserId:memberIds[row]];
+    
+    if(alChannelUserX.role.intValue == ADMIN)
     {
         [self.adminLabel setHidden:NO];
     }
     
-//    Member Name Label
-    [self.memberNameLabel setTextAlignment:NSTextAlignmentLeft];
+    //    Member Name Label
+    [self.lastSeenLabel setTextAlignment:NSTextAlignmentNatural];
+    [self.memberNameLabel setTextAlignment:NSTextAlignmentNatural];
     self.memberNameLabel.text = [NSString stringWithFormat:@"%@", memberNames[row]];
     
     [self.firstLetterLabel setHidden:YES];
@@ -635,8 +736,8 @@
     }
     else if(alContact.contactImageUrl)
     {
-        NSURL * theUrl = [NSURL URLWithString:alContact.contactImageUrl];
-        [self.memberIconImageView sd_setImageWithURL:theUrl];
+        ALMessageClientService * messageClientService = [[ALMessageClientService alloc]init];
+        [messageClientService downloadImageUrlAndSet:alContact.contactImageUrl imageView:self.memberIconImageView defaultImage:@"ic_contact_picture_holo_light.png"];
     }
     else
     {
@@ -657,6 +758,7 @@
     self.firstLetterLabel = (UILabel*)[memberCell viewWithTag:103];
     self.firstLetterLabel.textColor = [UIColor whiteColor];
     self.adminLabel = (UILabel*)[memberCell viewWithTag:104];
+    [self.adminLabel setText:NSLocalizedStringWithDefaultValue(@"adminText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Admin", @"")];
     self.adminLabel.textColor = self.view.tintColor;
     
     self.lastSeenLabel = (UILabel *)[memberCell viewWithTag:105];
@@ -674,7 +776,7 @@
 //======================================
 - (void)tableView:(UITableView *)tableView willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section
 {
-// For Header's Text View
+    // For Header's Text View
     
 }
 
@@ -697,12 +799,8 @@
         UIImageView *imageView = [[UIImageView alloc] initWithImage:
                                   [ALUtilityClass getImageFromFramworkBundle:@"applozic_group_icon.png"]];
         
-
-        NSURL * imageUrl = [NSURL URLWithString:self.alChannel.channelImageURL];
-        if(imageUrl.path.length)
-        {
-            [imageView sd_setImageWithURL:imageUrl];
-        }
+        ALMessageClientService * messageClientService = [[ALMessageClientService alloc]init];
+        [messageClientService downloadImageUrlAndSet:self.alChannel.channelImageURL imageView:imageView defaultImage:nil];
         
         imageView.frame = CGRectMake((screenWidth/2)-30, 20, 60, 60);
         imageView.backgroundColor = [UIColor blackColor];
@@ -723,7 +821,8 @@
     else if(section == 1)
     {
         UILabel * memberSectionHeaderTitle = [[UILabel alloc] init];
-        memberSectionHeaderTitle.text=@"Group Members";
+        memberSectionHeaderTitle.text = NSLocalizedStringWithDefaultValue(@"groupDetailsTitle", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Group Details", @"");
+        
         CGSize textSize = [memberSectionHeaderTitle.text sizeWithAttributes:@{NSFontAttributeName:memberSectionHeaderTitle.font}];
         
         memberSectionHeaderTitle.frame=CGRectMake([UIScreen mainScreen].bounds.origin.x + 5,
@@ -736,8 +835,16 @@
                                                                 memberSectionHeaderTitle.frame.origin.y,
                                                                 memberSectionHeaderTitle.frame.size.width,
                                                                 memberSectionHeaderTitle.frame.size.height)];
+        
+        if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
+            [memberSectionHeaderTitle setTextAlignment:NSTextAlignmentRight];
+            view.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+            memberSectionHeaderTitle.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+        }else{
+            [memberSectionHeaderTitle setTextAlignment:NSTextAlignmentLeft];
+        }
         [view addSubview:memberSectionHeaderTitle];
-//        view.backgroundColor=[UIColor colorWithWhite:0.7 alpha:1];
+        //        view.backgroundColor=[UIColor colorWithWhite:0.7 alpha:1];
         view.backgroundColor = [UIColor colorWithRed:245.0/255 green:245.0/255 blue:245.0/255 alpha:1];
         return view;
         
@@ -756,11 +863,18 @@
 -(void)updateGroupView
 {
     
-    if([ALApplozicSettings isGroupInfoEditDisabled]){
+    if([ALApplozicSettings isGroupInfoEditDisabled] || [ALChannelService isConversationClosed: alchannel.key] ){
         NSLog(@"group edit is disabled");
         return;
     }
-
+    
+    ALChannelService *channelService = [ALChannelService new];
+    if([channelService isChannelLeft:self.channelKeyID] || [ALChannelService isChannelDeleted:self.channelKeyID])
+    {
+        [ALUtilityClass showAlertMessage: NSLocalizedStringWithDefaultValue(@"yourNotAparticipantOfGroup", nil, [NSBundle mainBundle], @"You are not a participant of this group", @"")   andTitle:NSLocalizedStringWithDefaultValue(@"unableToProcess", nil, [NSBundle mainBundle], @"Unable process !!!", @"")];
+        return;
+    }
+    
     UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Applozic" bundle:[NSBundle bundleForClass:[self class]]];
     ALGroupCreationViewController * grpUpdate = [storyBoard instantiateViewControllerWithIdentifier:@"ALGroupCreationViewController"];
     grpUpdate.isViewForUpdatingGroup = YES;
@@ -784,7 +898,7 @@
 {
     long currentTimeStemp = [[NSNumber numberWithLong:([[NSDate date] timeIntervalSince1970]*1000)] longValue];
     
-                        
+    
     NSNumber * notificationAfterTime =0;
     
     switch(buttonIndex){
@@ -813,13 +927,17 @@
 
 -(void) showActionSheet
 {
-    UIActionSheet * actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"cancel" destructiveButtonTitle:nil otherButtonTitles:@"8 Hrs ",@"1 Week",@"1 Year", nil];
+    NSString *hrsString = [@"8 " stringByAppendingString:NSLocalizedStringWithDefaultValue(@"hrs", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Hrs", @"")];
+    NSString *weekString = [@"1 " stringByAppendingString:NSLocalizedStringWithDefaultValue(@"week", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Week", @"")];
+    NSString *yearString = [@"1 " stringByAppendingString:NSLocalizedStringWithDefaultValue(@"year", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Year", @"")];
+    
+    UIActionSheet * actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle: NSLocalizedStringWithDefaultValue(@"cancelText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"cancel", @"") destructiveButtonTitle:nil otherButtonTitles:hrsString,weekString,yearString, nil];
     [actionSheet showInView:self.view];
 }
 
 -(void) unmuteGroup {
     long secsUtc1970 = [[NSNumber numberWithDouble:[[NSDate date]timeIntervalSince1970] ] longValue ]*1000L;
-
+    
     [self sendMuteRequestWithTime:[NSNumber numberWithLong:secsUtc1970]];
 }
 

@@ -15,6 +15,9 @@
 #import "ALMessagesViewController.h"
 #import "ALPushAssist.h"
 #import "ALUserService.h"
+#import "ALNotificationView.h"
+#import "ALRegisterUserClientService.h"
+#import "ALAppLocalNotifications.h"
 
 
 
@@ -55,12 +58,19 @@
         
         NSString *type = (NSString *)[dictionary valueForKey:@"AL_KEY"];
         NSString *alValueJson = (NSString *)[dictionary valueForKey:@"AL_VALUE"];
+        
         NSData* data = [alValueJson dataUsingEncoding:NSUTF8StringEncoding];
         
         NSError *error = nil;
         NSDictionary *theMessageDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
         NSString *notificationMsg = [theMessageDict valueForKey:@"message"];
-        NSLog(@"APN_OBJECT_MESSAGE :: %@",notificationMsg);
+       
+        //CHECK for any special messages...
+        if ([self processMetaData:theMessageDict withAlert:alertValue withUpdateUI:updateUI])
+        {
+            return true;
+        }
+        
         NSString *notificationId = (NSString *)[theMessageDict valueForKey:@"id"];
         if(notificationId && [ALUserDefaultsHandler isNotificationProcessd:notificationId])
         {
@@ -69,7 +79,16 @@
             if(isInactive && ([type isEqualToString:MT_SYNC] || [type isEqualToString:MT_MESSAGE_SENT]))
             {
                 NSLog(@"ALAPNs : APP_IS_INACTIVE");
-                [self assitingNotificationMessage:notificationMsg andDictionary:dict];
+                if([type isEqualToString:MT_MESSAGE_SENT] ){
+                    if(([[notificationMsg componentsSeparatedByString:@":"][1] isEqualToString:[ALUserDefaultsHandler getDeviceKeyString]]))
+                    {
+                        NSLog(@"APNS: Sent by self-device ignore");
+                        return YES;
+                    }
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self assitingNotificationMessage:notificationMsg andDictionary:dict];
+                });
             }
             else
             {
@@ -253,6 +272,24 @@
 
 }
 
+-(BOOL)processMetaData:(NSDictionary*)dict withAlert:alertValue withUpdateUI:(NSNumber *)updateUI
+{
+    
+    NSDictionary * metadataDictionary =  [dict valueForKey:@"messageMetaData"];
+    
+    if( metadataDictionary && [metadataDictionary valueForKey:APPLOZIC_CATEGORY_KEY] && [[metadataDictionary valueForKey:APPLOZIC_CATEGORY_KEY] isEqualToString:CATEGORY_PUSHNNOTIFICATION] )
+    {
+        NSLog(@" Puhs notification with category, just open app %@",[metadataDictionary valueForKey:APPLOZIC_CATEGORY_KEY]);
+        if([updateUI intValue] == APP_STATE_ACTIVE)
+        {
+            [ALNotificationView showPromotionalNotifications:alertValue];
+        }
+        
+        return true;
+    }
+    return false;
+}
+
 -(BOOL)processUserBlockNotification:(NSDictionary *)theMessageDict andUserBlockFlag:(BOOL)flag
 {
     NSArray *mqttMSGArray = [[theMessageDict valueForKey:@"message"] componentsSeparatedByString:@":"];
@@ -311,4 +348,23 @@
     [userService blockUserSync: [ALUserDefaultsHandler getUserBlockLastTimeStamp]];
 }
 
+-(BOOL) checkForLaunchNotification:(NSDictionary *)dictionary
+{
+    [ALRegisterUserClientService isAppUpdated];
+    
+    ALAppLocalNotifications *localNotification = [ALAppLocalNotifications appLocalNotificationHandler];
+    [localNotification dataConnectionNotificationHandler];
+    
+    if(dictionary != nil){
+        
+        NSDictionary *notification = [dictionary objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+        
+        if(notification ){
+            [self processPushNotification:notification updateUI:[NSNumber numberWithInt:APP_STATE_INACTIVE]];
+            
+        }
+        
+    }
+    return false;
+}
 @end

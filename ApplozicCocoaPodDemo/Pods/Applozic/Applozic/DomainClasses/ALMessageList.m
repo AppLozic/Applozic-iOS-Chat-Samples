@@ -38,7 +38,7 @@
 
     NSDictionary * theMessageDict = [messagejson valueForKey:@"message"];
     NSLog(@"MESSAGES_DICT_COUNT :: %lu",(unsigned long)theMessageDict.count);
-    if(theMessageDict.count < [ALUserDefaultsHandler getFetchConversationPageSize])
+    if(theMessageDict.count ==0)
     {
         NSLog(@"NO_MORE_MESSAGES");
         [ALUserDefaultsHandler setFlagForAllConversationFetched: YES];

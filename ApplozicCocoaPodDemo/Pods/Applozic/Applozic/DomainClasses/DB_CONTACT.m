@@ -27,5 +27,8 @@
 @dynamic userTypeId;
 @dynamic contactType;
 @dynamic deletedAtTime;
+@dynamic roleType;
+@dynamic metadata;
+
 
 @end

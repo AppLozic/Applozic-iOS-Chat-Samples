@@ -109,6 +109,28 @@
     [self.delegate audioPlayerDidFinishPlaying:player successfully:flag];
 }
 
++(NSString* )getTotalDuration:(NSString *)path
+{
+    NSString * docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString * filePath = [docDir stringByAppendingPathComponent:path];
+    NSURL * soundFileURL = [NSURL fileURLWithPath:filePath];
 
+    NSError * error;
+    AVAudioPlayer * player = [[AVAudioPlayer alloc] initWithContentsOfURL:soundFileURL error:&error];
+    return [self getFormattedTime:player.duration];
+}
 
++(NSString*) getFormattedTime:(float)seconds
+{
+    NSInteger min = ((int)seconds/60) % 60;
+    NSInteger sec = ((int)seconds % 60);
+
+    NSString * minStr = [[NSString alloc] initWithFormat:@"%ld", (long)min];
+    NSString * secStr = [[NSString alloc] initWithFormat:@"%ld", (long)sec];
+
+    if(sec < 10) {
+        secStr = [[NSString alloc] initWithFormat:@"0%@", secStr];
+    }
+    return [[NSString alloc] initWithFormat:@"%@:%@", minStr, secStr];
+}
 @end

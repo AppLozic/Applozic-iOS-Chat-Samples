@@ -29,6 +29,7 @@
 #import "ALRegisterUserClientService.h"
 #import "UIImageView+WebCache.h"
 #import "ALContactService.h"
+#import "ALVOIPNotificationHandler.h"
 
 @interface ALGroupCreationViewController ()
 
@@ -53,19 +54,29 @@
 
     self.navigationItem.rightBarButtonItem = nextContacts;
     
+    if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
+        self.groupNameInput.textAlignment = NSTextAlignmentRight;
+    }
+    
+    
+    self.groupNameInput.placeholder = NSLocalizedStringWithDefaultValue(@"groupNameTextField", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Type your group name", @"");
+    
+    [self.descriptionTextView setText: NSLocalizedStringWithDefaultValue(@"descriptionTextForGroup", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Please provide group name", @"")];
+    
     if(self.isViewForUpdatingGroup)
     {
-        [self setTitle:@"Group Update"];
-        [nextContacts setTitle:@"Update"];
+        [self setTitle:NSLocalizedStringWithDefaultValue(@"groupUpdateViewText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Group Update", @"")];
+        [nextContacts setTitle:NSLocalizedStringWithDefaultValue(@"updateUiButtonText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Update", @"")];
         [nextContacts setAction:@selector(updateGroupInfo:)];
         self.groupNameInput.text = self.channelName;
         [self setProfileImage];
     }
     else
-    {
-        [nextContacts setTitle:@"Next"];
+    {   [self setTitle:NSLocalizedStringWithDefaultValue(@"groupTitle", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Create Group", @"")];
+        [nextContacts setTitle:NSLocalizedStringWithDefaultValue(@"nextUiButtonText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Next", @"")];
         [nextContacts setAction:@selector(launchContactSelection:)];
     }
+    
     
     self.automaticallyAdjustsScrollViewInsets = NO; //setting to NO helps show UITextView's text at view load
     [self setupGroupIcon];
@@ -86,7 +97,6 @@
     self.descriptionTextView.userInteractionEnabled = NO;
     [self.tabBarController.tabBar setHidden:YES];
     // self.alNewContactViewController.delegateGroupCreation = self;
-    
 }
 
 -(void)setProfileImage
@@ -94,12 +104,17 @@
     NSURL *imageURL = [NSURL URLWithString:self.groupImageURL];
     if(imageURL.path.length)
     {
-        [self.groupIconView sd_setImageWithURL:imageURL];
+        [self.groupIconView sd_setImageWithURL:imageURL placeholderImage:nil options:SDWebImageRefreshCached];
     }
     else
     {
         [self.groupIconView setImage:DEFAULT_GROUP_ICON_IMAGE];
     }
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
 }
 
 //=========================================================================================================================================
@@ -111,16 +126,16 @@
     //Check if group name text is empty
     if([self.groupNameInput.text isEqualToString:@""])
     {
+        
         UIAlertController *alertController = [UIAlertController
-                                              alertControllerWithTitle:@"Group Name"
-                                              message:@"Please give the group name."
+                                              alertControllerWithTitle: NSLocalizedStringWithDefaultValue(@"groupNameInfo", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Group Name", @"")
+                                              message: NSLocalizedStringWithDefaultValue(@"groupNameEmptyAlertMessage", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Please give the group name.", @"")
                                               preferredStyle:UIAlertControllerStyleAlert];
         
         [ALUtilityClass setAlertControllerFrame:alertController andViewController:self];
         
         UIAlertAction *okAction = [UIAlertAction
-                                   actionWithTitle:NSLocalizedString(@"OK", @"OK action")
-                                   style:UIAlertActionStyleDefault
+                                   actionWithTitle:NSLocalizedStringWithDefaultValue(@"okText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"OK", @"")                                   style:UIAlertActionStyleDefault
                                    handler:^(UIAlertAction *action)
                                    {
                                        NSLog(@"OK action");
@@ -129,7 +144,6 @@
         [self presentViewController:alertController animated:YES completion:nil];
         return;
     }
-    
     
     //Moving forward to member selection
     UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"Applozic"
@@ -157,20 +171,37 @@
 {
     if(!self.groupNameInput.text.length)
     {
-        [ALUtilityClass showAlertMessage:@"You haven't update anything" andTitle:@"Wait!!!"];
+        [ALUtilityClass showAlertMessage:
+         NSLocalizedStringWithDefaultValue(@"youHaveNotUpdatedAnything", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"You haven't update anything", @"")  andTitle:NSLocalizedStringWithDefaultValue(@"wait", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Wait!!!", @"")];
         return;
+
     }
     [self.loadingIndicator startAnimating];
     
     self.groupImageURL = self.groupImageURL ? self.groupImageURL : @"";
     ALChannelService *channelService = [ALChannelService new];
-    [channelService updateChannel:self.channelKey andNewName:self.groupNameInput.text
+    
+    NSString* changedName;
+    
+    if(self.channelName != nil && [self.groupNameInput.text isEqualToString:self.channelName]){
+        changedName = nil;
+    }else{
+        changedName = self.groupNameInput.text;
+    }
+    ALChannel *oldChannel =  [channelService getChannelByKey:self.channelKey ];
+
+    if(oldChannel != nil && oldChannel.channelImageURL != NULL && [oldChannel.channelImageURL isEqualToString:self.groupImageURL]){
+        self.groupImageURL = nil;
+    }
+    
+    [channelService updateChannel:self.channelKey andNewName:changedName
                       andImageURL:self.groupImageURL orClientChannelKey:nil isUpdatingMetaData:NO
-                         metadata:nil orChildKeys:nil withCompletion:^(NSError *error) {
+                         metadata:nil orChildKeys:nil orChannelUsers:nil  withCompletion:^(NSError *error) {
         
           if(!error)
           {
-              [ALUtilityClass showAlertMessage:@"Group information successfully updated" andTitle:@"Response"];
+        
+              NSLog(@"ALGroupCreationViewController updated the group info");
               [self.navigationController popViewControllerAnimated:YES];
               [self.grpInfoDelegate updateGroupInformation];
           }
@@ -196,26 +227,28 @@
     [self.groupIconView addGestureRecognizer:singleTap];
 }
 
+
 -(void)uploadImage
 {
     UIAlertController * alertController = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     
     [ALUtilityClass setAlertControllerFrame:alertController andViewController:self];
     
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedStringWithDefaultValue(@"cancelOptionText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
     
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Photo Library" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedStringWithDefaultValue(@"photoLibraryText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Photo Library", @"")style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         [self uploadByPhotos];
     }]];
     
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Take Photo" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedStringWithDefaultValue(@"takePhotoText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Take Photo", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         
         [self uploadByCamera];
     }]];
     
     if(self.isViewForUpdatingGroup && self.groupImageURL.length)
     {
-        UIAlertAction * removeAction = [UIAlertAction actionWithTitle:@"Remove Photo" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        UIAlertAction * removeAction = [UIAlertAction actionWithTitle:NSLocalizedStringWithDefaultValue(@"removePhoto", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Remove Photo", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             
             self.groupImageURL = @"";
             [self setProfileImage];
@@ -251,16 +284,20 @@
                 }
                 else
                 {
-                    [ALUtilityClass permissionPopUpWithMessage:@"Enable Camera Permission" andViewController:self];
+                    
+                    [ALUtilityClass permissionPopUpWithMessage:NSLocalizedStringWithDefaultValue(@"permissionPopMessageForCamera", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Enable Camera Permission", @"") andViewController:self];
                 }
             });
         }];
     }
     else
     {
-        [ALUtilityClass showAlertMessage:@"Camera is not Available !!!" andTitle:@"OOPS !!!"];
+        [ALUtilityClass showAlertMessage:NSLocalizedStringWithDefaultValue(@"permissionNotAvailableMessageForCamera", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Camera is not Available !!!", @"") andTitle:NSLocalizedStringWithDefaultValue(@"oppsText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"OPPS !!", @"")];
+        
+        
     }
 }
+
 
 //=========================================================================================================================================
 #pragma mark - IMAGE PICKER DELEGATES
@@ -291,18 +328,18 @@
 -(void)confirmUserForGroupImage:(UIImage *)image
 {
     image = [image getCompressedImageLessThanSize:1];
-    UIAlertController * alert = [UIAlertController alertControllerWithTitle:@"Confirmation"
-                                                                    message:@"Are you sure to upload?"
+    UIAlertController * alert = [UIAlertController alertControllerWithTitle:NSLocalizedStringWithDefaultValue(@"confirmationText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Confirmation!", @"")
+                                                                    message:NSLocalizedStringWithDefaultValue(@"areYouSureForUploadText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Are you sure to upload?!", @"")
                                                              preferredStyle:UIAlertControllerStyleAlert];
     
     [ALUtilityClass setAlertControllerFrame:alert andViewController:self];
     
-    UIAlertAction* cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * action) {
+    UIAlertAction* cancel = [UIAlertAction actionWithTitle:NSLocalizedStringWithDefaultValue(@"cancelOptionText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Cancel!", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * action) {
         [self.groupIconView setImage:DEFAULT_GROUP_ICON_IMAGE];
         [alert dismissViewControllerAnimated:YES completion:nil];
     }];
     
-    UIAlertAction* upload = [UIAlertAction actionWithTitle:@"Upload" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+    UIAlertAction* upload = [UIAlertAction actionWithTitle: NSLocalizedStringWithDefaultValue(@"upload", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Upload!", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
         
         if(![ALDataNetworkConnection checkDataNetworkAvailable])
         {

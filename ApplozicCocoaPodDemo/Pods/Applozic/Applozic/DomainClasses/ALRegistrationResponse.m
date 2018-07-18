@@ -17,6 +17,7 @@
     self.message = [registrationResponse valueForKey:@"message"];
     self.deviceKey = [registrationResponse valueForKey:@"deviceKey"];
     self.userKey = [registrationResponse valueForKey:@"userKey"];
+    self.displayName = [registrationResponse valueForKey:@"displayName"];
     self.contactNumber = [registrationResponse valueForKey:@"contactNumber"];
     self.lastSyncTime = [registrationResponse valueForKey:@"lastSyncTime"];
     self.currentTimeStamp = [registrationResponse valueForKey:@"currentTimeStamp"];
@@ -25,7 +26,11 @@
     self.imageLink = [registrationResponse valueForKey:@"imageLink"];
     self.encryptionKey = [registrationResponse valueForKey:@"encryptionKey"];
     self.pricingPackage = [[registrationResponse valueForKey:@"pricingPackage"] shortValue];
-   
+    self.notificationSoundFileName = [registrationResponse valueForKey:@"notificationSoundFileName"];
+    self.metadata = [[NSMutableDictionary  alloc] initWithDictionary: [registrationResponse valueForKey:@"metadata"]];
+    self.roleType = [[registrationResponse valueForKey:@"roleType"] shortValue];
+    self.userEncryptionKey = [registrationResponse valueForKey:@"userEncryptionKey"];
+    
     return self;
 }
 

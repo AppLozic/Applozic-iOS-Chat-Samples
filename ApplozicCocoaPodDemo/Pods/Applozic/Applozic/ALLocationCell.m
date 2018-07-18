@@ -54,6 +54,15 @@
         ZERO = 0;
         DATE_HEIGHT = 21;
         MSG_STATUS_CONSTANT = 20;
+        
+        if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
+            self.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+            self.mImageView.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+        }
+        
+        UITapGestureRecognizer * menuTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(proccessTapForMenu:)];
+        [self.contentView addGestureRecognizer:menuTapGesture];
+
     }
     
     return self;
@@ -62,6 +71,7 @@
 -(instancetype)populateCell:(ALMessage*) alMessage viewSize:(CGSize)viewSize
 {
     [super populateCell:alMessage viewSize:viewSize];
+    [self.replyUIView removeFromSuperview];
     
     self.mUserProfileImageView.alpha = 1;
     
@@ -80,6 +90,12 @@
     [self.mChannelMemberName setHidden:YES];
     [self.mNameLabel setHidden:YES];
     [self.mMessageStatusImageView setHidden:YES];
+    [self.replyParentView setHidden:YES];
+    
+    UITapGestureRecognizer *tapForOpenChat = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(processOpenChat)];
+    tapForOpenChat.numberOfTapsRequired = 1;
+    [self.mUserProfileImageView setUserInteractionEnabled:YES];
+    [self.mUserProfileImageView addGestureRecognizer:tapForOpenChat];
     
     CELL_WIDTH = viewSize.width - 120;
     CELL_HEIGHT = viewSize.width - 220;
@@ -103,30 +119,38 @@
 
         BUBBLE_ABSCISSA = self.mUserProfileImageView.frame.size.width + ADJUST_USER_PROFILE;
         
-        self.mBubleImageView.frame = CGRectMake(BUBBLE_ABSCISSA, ZERO, CELL_WIDTH, CELL_HEIGHT);
+     
+        CGFloat imageViewY = self.mBubleImageView.frame.origin.y + FLOAT_CONSTANT;
+        CGFloat imageHeight = CELL_HEIGHT;      
+
+       self.mBubleImageView.frame = CGRectMake(BUBBLE_ABSCISSA, ZERO, CELL_WIDTH, CELL_HEIGHT);
         
-        self.mImageView.frame = CGRectMake(self.mBubleImageView.frame.origin.x + FLOAT_CONSTANT,
-                                           self.mBubleImageView.frame.origin.y + FLOAT_CONSTANT,
-                                           self.mBubleImageView.frame.size.width - ADJUST_WIDTH,
-                                           self.mBubleImageView.frame.size.height - ADJUST_HEIGHT);
-        
-        if(alMessage.groupId)
+        if( alMessage.groupId )
         {
-            CELL_HEIGHT = viewSize.width - 190;
             [self.mChannelMemberName setText:receiverName];
             [self.mChannelMemberName setHidden:NO];
-            [self.mChannelMemberName setTextColor: [ALColorUtility getColorForAlphabet:receiverName]];
-            self.mBubleImageView.frame = CGRectMake(BUBBLE_ABSCISSA, ZERO, CELL_WIDTH, CELL_HEIGHT);
-            
             self.mChannelMemberName.frame = CGRectMake(self.mBubleImageView.frame.origin.x + 5,
                                                        self.mBubleImageView.frame.origin.y + 2,
                                                        self.mBubleImageView.frame.size.width + 30, 20);
             
-            self.mImageView.frame = CGRectMake(self.mBubleImageView.frame.origin.x + FLOAT_CONSTANT,
-                                               self.mChannelMemberName.frame.origin.y + self.mChannelMemberName.frame.size.height + 3,
-                                               self.mBubleImageView.frame.size.width - ADJUST_WIDTH,
-                                               self.mBubleImageView.frame.size.height - ADJUST_HEIGHT - self.mChannelMemberName.frame.size.height);
+            CELL_HEIGHT = CELL_HEIGHT + self.mChannelMemberName.frame.size.height ;
+            imageViewY = imageViewY + self.mChannelMemberName.frame.size.height;
         }
+        
+        if( alMessage.isAReplyMessage )
+        {
+            [self processReplyOfChat:alMessage andViewSize:viewSize];
+            CELL_HEIGHT = CELL_HEIGHT + self.replyParentView.frame.size.height ;
+            imageViewY =  imageViewY + self.replyParentView.frame.size.height;
+        
+        }
+        self.mBubleImageView.frame = CGRectMake(BUBBLE_ABSCISSA, ZERO, CELL_WIDTH, CELL_HEIGHT);
+        
+        
+        self.mImageView.frame = CGRectMake(self.mBubleImageView.frame.origin.x + FLOAT_CONSTANT,
+                                           imageViewY + 3,
+                                           self.mBubleImageView.frame.size.width - ADJUST_WIDTH,
+                                           imageHeight - ADJUST_HEIGHT);
         
         self.mDateLabel.frame = CGRectMake(self.mBubleImageView.frame.origin.x,
                                            self.mBubleImageView.frame.origin.y +
@@ -140,34 +164,46 @@
         
         if(alContact.contactImageUrl)
         {
-            NSURL * URL = [NSURL URLWithString:alContact.contactImageUrl];
-            [self.mUserProfileImageView sd_setImageWithURL:URL];
+            ALMessageClientService * messageClientService = [[ALMessageClientService alloc]init];
+            [messageClientService downloadImageUrlAndSet:alContact.contactImageUrl imageView:self.mUserProfileImageView defaultImage:@"ic_contact_picture_holo_light.png"];
         }
         else
         {
-            [self.mUserProfileImageView sd_setImageWithURL:[NSURL URLWithString:@""]];
+            [self.mUserProfileImageView sd_setImageWithURL:[NSURL URLWithString:@""] placeholderImage:nil options:SDWebImageRefreshCached];
             [self.mNameLabel setHidden:NO];
             self.mUserProfileImageView.backgroundColor = [ALColorUtility getColorForAlphabet:receiverName];
         }
         
+
+
     }
     else
     {
         self.mBubleImageView.backgroundColor = [ALApplozicSettings getSendMsgColor];
         USER_PROFILE_ABSCISSA = viewSize.width - 50;
         self.mUserProfileImageView.frame = CGRectMake(USER_PROFILE_ABSCISSA, FLOAT_CONSTANT, ZERO, USER_PROFILE_CONSTANT);
-
+        
+        CGFloat imageViewY = self.mBubleImageView.frame.origin.y + FLOAT_CONSTANT;
+        CGFloat imageHeight = CELL_HEIGHT;
+        
         BUBBLE_ABSCISSA = viewSize.width - self.mUserProfileImageView.frame.origin.x + 60;
         self.mBubleImageView.frame = CGRectMake(BUBBLE_ABSCISSA, ZERO, CELL_WIDTH, CELL_HEIGHT);
+    
+        if(alMessage.isAReplyMessage)
+        {
+            [self processReplyOfChat:alMessage andViewSize:viewSize];
+            CELL_HEIGHT = CELL_HEIGHT + self.replyParentView.frame.size.height;
+            imageViewY = imageViewY + self.replyParentView.frame.size.height;
+            
+        }
         
-        self.mImageView.frame = CGRectMake(self.mBubleImageView.frame.origin.x + FLOAT_CONSTANT,
-                                           self.mBubleImageView.frame.origin.y + FLOAT_CONSTANT,
+      self.mBubleImageView.frame = CGRectMake(BUBBLE_ABSCISSA, ZERO, CELL_WIDTH, CELL_HEIGHT);
+        
+        self.mImageView.frame = CGRectMake(self.mBubleImageView.frame.origin.x + FLOAT_CONSTANT,imageViewY,
                                            self.mBubleImageView.frame.size.width - ADJUST_WIDTH,
-                                           self.mBubleImageView.frame.size.height - ADJUST_HEIGHT);
+                                           imageHeight - ADJUST_HEIGHT);
         
-        msgFrameHeight = self.mBubleImageView.frame.size.height;
-        
-        self.mDateLabel.textAlignment = NSTextAlignmentLeft;
+        msgFrameHeight = self.mBubleImageView.frame.size.height;        self.mDateLabel.textAlignment = NSTextAlignmentLeft;
         
         self.mDateLabel.frame = CGRectMake((self.mBubleImageView.frame.origin.x + self.mBubleImageView.frame.size.width) - theDateSize.width - 20,
                                            self.mBubleImageView.frame.origin.y + self.mBubleImageView.frame.size.height, theDateSize.width, DATE_HEIGHT);
@@ -203,6 +239,7 @@
             break;
         }
         
+        
         self.mMessageStatusImageView.image = [ALUtilityClass getImageFromFramworkBundle:imageName];
     }
 
@@ -225,8 +262,43 @@
     
     [self addShadowEffects];
     
+    if(alMessage.isAReplyMessage)
+    {
+        [self.contentView bringSubviewToFront:self.replyParentView];
+        
+    }
+
+
+    
     return self;
 }
+
+
+
+#pragma mark - Menu option tap Method -
+
+-(void) proccessTapForMenu:(id)tap{
+    
+    [self processKeyBoardHideTap];
+
+    UIMenuItem * messageForward = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"forwardOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Forward", @"") action:@selector(messageForward:)];
+    UIMenuItem * messageReply = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"replyOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Reply", @"") action:@selector(messageReply:)];
+    
+    if ([self.mMessage.type isEqualToString:@MT_INBOX_CONSTANT]){
+        
+        [[UIMenuController sharedMenuController] setMenuItems: @[messageForward,messageReply]];
+        
+    }else if ([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT]){
+
+        
+        UIMenuItem * msgInfo = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"infoOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Info", @"") action:@selector(msgInfo:)];
+        
+        [[UIMenuController sharedMenuController] setMenuItems: @[msgInfo,messageReply,messageForward]];
+    }
+    [[UIMenuController sharedMenuController] update];
+    
+}
+
 
 -(void) addShadowEffects
 {
@@ -274,15 +346,29 @@
     [[UIApplication sharedApplication] openURL:locationURL];
 }
 
+
 -(BOOL) canPerformAction:(SEL)action withSender:(id)sender
 {
+    
+
+    if(self.mMessage.groupId){
+            
+            ALChannelService *channelService = [[ALChannelService alloc] init];
+            ALChannel *channel =  [channelService getChannelByKey:self.mMessage.groupId];
+            if(channel && channel.type == OPEN){
+                return NO;
+            }
+        }
+        
     if([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT] && self.mMessage.groupId)
     {
-        return (action == @selector(delete:)|| action == @selector(msgInfo:));
+        return (self.mMessage.isDownloadRequired? (action == @selector(delete:) || action == @selector(msgInfo:)):(action == @selector(delete:)|| action == @selector(msgInfo:)|| [self isForwardMenuEnabled:action] || [self isMessageReplyMenuEnabled:action]) );
     }
     
-    return (action == @selector(delete:));
+    return (self.mMessage.isDownloadRequired? (action == @selector(delete:)):(action == @selector(delete:)
+                                                                              || [self isForwardMenuEnabled:action]|| [self isMessageReplyMenuEnabled:action]));
 }
+
 
 -(void) delete:(id)sender
 {
@@ -291,6 +377,19 @@
         
         NSLog(@"DELETE MESSAGE ERROR :: %@", error.description);
     }];
+}
+
+-(void)openUserChatVC
+{
+    [self.delegate processUserChatView:self.mMessage];
+}
+
+
+-(void) messageForward:(id)sender
+{
+    NSLog(@"Message forward option is pressed");
+    [self.delegate processForwardMessage:self.mMessage];
+    
 }
 
 - (void)msgInfo:(id)sender
@@ -312,6 +411,38 @@
             [self.delegate showAnimationForMsgInfo:NO];
         }
     }];
+}
+
+-(NSString*)getLocationUrl:(ALMessage*)almessage;
+{
+    NSString *latLongArgument = [self formatLocationJson:almessage];
+    NSString * finalURl = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/staticmap?center=%@&zoom=17&size=290x179&maptype=roadmap&format=png&visual_refresh=true&markers=%@&key=%@",
+                           latLongArgument,latLongArgument,[ALUserDefaultsHandler getGoogleMapAPIKey]];
+
+    return finalURl;
+}
+
+-(BOOL)isForwardMenuEnabled:(SEL) action;
+{
+    return ([ALApplozicSettings isForwardOptionEnabled] && action == @selector(messageForward:));
+}
+
+-(void) processKeyBoardHideTap
+{
+    [self.delegate handleTapGestureForKeyBoard];
+}
+
+-(void) messageReply:(id)sender
+{
+    NSLog(@"Message forward option is pressed");
+    [self.delegate processMessageReply:self.mMessage];
+    
+}
+
+-(BOOL)isMessageReplyMenuEnabled:(SEL) action
+{
+    return ([ALApplozicSettings isReplyOptionEnabled] && action == @selector(messageReply:));
+    
 }
 
 @end

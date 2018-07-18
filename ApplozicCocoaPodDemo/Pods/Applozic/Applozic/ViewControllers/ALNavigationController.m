@@ -24,4 +24,10 @@
     NSLog(@"baseController ALNavigationController...");
 }
 
+-(NSMutableArray*)getCustomButtons
+{
+    NSLog(@" Base getCustomButtonView");
+    return nil;
+}
+
 @end

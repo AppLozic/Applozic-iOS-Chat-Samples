@@ -33,7 +33,7 @@
     self.channelImageURL = [self getStringFromJsonValue:messageJson[@"imageUrl"]];
     self.adminKey = [self getStringFromJsonValue:messageJson[@"adminId"]];
     self.unreadCount = [self getNSNumberFromJsonValue:messageJson[@"unreadCount"]];
-    //self.userCount = [self getNSNumberFromJsonValue:messageJson[@""]];
+    self.userCount = [self getNSNumberFromJsonValue:messageJson[@"userCount"]];
 //    self.membersName = [[NSMutableArray alloc] initWithArray:[messageJson objectForKey:@"membersName"]];
     [self setMembersName: [[NSMutableArray alloc] initWithArray:[messageJson objectForKey:@"membersName"]]];
     self.membersId = [[NSMutableArray alloc] initWithArray:[messageJson objectForKey:@"membersId"]];
@@ -81,7 +81,9 @@
     if(_notificationAfterTime){
         return ([_notificationAfterTime longValue]> secsUtc1970);
     }
-    return NO;
+    else {
+        return ([self isGroupMutedByDefault]);
+    }
 }
 
 -(void)setMembersName:(NSMutableArray *)membersName {
@@ -132,6 +134,33 @@
     }
     
     return dictionary;
+}
+
+-(BOOL)isGroupMutedByDefault{
+    
+    if( _metadata && [_metadata  valueForKey:CHANNEL_DEFAULT_MUTE] ){
+        
+        return ([ [_metadata  valueForKey:CHANNEL_DEFAULT_MUTE] isEqualToString:@"true"]);
+    }
+    return NO;
+}
+
+
+-(BOOL)isConversationClosed{
+
+    if( _metadata && [_metadata  valueForKey:CHANNEL_CONVERSATION_STATUS] ){
+
+        return ([ [_metadata  valueForKey:CHANNEL_CONVERSATION_STATUS] isEqualToString:@"CLOSE"]);
+    }
+    return NO;
+}
+
+-(BOOL)isPartOfCategory:(NSString*)category{
+    
+    if( _metadata && [_metadata  valueForKey:CATEGORY] ){
+        return ([ [_metadata  valueForKey:CATEGORY] isEqualToString:category]);
+    }
+    return NO;
 }
 
 @end

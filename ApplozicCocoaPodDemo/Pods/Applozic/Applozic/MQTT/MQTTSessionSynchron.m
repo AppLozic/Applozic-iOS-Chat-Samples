@@ -43,7 +43,7 @@
     dispatch_semaphore_wait(self.semaphoreConnect,
                             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)));
     
-    DDLogVerbose(@"[MQTTSessionSynchron] end connect");
+    ALDDLogVerbose(@"[MQTTSessionSynchron] end connect");
     
     return (self.status == MQTTSessionStatusConnected);
 }
@@ -65,7 +65,7 @@
     dispatch_semaphore_wait(self.semaphoreConnect,
                             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)));
     
-    DDLogVerbose(@"[MQTTSessionSynchron] end connect");
+    ALDDLogVerbose(@"[MQTTSessionSynchron] end connect");
     
     return (self.status == MQTTSessionStatusConnected);
 }
@@ -82,7 +82,7 @@
     dispatch_semaphore_wait(self.semaphoreSub,
                             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)));
     
-    DDLogVerbose(@"[MQTTSessionSynchron] end subscribe");
+    ALDDLogVerbose(@"[MQTTSessionSynchron] end subscribe");
     
     if (self.synchronSubMid != mid) {
         return FALSE;
@@ -103,7 +103,7 @@
     dispatch_semaphore_wait(self.semaphoreSub,
                             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)));
     
-    DDLogVerbose(@"[MQTTSessionSynchron] end subscribe");
+    ALDDLogVerbose(@"[MQTTSessionSynchron] end subscribe");
     
     if (self.synchronSubMid != mid) {
         return FALSE;
@@ -124,7 +124,7 @@
     dispatch_semaphore_wait(self.semaphoreUnsub,
                             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)));
     
-    DDLogVerbose(@"[MQTTSessionSynchron] end unsubscribe");
+    ALDDLogVerbose(@"[MQTTSessionSynchron] end unsubscribe");
     
     if (self.synchronUnsubMid != mid) {
         return FALSE;
@@ -145,7 +145,7 @@
     dispatch_semaphore_wait(self.semaphoreUnsub,
                             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)));
     
-    DDLogVerbose(@"[MQTTSessionSynchron] end unsubscribe");
+    ALDDLogVerbose(@"[MQTTSessionSynchron] end unsubscribe");
     
     if (self.synchronUnsubMid != mid) {
         return FALSE;
@@ -175,7 +175,7 @@
         dispatch_semaphore_wait(self.semaphorePub,
                                 dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)));
         
-        DDLogVerbose(@"[MQTTSessionSynchron] end publish");
+        ALDDLogVerbose(@"[MQTTSessionSynchron] end publish");
         
         if (self.synchronPubMid != mid) {
             return FALSE;
@@ -196,7 +196,7 @@
     dispatch_semaphore_wait(self.semaphoreDisconnect,
                             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)));
     
-    DDLogVerbose(@"[MQTTSessionSynchron] end close");
+    ALDDLogVerbose(@"[MQTTSessionSynchron] end close");
 }
 
 @end

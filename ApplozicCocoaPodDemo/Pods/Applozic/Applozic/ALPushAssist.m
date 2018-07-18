@@ -54,6 +54,7 @@
             ||[self.topViewController isKindOfClass:[ALGroupDetailViewController class]]
             ||[self.topViewController isKindOfClass:[ALNewContactsViewController class]]
             ||[self.topViewController isKindOfClass:[ALUserProfileVC class]]
+            ||[self isVOIPViewOnTop]
             ||[self isGroupUpdateVCOnTop]);
 }
 
@@ -85,6 +86,13 @@
 -(BOOL)isGroupDetailViewOnTop{
     return ([self.topViewController isKindOfClass:[ALGroupDetailViewController class]]);
 }
+
+-(BOOL)isVOIPViewOnTop
+{
+    NSLog(@"VOIP_VIEW : %@",self.topViewController);
+    return ([self.topViewController isKindOfClass:NSClassFromString([ALApplozicSettings getAudioVideoClassName])]);
+}
+
 - (UIViewController*)topViewController {
     return [self topViewControllerWithRootViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
 }
@@ -110,6 +118,16 @@
     } else {
         return rootViewController;
     }
+}
+
++ (BOOL)isViewObjIsMsgVC:(UIViewController *)viewObj
+{
+    return ([viewObj isKindOfClass:[ALMessagesViewController class]]);
+}
+
++ (BOOL)isViewObjIsMsgContainerVC:(UIViewController *)viewObj
+{
+    return ([viewObj isKindOfClass:NSClassFromString([ALApplozicSettings getMsgContainerVC])]);
 }
 
 @end

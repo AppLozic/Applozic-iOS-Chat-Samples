@@ -15,5 +15,6 @@
 @interface ALLocationCell : ALMediaBaseCell
 
 -(instancetype)populateCell:(ALMessage*) alMessage viewSize:(CGSize)viewSize;
+-(NSString*)getLocationUrl:(ALMessage*)almessage;
 
 @end

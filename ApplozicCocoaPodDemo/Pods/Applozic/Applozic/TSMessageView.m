@@ -133,8 +133,13 @@ static NSMutableDictionary *_notificationDesign;
         default:
             break;
     }
+    CGFloat topPadding = self.padding;
+
+    if (@available(iOS 11.0, *)) {
+        topPadding = topPadding + self.safeAreaInsets.top;
+    }
     self.iconImageView.frame = CGRectMake(self.padding * 2,
-                                          self.padding,
+                                          topPadding,
                                           image.size.width,
                                           image.size.height);
     self.iconImageView.layer.cornerRadius=image.size.width/2;
@@ -334,8 +339,13 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
         if (image)
         {
             _iconImageView = [[UIImageView alloc] initWithImage:image];
+
+            CGFloat topPadding = self.padding;
+            if (@available(iOS 11.0, *)) {
+                topPadding = topPadding + self.safeAreaInsets.top;
+            }
             self.iconImageView.frame = CGRectMake(padding * 2,
-                                                  padding,
+                                                  topPadding,
                                                   image.size.width,
                                                   image.size.height);
             
@@ -459,9 +469,15 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
     CGFloat currentHeight;
     CGFloat screenWidth = self.viewController.view.bounds.size.width;
     CGFloat padding = [self padding];
+    CGFloat topPadding = padding;
+
+    if (@available(iOS 11.0, *)) {
+        // Adding full padding adds too much gap in iphone X so, it's 0.3x
+        topPadding = 0.3 * topPadding + self.safeAreaInsets.top;
+    }
 
     self.titleLabel.frame = CGRectMake(self.textSpaceLeft,
-                                       padding,
+                                       topPadding,
                                        screenWidth - padding - self.textSpaceLeft - self.textSpaceRight,
                                        0.0);
     [self.titleLabel sizeToFit];

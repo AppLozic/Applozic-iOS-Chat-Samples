@@ -10,6 +10,7 @@
 #import "ALUIConstant.h"
 #import "ALUtilityClass.h"
 #import "ALApplozicSettings.h"
+#import "ALAudioVideoBaseVC.h"
 #import "ALChannelMsgCell.h"
 
 @implementation ALUIConstant
@@ -26,7 +27,7 @@
     CGSize theTextSize = [ALUtilityClass getSizeForText:theMessage.message
                                                maxWidth:cellFrame.size.width - 115
                                                    font:[ALApplozicSettings getFontFace]
-                                               fontSize:15];
+                                               fontSize:MESSAGE_TEXT_SIZE];
     
     return theTextSize;
 }
@@ -109,6 +110,18 @@
     return HEIGHT;
 }
 
++(CGFloat)getVOIPCellHeight:(ALMessage *)alMessage andCellFrame:(CGRect)cellFrame
+{
+    CGSize theTextSize = [ALUtilityClass getSizeForText:[alMessage getVOIPMessageText]
+                                               maxWidth:cellFrame.size.width - 115
+                                                   font:[ALApplozicSettings getCustomMessageFont]
+                                               fontSize:[ALApplozicSettings getCustomMessageFontSize]];
+                                            // WORKING FOR NOW BUT NEED TO CHANGE FONT & FONT-SIZE FOR VOIP TEXT BEFORE RELEASE
+    
+    CGFloat HEIGHT = theTextSize.height + 40;
+    return HEIGHT;
+}
+
 +(CGFloat)getChannelMsgCellHeight:(ALMessage *)alMessage andCellFrame:(CGRect)cellFrame
 {
     CGSize theTextSize = [ALUtilityClass getSizeForText:alMessage.message
@@ -116,57 +129,69 @@
                                                    font:@"Helvetica"
                                                fontSize:CH_MESSAGE_TEXT_SIZE];
     
-    CGFloat HEIGHT = theTextSize.height + 30;
-    
+    CGFloat HEIGHT = theTextSize.height + 30;    
     return HEIGHT;
 }
 
 + (CGFloat) getCellHeight:(ALMessage *)alMessage andCellFrame:(CGRect)cellFrame
 {
     
+    CGFloat replyViewHeight = 70;
+    CGFloat heightOfCell;
+    
     if(alMessage.contentType == ALMESSAGE_CONTENT_LOCATION)
     {
-        return [self getLocationCellHeight:cellFrame];
+        heightOfCell = [self getLocationCellHeight:cellFrame];
     }
     else if([alMessage.type isEqualToString:@"100"])
     {
-        return [self getDateCellHeight];
+        heightOfCell=  [self getDateCellHeight];
     }
     else if(alMessage.contentType == ALMESSAGE_CHANNEL_NOTIFICATION)
     {
         if ([alMessage isMsgHidden]){
-            return 0;
+            heightOfCell= 0;
         }
-        return [self getChannelMsgCellHeight:alMessage andCellFrame:cellFrame];
+        heightOfCell = [self getChannelMsgCellHeight:alMessage andCellFrame:cellFrame];
     }
     else if ([alMessage.fileMeta.contentType hasPrefix:@"video"])
     {
-        return [self getVideoCellHeight:alMessage andCellFrame:cellFrame];
+        heightOfCell= [self getVideoCellHeight:alMessage andCellFrame:cellFrame];
     }
     else if ([alMessage.fileMeta.contentType hasPrefix:@"audio"])
     {
-        return [self getAudioCellHeight];
-    }
-    else if (alMessage.contentType == ALMESSAGE_CONTENT_CUSTOM)
-    {
-         return [self getCustomChatCellHeight:alMessage andCellFrame:cellFrame];
-    }
-    else if (alMessage.contentType == ALMESSAGE_CONTENT_DEFAULT)
-    {
-        return [self getChatCellHeight:alMessage andCellFrame:cellFrame];
+        heightOfCell = [self getAudioCellHeight] ;
     }
     else if ([alMessage.fileMeta.contentType hasPrefix:@"image"])
     {
-        return [self getImageCellHeight:alMessage andCellFrame:cellFrame];
+        heightOfCell = [self getImageCellHeight:alMessage andCellFrame:cellFrame] ;
+    }
+    else if (alMessage.contentType == AV_CALL_CONTENT_THREE)
+    {
+        return [self getVOIPCellHeight:alMessage andCellFrame:cellFrame];
+    }
+    else if (alMessage.contentType == ALMESSAGE_CONTENT_CUSTOM)
+    {
+        heightOfCell = [self getCustomChatCellHeight:alMessage andCellFrame:cellFrame];
+    }
+    else if (alMessage.contentType == ALMESSAGE_CONTENT_DEFAULT)
+    {
+        heightOfCell =[self getChatCellHeight:alMessage andCellFrame:cellFrame];
     }
     else if (alMessage.contentType == (short)ALMESSAGE_CONTENT_VCARD)
     {
-        return [self getContactCellHeight];
+        heightOfCell = [self getContactCellHeight];
     }
     else
     {
-        return [self getDocumentCellHeight];
+        heightOfCell= [self getDocumentCellHeight];
     }
+    
+    if(alMessage.isAReplyMessage)
+    {
+        heightOfCell = heightOfCell + replyViewHeight;
+    }
+    return heightOfCell;
 }
 
 @end

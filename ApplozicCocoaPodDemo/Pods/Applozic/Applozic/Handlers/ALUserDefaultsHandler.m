@@ -86,7 +86,7 @@
     NSArray * keyArray = [dictionary allKeys];
     for(NSString * defaultKeyString in keyArray)
     {
-        if([defaultKeyString hasPrefix:KEY_PREFIX])
+        if([defaultKeyString hasPrefix:KEY_PREFIX] && ![defaultKeyString isEqualToString:APN_DEVICE_TOKEN])
         {
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:defaultKeyString];
             [[NSUserDefaults standardUserDefaults] synchronize];
@@ -436,6 +436,10 @@
 
 +(NSString *)getFILEURL
 {
+    if([ALApplozicSettings isS3StorageServiceEnabled]){
+        return [self getBASEURL];
+    }
+    
     NSString * kFileUrl = [[NSUserDefaults standardUserDefaults] valueForKey:APPLOZIC_FILE_URL];
     return (kFileUrl && ![kFileUrl isEqualToString:@""]) ? kFileUrl : @"https://applozic.appspot.com";
 }
@@ -494,7 +498,7 @@
 +(NSInteger)getFetchConversationPageSize
 {
     NSInteger maxLimit = [[NSUserDefaults standardUserDefaults] integerForKey:CONVERSATION_FETCH_PAGE_SIZE];
-    return maxLimit ? maxLimit : 20;
+    return maxLimit ? maxLimit : 60;
 }
 
 +(void)setNotificationMode:(short)mode
@@ -598,18 +602,6 @@
     return [[NSUserDefaults standardUserDefaults] valueForKey:LOGGEDIN_USER_STATUS];
 }
 
-+(void)setDeviceApnsType:(short)type
-{
-    [[NSUserDefaults standardUserDefaults] setInteger:type forKey:DEVICE_APNS_TYPE_ID];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-+(short)getDeviceApnsType
-{
-    short type = [[NSUserDefaults standardUserDefaults] integerForKey:DEVICE_APNS_TYPE_ID];
-    return type ? type : 0;
-}
-
 +(BOOL)isUserLoggedInUserSubscribedMQTT
 {
      return [[NSUserDefaults standardUserDefaults] boolForKey:LOGIN_USER_SUBSCRIBED_MQTT];
@@ -663,6 +655,84 @@
 +(NSString*)getGoogleMapAPIKey
 {
     return [[NSUserDefaults standardUserDefaults] valueForKey:GOOGLE_MAP_API_KEY];
+}
+
++(NSString*)getNotificationSoundFileName
+{
+    return [[NSUserDefaults standardUserDefaults] valueForKey:NOTIFICATION_SOUND_FILE_NAME];
+}
+
+
++(void)setNotificationSoundFileName:(NSString *)notificationSoundFileName
+{
+    [[NSUserDefaults standardUserDefaults] setValue:notificationSoundFileName forKey:NOTIFICATION_SOUND_FILE_NAME];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(void)setContactServerCallIsDone:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:AL_CONTACT_SERVER_CALL_IS_DONE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isContactServerCallIsDone
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:AL_CONTACT_SERVER_CALL_IS_DONE];
+}
+
++(void)setContactScrollingIsInProgress:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:AL_CONTACT_SCROLLING_DONE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isContactScrollingIsInProgress
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:AL_CONTACT_SCROLLING_DONE];
+}
+
++(void) setLastGroupFilterSyncTime: (NSNumber *) lastSyncTime
+{
+    [[NSUserDefaults standardUserDefaults] setDouble:[lastSyncTime doubleValue] forKey:GROUP_FILTER_LAST_SYNC_TIME];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
++(NSNumber *)getLastGroupFilterSyncTIme
+{
+    return [[NSUserDefaults standardUserDefaults] valueForKey:GROUP_FILTER_LAST_SYNC_TIME];
+
+}
+
++(void)setUserRoleType:(short)type{
+    [[NSUserDefaults standardUserDefaults] setInteger:type forKey:AL_USER_ROLE_TYPE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(short)getUserRoleType{
+    
+    short roleType = [[NSUserDefaults standardUserDefaults] integerForKey:AL_USER_ROLE_TYPE];
+    return roleType ? roleType : 3;
+    
+}
+
++(void)setPushNotificationFormat:(short)format{
+    [[NSUserDefaults standardUserDefaults] setInteger:format forKey:AL_USER_PUSH_NOTIFICATION_FORMATE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(short)getPushNotificationFormat{
+    short pushNotificationFormat = [[NSUserDefaults standardUserDefaults] integerForKey:AL_USER_PUSH_NOTIFICATION_FORMATE];
+    return pushNotificationFormat ? pushNotificationFormat : 0;
+}
+
++(void)setUserEncryption:(NSString*)encryptionKey{
+    
+    [[NSUserDefaults standardUserDefaults] setValue:encryptionKey forKey:USER_MQTT_ENCRYPTION_KEY];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSString*)getUserEncryptionKey{
+    
+    return [[NSUserDefaults standardUserDefaults] valueForKey:USER_MQTT_ENCRYPTION_KEY];
 }
 
 

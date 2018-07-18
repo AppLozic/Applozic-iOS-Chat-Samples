@@ -21,7 +21,7 @@
     self.status = [self getStringFromJsonValue:json[@"status"]];
     self.generatedAt = [self getNSNumberFromJsonValue:json[@"generatedAt"]];
     self.response =  [json valueForKey:@"response"];
-    
+    self.actualresponse = json;
     NSLog(@"self.generatedAt : %@",self.generatedAt);
     NSLog(@"self.status : %@",self.status);
 

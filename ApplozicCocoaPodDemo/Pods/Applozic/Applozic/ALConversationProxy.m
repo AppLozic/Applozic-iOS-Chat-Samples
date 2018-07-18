@@ -41,8 +41,9 @@
     self.created = [self getBoolFromJsonValue:messageJson[@"created"]];
     self.Id = [self getNSNumberFromJsonValue:messageJson[@"id"]];
     self.topicId = [self getStringFromJsonValue:messageJson[@"topicId"]];
+    self.groupId = [self getNSNumberFromJsonValue:messageJson[@"groupId"]];
+    self.userId = [self getStringFromJsonValue:messageJson[@"userId"]];
     self.topicDetailJson =[self getStringFromJsonValue:messageJson[@"topicDetail"]];
-
 }
 
 -(ALTopicDetail*)getTopicDetail {

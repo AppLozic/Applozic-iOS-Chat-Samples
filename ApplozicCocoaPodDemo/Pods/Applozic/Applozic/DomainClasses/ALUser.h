@@ -25,6 +25,12 @@ typedef enum
 
 } deviceApnsType;
 
+
+#define AV_FEATURE_ARRAY  [NSArray arrayWithObjects: @"101",@"102",nil]
+
+
+
+
 @interface ALUser : ALJson
 
 @property NSString *userId;
@@ -48,8 +54,12 @@ typedef enum
 @property short authenticationTypeId;
 @property short unreadCountType;
 @property short deviceApnsType;
+@property short pushNotificationFormat;
 @property BOOL enableEncryption;
 @property NSNumber* contactType;
+@property NSMutableArray * features;
+@property NSString* notificationSoundFileName;
+@property NSMutableDictionary * metadata;
 
 -(instancetype)initWithUserId:(NSString *)userId
                      password:(NSString *)password

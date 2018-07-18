@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="11524" systemVersion="15G31" minimumToolsVersion="Xcode 4.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="13772" systemVersion="17C88" minimumToolsVersion="Xcode 4.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
     <entity name="DB_CHANNEL" representedClassName="DB_CHANNEL" syncable="YES">
         <attribute name="adminId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="channelDisplayName" optional="YES" attributeType="String" syncable="YES"/>
@@ -56,6 +56,7 @@
         <attribute name="size" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="suUserKeyString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="thumbnailUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="fileMetaInfo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DB_Message" inverseName="fileMetaInfo" inverseEntity="DB_Message" syncable="YES"/>
     </entity>
     <entity name="DB_Message" representedClassName="DB_Message" syncable="YES">
         <attribute name="contactId" optional="YES" attributeType="String" syncable="YES"/>
@@ -83,14 +84,14 @@
         <attribute name="to" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="userKey" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="fileMetaInfo" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DB_FileMetaInfo" syncable="YES"/>
+        <relationship name="fileMetaInfo" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DB_FileMetaInfo" inverseName="fileMetaInfo" inverseEntity="DB_FileMetaInfo" syncable="YES"/>
     </entity>
     <elements>
         <element name="DB_CHANNEL" positionX="27" positionY="171" width="128" height="210"/>
         <element name="DB_CHANNEL_USER_X" positionX="-144" positionY="318" width="128" height="120"/>
         <element name="DB_CONTACT" positionX="-144" positionY="-171" width="128" height="270"/>
         <element name="DB_ConversationProxy" positionX="-171" positionY="90" width="128" height="165"/>
-        <element name="DB_FileMetaInfo" positionX="-270" positionY="-144" width="128" height="165"/>
+        <element name="DB_FileMetaInfo" positionX="-270" positionY="-144" width="128" height="180"/>
         <element name="DB_Message" positionX="-441" positionY="-153" width="128" height="435"/>
     </elements>
 </model>

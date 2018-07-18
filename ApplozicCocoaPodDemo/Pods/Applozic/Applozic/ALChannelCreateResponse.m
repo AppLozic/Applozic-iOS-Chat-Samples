@@ -26,7 +26,8 @@
     }
     else
     {
-        return nil;
+        self.response = JSONString;
+        return self;
     }
     
 }
@@ -37,6 +38,7 @@
     {
         ALUserDetail *userDetail = [[ALUserDetail alloc] initWithDictonary:JSONDictionaryObject];
         ALContactDBService * contactDB = [ALContactDBService new];
+        userDetail.unreadCount = 0;
         [contactDB updateUserDetail: userDetail];
     }
 }

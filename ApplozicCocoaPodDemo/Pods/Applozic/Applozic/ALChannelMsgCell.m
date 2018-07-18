@@ -13,6 +13,12 @@
 -(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
     self  = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    
+    UITapGestureRecognizer * tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(processKeyBoardHideTap)];
+    tapGesture.numberOfTapsRequired = 1;
+    [self.contentView setUserInteractionEnabled:YES];
+    [self.contentView addGestureRecognizer:tapGesture];
+    
     return self;
 }
 
@@ -26,8 +32,7 @@
     [self.mMessageLabel setText:alMessage.message];
     [self.mMessageLabel setBackgroundColor:[UIColor clearColor]];
     [self.mMessageLabel setTextColor:[UIColor blackColor]];
-    [self.mMessageLabel setUserInteractionEnabled:NO];
-    
+
     [self.mDateLabel setHidden:YES];
     self.mUserProfileImageView.alpha = 0;
     self.mNameLabel.hidden = YES;
@@ -57,4 +62,10 @@
     
     return self;
 }
+
+-(void) processKeyBoardHideTap
+{
+    [self.delegate handleTapGestureForKeyBoard];
+}
+
 @end

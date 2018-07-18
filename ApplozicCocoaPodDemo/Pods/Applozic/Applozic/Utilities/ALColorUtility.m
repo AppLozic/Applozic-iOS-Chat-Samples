@@ -111,7 +111,7 @@
     
     NSString *firstLetter = [trimmed substringToIndex:1];
     NSRange whiteSpaceRange = [trimmed rangeOfCharacterFromSet:[NSCharacterSet whitespaceCharacterSet]];
-    NSArray *listNames = [trimmed componentsSeparatedByString:@" "];
+    NSArray *listNames = [trimmed componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     
     if (whiteSpaceRange.location != NSNotFound)
     {

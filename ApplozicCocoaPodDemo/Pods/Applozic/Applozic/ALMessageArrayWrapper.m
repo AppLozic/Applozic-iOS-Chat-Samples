@@ -35,7 +35,9 @@
 {
     if([self getUpdatedMessageArray].count == 0)
     {
-        ALMessage *dateLabel = [self getDatePrototype:@"Today" andAlMessageObject:alMessage];
+        ALMessage *dateLabel = [self getDatePrototype:
+                                NSLocalizedStringWithDefaultValue(@"today", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Today", @"")
+                                   andAlMessageObject:alMessage];
         [self.messageArray addObject:dateLabel];
     }
     else
@@ -135,19 +137,20 @@
     tempArray = [NSMutableArray arrayWithArray:self.messageArray];
     [tempArray addObjectsFromArray:paramMessageArray];
     
-
-     if(tempArray.count == 1)
-     {
+    
+    if(tempArray.count == 1)
+    {
         
-        self.dateCellText = @"Today";
+        self.dateCellText = NSLocalizedStringWithDefaultValue(@"today", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Today", @"");
+        
         ALMessage *dateLabel = [self getDatePrototype:self.dateCellText andAlMessageObject:tempArray[0]];
-     
+        
         [self.messageArray addObject:dateLabel];
         [self.messageArray addObject:tempArray[0]];
         [tempArray removeAllObjects];
         return;
-     }
-
+    }
+    
     int countX  =((int)self.messageArray.count==0)?1:((int)self.messageArray.count);
     for(int i = countX-1 ; i  < (tempArray.count-1) ; i++)
     {
@@ -167,13 +170,13 @@
     }
     
     //final addintion of date at top ....
-//    ALMessage * message = [self.messageArray firstObject];
-//    if(message){
-//        NSString * dateTxt = [self msgAtTop:message];
-//        ALMessage *dateLabel = [self getDatePrototype:dateTxt andAlMessageObject:message];
-//        [self.messageArray insertObject:dateLabel atIndex:0];
-//    }
-
+    //    ALMessage * message = [self.messageArray firstObject];
+    //    if(message){
+    //        NSString * dateTxt = [self msgAtTop:message];
+    //        ALMessage *dateLabel = [self getDatePrototype:dateTxt andAlMessageObject:message];
+    //        [self.messageArray insertObject:dateLabel atIndex:0];
+    //    }
+    
     [tempArray removeAllObjects];
 }
 
@@ -222,11 +225,12 @@
     {
         if([newerDateString isEqualToString:todaydate])
         {
-            self.dateCellText = @"Today";
+            self.dateCellText = NSLocalizedStringWithDefaultValue(@"today", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Today", @"");
+            
         }
         else if([newerDateString isEqualToString:yesterdaydate])
         {
-            self.dateCellText = @"Yesterday";
+            self.dateCellText = NSLocalizedStringWithDefaultValue(@"yesterday", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Yesterday", @"");
         }
         else
         {
@@ -260,12 +264,11 @@
     
     if([string isEqualToString:todaydate])
     {
-        actualDate = @"Today";
+        actualDate = NSLocalizedStringWithDefaultValue(@"today", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Today", @"");
     }
     else if ([string isEqualToString:yesterdaydate])
     {
-        actualDate = @"Yesterday";
-    }
+        actualDate = NSLocalizedStringWithDefaultValue(@"yesterday", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Yesterday", @"");    }
     else
     {
         [format setDateFormat:@"EEEE MMM dd,yyyy"];
@@ -277,11 +280,11 @@
 }
 
 -(NSMutableArray*)filterOutDuplicateMessage:(NSMutableArray*)newMessageArray {
-
-    ALMessage * firstInNewMessage = [newMessageArray objectAtIndex:0];
-//    ALMessage * lastInOldMessage = [self.messageArray lastObject];
     
-
+    ALMessage * firstInNewMessage = [newMessageArray objectAtIndex:0];
+    //    ALMessage * lastInOldMessage = [self.messageArray lastObject];
+    
+    
     if(self.messageArray.count <=0){
         return newMessageArray;
     }
@@ -289,7 +292,7 @@
         return newMessageArray;
     }
     NSMutableArray * tempArray = [NSMutableArray arrayWithArray:newMessageArray];
-
+    
     int count = (int)self.messageArray.count;
     for (ALMessage *message in tempArray)
     {

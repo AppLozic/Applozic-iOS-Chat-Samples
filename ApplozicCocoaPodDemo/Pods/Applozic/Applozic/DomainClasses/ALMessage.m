@@ -7,6 +7,7 @@
 
 #import "ALMessage.h"
 #import "ALUtilityClass.h"
+#import "ALAudioVideoBaseVC.h"
 
 
 @implementation ALMessage
@@ -140,6 +141,7 @@
                 ALFileMetaInfo * theFileMetaInfo = [ALFileMetaInfo new];
                 
                 theFileMetaInfo.blobKey = [self getStringFromJsonValue:fileMetaDict[@"blobKey"]];
+                theFileMetaInfo.thumbnailBlobKey = [self getStringFromJsonValue:fileMetaDict[@"thumbnailBlobKey"]];
                 theFileMetaInfo.contentType = [self getStringFromJsonValue:fileMetaDict[@"contentType"]];
                 theFileMetaInfo.createdAtTime = [self getNSNumberFromJsonValue:fileMetaDict[@"createdAtTime"]];
                 theFileMetaInfo.key = [self getStringFromJsonValue:fileMetaDict[@"key"]];
@@ -164,11 +166,11 @@
 -(NSString *)getCreatedAtTime:(BOOL)today {
     
     NSString *formattedStr = today?@"hh:mm a":@"dd MMM";
-
+    
     NSString *formattedDateStr;
-   
+    
     NSDate *currentTime = [[NSDate alloc] init];
-
+    
     NSDate *msgDate = [[NSDate alloc] init];
     msgDate = [NSDate dateWithTimeIntervalSince1970:self.createdAtTime.doubleValue/1000];
     NSTimeInterval difference = [currentTime timeIntervalSinceDate:msgDate];
@@ -178,7 +180,8 @@
     {
         if(difference <= 60)
         {
-            formattedDateStr = @"Just Now";
+            formattedDateStr = NSLocalizedStringWithDefaultValue(@"justNow", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Just Now", @"");
+            
         }
         else
         {
@@ -197,7 +200,7 @@
     }
     else
     {
-       formattedDateStr = [ALUtilityClass formatTimestamp:[self.createdAtTime doubleValue]/1000 toFormat:formattedStr];
+        formattedDateStr = [ALUtilityClass formatTimestamp:[self.createdAtTime doubleValue]/1000 toFormat:formattedStr];
     }
     
     return formattedDateStr;
@@ -212,7 +215,7 @@
     return formattedDateStr;
     
 }
--(BOOL)isDownloadRequire{
+-(BOOL)isDownloadRequired{
     
     //TODO:check for SD card
     return (self.fileMeta && !self.imageFilePath);
@@ -224,32 +227,56 @@
             || self.isUploadFailed==YES );
 }
 
--(BOOL)isHiddenMessage{
-    return (self.contentType == ALMESSAGE_CONTENT_HIDDEN);
 
+-(BOOL)isHiddenMessage
+{
+    return ((self.contentType == ALMESSAGE_CONTENT_HIDDEN) || [self isVOIPNotificationMessage]
+            || [self isPushNotificationMessage] || [self isMessageCategoryHidden]
+            || self.getReplyType== AL_REPLY_BUT_HIDDEN || self.isMsgHidden );
 }
+
+-(BOOL)isVOIPNotificationMessage
+{
+    return (self.contentType == AV_CALL_CONTENT_TWO);
+}
+
+
+-(BOOL)isToIgnoreUnreadCountIncrement
+{
+    return (self.contentType == AV_CALL_CONTENT_THREE);
+}
+
+
 -(NSString*)getNotificationText
 {
+    
+    if(self.contentType == ALMESSAGE_CONTENT_LOCATION)
+    {
+        return NSLocalizedStringWithDefaultValue(@"location", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Location", @"");
+        
+    }
+    else if(self.contentType == ALMESSAGE_CONTENT_VCARD)
+    {
+        return NSLocalizedStringWithDefaultValue(@"contact", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Contact", @"");
+    }
     if(self.message && ![self.message isEqualToString:@""])
     {
         return self.message;
     }
-    else if(self.contentType == ALMESSAGE_CONTENT_LOCATION)
-    {
-        return @"Location";
-    }
-    else if(self.contentType == ALMESSAGE_CONTENT_VCARD)
-    {
-        return @"Contact";
-    }
     else
     {
-        return @"Attachment";
+        return NSLocalizedStringWithDefaultValue(@"attachment", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Attachment", @"");
     }
 }
 
+
 -(NSMutableDictionary *)getMetaDataDictionary:(NSString *)string
 {
+
+    if(string == nil){
+        return nil;
+    }
+    
     NSData * data = [string dataUsingEncoding:NSUTF8StringEncoding];
 //    NSString * error;
     NSPropertyListFormat format;
@@ -278,10 +305,95 @@
     return metaDataDictionary;
 }
 
+-(NSString *)getVOIPMessageText
+{
+    NSString *msgType = (NSString *)[self.metadata objectForKey:@"MSG_TYPE"];
+    BOOL flag = [[self.metadata objectForKey:@"CALL_AUDIO_ONLY"] boolValue];
+    
+    NSString * text = self.message;
+    
+    if([msgType isEqualToString:@"CALL_MISSED"])
+    {
+        text = flag ? @"Missed Audio Call" : @"Missed Video Call";
+    }
+    else if([msgType isEqualToString:@"CALL_END"])
+    {
+        text = flag ? @"Audio Call" : @"Video Call";
+    }
+    else if([msgType isEqualToString:@"CALL_REJECTED"])
+    {
+        text = @"Call Busy";
+    }
+    
+    return text;
+}
+
 -(BOOL)isMsgHidden
 {
     BOOL hide = [[self.metadata objectForKey:@"hide"] boolValue];
+    
     return hide;
 }
 
+-(BOOL)isPushNotificationMessage
+{
+  return (self.metadata && [self.metadata valueForKey:@"category"] &&
+   [ [self.metadata valueForKey:@"category"] isEqualToString:CATEGORY_PUSHNNOTIFICATION]);
+}
+
+-(BOOL)isMessageCategoryHidden
+{
+    return (self.metadata && [self.metadata valueForKey:@"category"] &&
+            [ [self.metadata valueForKey:@"category"] isEqualToString:CATEGORY_HIDDEN]);
+}
+
+
+-(BOOL)isAReplyMessage
+{
+    return (self.metadata && [self.metadata valueForKey:AL_MESSAGE_REPLY_KEY] );
+}
+
+-(BOOL)isSentMessage
+{
+    return [self.type isEqualToString:OUT_BOX];
+}
+-(BOOL)isReceivedMessage
+{
+    return [self.type isEqualToString:IN_BOX];
+    
+}
+
+-(BOOL)isLocationMessage
+{
+    return (self.contentType ==ALMESSAGE_CONTENT_LOCATION);
+}
+-(BOOL)isContactMessage
+{
+    return (self.contentType ==ALMESSAGE_CONTENT_VCARD);
+    
+}
+-(BOOL)isDocumentMessage
+{
+    return (self.contentType ==ALMESSAGE_CONTENT_ATTACHMENT) &&
+    !([self.fileMeta.contentType hasPrefix:@"video"]|| [self.fileMeta.contentType hasPrefix:@"audio"] || [self.fileMeta.contentType hasPrefix:@"image"] );
+    
+}
+
+-(ALReplyType)getReplyType
+{
+    switch ([self.messageReplyType intValue])
+    {
+            
+        case 1:
+            return AL_A_REPLY;
+            break;
+            
+        case 2:
+            return AL_REPLY_BUT_HIDDEN;
+            break;
+            
+        default:
+            return AL_NOT_A_REPLY;
+    }
+}
 @end

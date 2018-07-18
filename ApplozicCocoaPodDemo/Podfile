@@ -1,9 +1,9 @@
 platform :ios, '9.0'
 
 target 'ApplozicCocoaPodDemo' do
-
-  # use_frameworks!
-     pod 'Applozic', '~>4.0.1'
+    # Add use_frameworks for applozic
+    use_frameworks!
+    pod 'Applozic'
   # Pods for ApplozicCocoaPodDemo
 
   target 'ApplozicCocoaPodDemoTests' do

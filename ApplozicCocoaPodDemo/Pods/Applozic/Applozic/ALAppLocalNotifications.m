@@ -31,10 +31,6 @@
     dispatch_once(&onceToken, ^{
         
         localNotificationHandler = [[self alloc] init];
-        
-        
-        
-        
     });
     
     return localNotificationHandler;
@@ -54,6 +50,10 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(proactivelyDisconnectMQTT)
                                                   name:@"APP_ENTER_IN_BACKGROUND"
                                                 object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(transferVOIPMessage:)
+                                                 name:@"newMessageNotification"
+                                               object:nil];
     
     if([ALUserDefaultsHandler isLoggedIn]){
         
@@ -171,6 +171,7 @@
         {
             NSLog(@"========== IF internetConnectionReach ============");
             [self proactivelyConnectMQTT];
+            [ALMessageService syncMessages];
             [ALMessageService processPendingMessages];
             
             ALUserService *userService = [ALUserService new]; 
@@ -180,6 +181,7 @@
         else
         {
             NSLog(@"========== ELSE internetConnectionReach ============");
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"NETWORK_DISCONNECTED" object:nil];
         }
     }
     
@@ -187,45 +189,30 @@
 
 -(void)proactivelyConnectMQTT
 {
-    ALPushAssist * assitant = [[ALPushAssist alloc] init];
-//    if(assitant.isOurViewOnTop)
-//    {
         ALMQTTConversationService *alMqttConversationService = [ALMQTTConversationService sharedInstance];
         [alMqttConversationService  subscribeToConversation];
-//    }
 }
 
 -(void)proactivelyDisconnectMQTT
 {
-    ALPushAssist * assitant = [[ALPushAssist alloc] init];
-//    if(assitant.isOurViewOnTop){
         ALMQTTConversationService *alMqttConversationService = [ALMQTTConversationService sharedInstance];
         [alMqttConversationService  unsubscribeToConversation];
-//    }
 }
 
 //receiver
 - (void)appWillEnterForegroundBase:(NSNotification *)notification
 {
     [self proactivelyConnectMQTT];
-    //Works in 3rd Party borders..
-    NSString * deviceKeyString = [ALUserDefaultsHandler getDeviceKeyString];
-//   CHECK HERE FOR THAT FLAG FOR SYNC CALL
-    if([ALUserDefaultsHandler isLoggedIn] && [ALUserDefaultsHandler isMsgSyncRequired])
-    {
-        [ALMessageService getLatestMessageForUser:deviceKeyString withCompletion:^(NSMutableArray *messageArray, NSError *error) {
-            
-            if(error)
-            {
-                NSLog(@"ERROR IN LATEST MSG APNs CLASS : %@",error);
-            }
-        }];
-    }
+    [ALMessageService syncMessages];
 }
 
 // To DISPLAY THE NOTIFICATION ONLY ...from 3rd Party View.
 -(void)thirdPartyNotificationHandler:(NSNotification *)notification
 {
+    if([ALApplozicSettings isSwiftFramework]) {
+        return;
+    }
+
     NSNumber *groupId = nil;
     NSArray *notificationComponents = [notification.object componentsSeparatedByString:@":"];
 
@@ -248,14 +235,23 @@
     
     if([updateUI isEqualToNumber:[NSNumber numberWithInt:APP_STATE_ACTIVE]])
     {
-        if(alertValue)
+        if( alertValue || alertValue.length >0)
         {
             NSLog(@"posting to notification....%@",notification.userInfo);
             if (groupId && [ALChannelService isChannelMuted:groupId])
             {
                 return;
             }
-            [ALUtilityClass thirdDisplayNotificationTS:alertValue andForContactId:self.contactId withGroupId:groupId delegate:self];
+            if(groupId){
+                
+                [[ALChannelService new] getChannelInformation:groupId orClientChannelKey:nil withCompletion:^(ALChannel *alChannel3) {
+                    
+                    [ALUtilityClass thirdDisplayNotificationTS:alertValue andForContactId:self.contactId withGroupId:groupId delegate:self];
+
+                }];
+            }else{
+                [ALUtilityClass thirdDisplayNotificationTS:alertValue andForContactId:self.contactId withGroupId:groupId delegate:self];
+            }
         }
         else
         {
@@ -264,7 +260,7 @@
     }
     if([updateUI isEqualToNumber:[NSNumber numberWithInt:APP_STATE_BACKGROUND]])
     {
-        if(alertValue)
+        if(alertValue || alertValue.length >0)
         {
             ALPushAssist* assitant = [[ALPushAssist alloc] init];
             NSLog(@"APP_STATE_BACKGROUND :: %@",notification.userInfo);
@@ -285,6 +281,17 @@
     {
         self.chatLauncher = [[ALChatLauncher alloc] initWithApplicationId:APPLICATION_KEY];
         [self.chatLauncher launchIndividualChat:contactId withGroupId:groupID andViewControllerObject:pushAssistant.topViewController andWithText:nil];
+    }
+}
+
+-(void)transferVOIPMessage:(NSNotification *)notification
+{
+    NSMutableArray * array = notification.object;
+    ALVOIPNotificationHandler * voipHandler = [ALVOIPNotificationHandler sharedManager];
+    ALPushAssist * assist = [[ALPushAssist alloc] init];
+    for (ALMessage *msg in array)
+    {
+        [voipHandler handleAVMsg:msg andViewController:assist.topViewController];
     }
 }
 

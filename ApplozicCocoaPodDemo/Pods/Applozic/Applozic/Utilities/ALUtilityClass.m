@@ -18,7 +18,7 @@
 #import "ALUserDefaultsHandler.h"
 #import "ALContactDBService.h"
 #import "ALContact.h"
-
+#import "UIImageView+WebCache.h"
 
 @implementation ALUtilityClass
 
@@ -221,7 +221,7 @@
 +(void)thirdDisplayNotificationTS:(NSString *)toastMessage andForContactId:(NSString *)contactId withGroupId:(NSNumber*) groupID delegate:(id)delegate
 {
     
-    if([ALUserDefaultsHandler getNotificationMode] == NOTIFICATION_DISABLE){
+    if([ALUserDefaultsHandler getNotificationMode] == NOTIFICATION_DISABLE ){
         return;
     }
     //3rd Party View is Opened.........
@@ -252,8 +252,8 @@
     [[TSMessageView appearance] setContentTextColor:[UIColor whiteColor]];
    
     [TSMessage showNotificationInViewController:top.topViewController
-                                          title:toastMessage
-                                       subtitle:nil
+                                          title:title
+                                       subtitle:toastMessage
                                           image:appIcon
                                            type:TSMessageNotificationTypeMessage
                                        duration:1.75
@@ -264,6 +264,56 @@
 
         
     }buttonTitle:nil buttonCallback:nil atPosition:TSMessageNotificationPositionTop canBeDismissedByUser:YES];
+    
+}
+
++(void)thirdDisplayNotificationTS:(NSString *)toastMessage andForContactId:(NSString *)contactId withGroupId:(NSNumber*) groupID completionHandler:(void (^)(BOOL))handler
+{
+
+    if([ALUserDefaultsHandler getNotificationMode] == NOTIFICATION_DISABLE){
+        return;
+    }
+    //3rd Party View is Opened.........
+    ALContact* dpName=[[ALContact alloc] init];
+    ALContactDBService * contactDb=[[ALContactDBService alloc] init];
+    dpName=[contactDb loadContactByKey:@"userId" value:contactId];
+
+
+    ALChannel *channel=[[ALChannel alloc] init];
+    ALChannelDBService *groupDb= [[ALChannelDBService alloc] init];
+
+    NSString* title;
+    if(groupID){
+        channel = [groupDb loadChannelByKey:groupID];
+        title=channel.name;
+        contactId=[NSString stringWithFormat:@"%@",groupID];
+    }
+    else {
+        title=dpName.getDisplayName;
+    }
+
+    ALPushAssist* top=[[ALPushAssist alloc] init];
+    UIImage *appIcon = [UIImage imageNamed: [[[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIcons"] objectForKey:@"CFBundlePrimaryIcon"] objectForKey:@"CFBundleIconFiles"] objectAtIndex:0]];
+
+    [[TSMessageView appearance] setTitleFont:[UIFont fontWithName:@"Helvetica Neue" size:18.0]];
+    [[TSMessageView appearance] setContentFont:[UIFont fontWithName:@"Helvetica Neue" size:14]];
+    [[TSMessageView appearance] setTitleTextColor:[UIColor whiteColor]];
+    [[TSMessageView appearance] setContentTextColor:[UIColor whiteColor]];
+
+    [TSMessage showNotificationInViewController:top.topViewController
+                                          title:toastMessage
+                                       subtitle:nil
+                                          image:appIcon
+                                           type:TSMessageNotificationTypeMessage
+                                       duration:1.75
+                                       callback:^(void){
+
+                                           handler(YES);
+                                           //                                           [delegate thirdPartyNotificationTap1:contactId withGroupId:groupID];
+
+
+                                       }
+                                    buttonTitle:nil buttonCallback:nil atPosition:TSMessageNotificationPositionTop canBeDismissedByUser:YES];
     
 }
 
@@ -304,7 +354,7 @@
 
 -(void)getExactDate:(NSNumber *)dateValue
 {
-
+    
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970: [dateValue doubleValue]/1000];
     
     NSDate *current = [[NSDate alloc] init];
@@ -321,12 +371,12 @@
     
     if([serverdate isEqualToString:todaydate])
     {
-        self.msgdate = @"today";
+        self.msgdate = NSLocalizedStringWithDefaultValue(@"todayMsgViewText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"today" , @"");
         
     }
     else if ([serverdate isEqualToString:yesterdaydate])
     {
-        self.msgdate = @"yesterday";
+        self.msgdate = NSLocalizedStringWithDefaultValue(@"yesterdayMsgViewText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"yesterday" , @"");
     }
     
     [format setDateFormat:@"hh:mm a"];
@@ -334,7 +384,7 @@
     [format setPMSymbol:@"pm"];
     
     self.msgtime = [format stringFromDate:date];
-
+    
 }
 
 +(UIImage *)setVideoThumbnail:(NSString *)videoFilePATH
@@ -357,13 +407,35 @@
     return thumbnail;
 }
 
+
++(void)subVideoImage:(NSURL *)url  withCompletion:(void (^)(UIImage *image)) completion{
+    
+    AVAsset *asset = [AVAsset assetWithURL:url];
+    AVAssetImageGenerator *generator = [[AVAssetImageGenerator alloc] initWithAsset:asset];
+    generator.appliesPreferredTrackTransform=TRUE;
+    CMTime thumbTime = CMTimeMakeWithSeconds(0,30);
+    
+    AVAssetImageGeneratorCompletionHandler handler = ^(CMTime requestedTime, CGImageRef im, CMTime actualTime, AVAssetImageGeneratorResult result, NSError *error){
+        
+        if (result != AVAssetImageGeneratorSucceeded) {
+            NSLog(@"couldn't generate thumbnail, error:%@", error);
+        }
+        
+        completion([UIImage imageWithCGImage:im]);
+    };
+    
+    CGSize maxSize = CGSizeMake(128, 128);
+    generator.maximumSize = maxSize;
+    [generator generateCGImagesAsynchronouslyForTimes:[NSArray arrayWithObject:[NSValue valueWithCMTime:thumbTime]] completionHandler:handler];
+}
+
 +(void)showAlertMessage:(NSString *)text andTitle:(NSString *)title
 {
     UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:title
                                                          message:text
                                                         delegate:self
                                                cancelButtonTitle:nil
-                                               otherButtonTitles:@"OK", nil];
+                                               otherButtonTitles:NSLocalizedStringWithDefaultValue(@"okText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"OK" , @""), nil];
     
     [alertView show];
     
@@ -414,17 +486,17 @@
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
 }
 
+
 +(void)permissionPopUpWithMessage:(NSString *)msgText andViewController:(UIViewController *)viewController
 {
-    UIAlertController * alertController = [UIAlertController alertControllerWithTitle:@"Application Settings"
-                                                                              message:msgText
+    UIAlertController * alertController = [UIAlertController alertControllerWithTitle:NSLocalizedStringWithDefaultValue(@"applicationSettings", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Application Settings" , @"")    message:msgText
                                                                        preferredStyle:UIAlertControllerStyleAlert];
     
     [ALUtilityClass setAlertControllerFrame:alertController andViewController:viewController];
     
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedStringWithDefaultValue(@"cancelOptionText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Cancel" , @"")  style:UIAlertActionStyleCancel handler:nil]];
     
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Settings" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedStringWithDefaultValue(@"settings", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Settings" , @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         
         [ALUtilityClass openApplicationSettings];
     }]];
@@ -444,5 +516,140 @@
         [alertController.popoverPresentationController setPermittedArrowDirections:0]; // HIDING POPUP ARROW
     }
 }
+
++(void)movementAnimation:(UIButton *)button andHide:(BOOL)flag
+{
+    if(flag)  // FADE IN
+    {
+        [UIView animateWithDuration:0.3 animations:^{
+            button.alpha = 0;
+        } completion: ^(BOOL finished) {
+            button.hidden = finished;
+        }];
+    }
+    else
+    {
+         button.alpha = 0;  // FADE OUT
+         button.hidden = NO;
+         [UIView animateWithDuration:0.3 animations:^{
+         button.alpha = 1;
+         }];
+    }
+}
+
++(NSString *)getDevieUUID
+{
+    NSString * uuid = [[NSUUID UUID] UUIDString];
+    return uuid;
+}
+
++(BOOL)checkDeviceKeyString:(NSString *)string
+{
+    NSArray * array = [string componentsSeparatedByString:@":"];
+    NSString * deviceString = (NSString *)[array firstObject];
+    return [deviceString isEqualToString:[ALUtilityClass getDevieUUID]];
+}
+
++(void)setImageFromURL:(NSString *)urlString andImageView:(UIImageView *)imageView
+{
+    NSURL * imageURL = [NSURL URLWithString:urlString];
+    [imageView sd_setImageWithURL:imageURL placeholderImage:nil options:SDWebImageRefreshCached];
+}
+
++(NSString *)stringFromTimeInterval:(NSTimeInterval)interval
+{
+    NSInteger ti = (NSInteger)interval;
+    NSInteger seconds = ti % 60;
+    NSInteger minutes = (ti / 60) % 60;
+    NSInteger hours = (ti / 3600);
+    
+    NSString * text = @"";
+    
+    if (hours)
+    {
+        text = [NSString stringWithFormat:@"%ld Hr %02ld Min %02ld Sec", (long)hours, (long)minutes, (long)seconds];
+    }
+    else if (minutes)
+    {
+        text = [NSString stringWithFormat:@"%ld Min %ld Sec", (long)minutes, (long)seconds];
+    }
+    else
+    {
+        text = [NSString stringWithFormat:@"%ld Sec", (long)seconds];
+    }
+    
+    return text;
+}
+
++(UIImage *)getVOIPMessageImage:(ALMessage *)alMessage
+{
+    NSString *msgType = (NSString *)[alMessage.metadata objectForKey:@"MSG_TYPE"];
+    BOOL flag = [[alMessage.metadata objectForKey:@"CALL_AUDIO_ONLY"] boolValue];
+    
+    NSString * imageName = @"";
+    
+    if([msgType isEqualToString:@"CALL_MISSED"] || [msgType isEqualToString:@"CALL_REJECTED"])
+    {
+        imageName = @"missed_call.png";
+    }
+    else if([msgType isEqualToString:@"CALL_END"])
+    {
+        imageName = flag ? @"audio_call.png" : @"ic_action_video.png";
+    }
+    
+    UIImage *image = [ALUtilityClass getImageFromFramworkBundle:imageName];
+    
+    return image;
+}
+
+
++(NSString*)getLocationUrl:(ALMessage*)almessage;
+{
+    NSString *latLongArgument = [self formatLocationJson:almessage];
+    NSString * finalURl = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/staticmap?center=%@&zoom=17&size=290x179&maptype=roadmap&format=png&visual_refresh=true&markers=%@&key=%@",
+                           latLongArgument,latLongArgument,[ALUserDefaultsHandler getGoogleMapAPIKey]];
+    return finalURl;
+}
+
++(NSString*)getLocationUrl:(ALMessage*)almessage size: (CGRect) withSize
+{
+    
+    
+    NSString *latLongArgument = [self formatLocationJson:almessage];
+    
+    
+    NSString *staticMapUrl = [NSString stringWithFormat:@"http://maps.google.com/maps/api/staticmap?format=png&markers=%@&key=%@&zoom=13&size=%dx%d&scale=1",latLongArgument,
+                              [ALUserDefaultsHandler getGoogleMapAPIKey], 2*(int)withSize.size.width, 2*(int)withSize.size.height];
+    
+    return staticMapUrl;
+}
+
++(NSString*)formatLocationJson:(ALMessage *)locationAlMessage
+{
+    NSError *error;
+    NSData *objectData = [locationAlMessage.message dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *jsonStringDic = [NSJSONSerialization JSONObjectWithData:objectData
+                                                                  options:NSJSONReadingMutableContainers
+                                                                    error:&error];
+    
+    NSArray* latLog = [[NSArray alloc] initWithObjects:[jsonStringDic valueForKey:@"lat"],[jsonStringDic valueForKey:@"lon"], nil];
+    
+    if(!latLog.count)
+    {
+        return [self processMapUrl:locationAlMessage];
+    }
+    
+    NSString *latLongArgument = [NSString stringWithFormat:@"%@,%@", latLog[0], latLog[1]];
+    return latLongArgument;
+}
+
++(NSString *)processMapUrl:(ALMessage *)message
+{
+    NSArray * URL_ARRAY = [message.message componentsSeparatedByString:@"="];
+    NSString * coordinate = (NSString *)[URL_ARRAY lastObject];
+    return coordinate;
+}
+
+
 
 @end

@@ -1,1 +1,0 @@
-../../../Applozic/Applozic/MQTT/MQTTCFSocketTransport.h

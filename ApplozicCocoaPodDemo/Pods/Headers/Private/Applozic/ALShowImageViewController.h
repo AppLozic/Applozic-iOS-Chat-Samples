@@ -1,1 +1,0 @@
-../../../Applozic/Applozic/ViewControllers/ALShowImageViewController.h

@@ -71,7 +71,7 @@
 -(BOOL) isContactExist:(NSString *) value{
    
     DB_CONTACT* contact= [alContactDBService getContactByKey:@"userId" value:value];
-    return !(contact==nil);
+    return !(contact.lastSeenAt==nil);
     
 }
 #pragma update OR insert contact
@@ -93,8 +93,13 @@
 
 
 -(BOOL)addListOfContacts:(NSArray *)contacts{
-    return [alContactDBService updateListOfContacts:contacts];
+    return [alContactDBService addListOfContacts:contacts];
+}
 
+-(void)addListOfContactsInBackground:(NSArray *)contacts completionHandler:(void(^)(BOOL))response {
+    [alContactDBService addListOfContactsInBackground:contacts completionHandler:^void(BOOL success){
+        response(success);
+    }];
 }
 
 -(BOOL)addContact:(ALContact *)userContact{
@@ -141,6 +146,8 @@
     contact.unreadCount= dbContact.unreadCount;
     contact.userStatus = dbContact.userStatus;
     contact.deletedAtTime = dbContact.deletedAtTime;
+    contact.roleType = dbContact.roleType;
+    contact.metadata = [contact getMetaDataDictionary:dbContact.metadata];
     
     return contact;
 }

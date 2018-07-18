@@ -24,6 +24,8 @@
 
 -(void)nativeNotification:(id)delegate;
 
+-(void)showNativeNotificationWithcompletionHandler:(void (^)(BOOL))handler;
+
 -(void)showGroupLeftMessage;
 
 +(void)showLocalNotification:(NSString *)text;
@@ -33,5 +35,9 @@
 -(void)noDataConnectionNotificationView;
 
 -(void)updateChatScreen:(UIViewController*)delegate;
+
++(void)showNotification:(NSString *)message;
++(void)showPromotionalNotifications:(NSString *)text;
+
 
 @end

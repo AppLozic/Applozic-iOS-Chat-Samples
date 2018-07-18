@@ -1,1 +1,0 @@
-../../../Applozic/Applozic/Resources/ProgressView/KAProgressLabel.h

@@ -35,6 +35,33 @@
     self.unreadCount = [dict objectForKey:@"unreadCount"];
     self.userStatus = [dict objectForKey:@"statusMessage"];
     self.deletedAtTime = [dict objectForKey:@"deletedAtTime"];
+    self.metadata = [dict objectForKey:@"metadata"];
+    self.roleType = [dict objectForKey:@"roleType"];
+}
+
+-(NSMutableDictionary *)getMetaDataDictionary:(NSString *)string
+{
+    if(string == nil){
+        return nil;
+    }
+    
+    NSData * data = [string dataUsingEncoding:NSUTF8StringEncoding];
+    //    NSString * error;
+    NSPropertyListFormat format;
+    NSMutableDictionary * metaDataDictionary;
+    
+    @try
+    {
+        NSError * error;
+        metaDataDictionary = [NSPropertyListSerialization propertyListWithData:data options:NSPropertyListImmutable
+                                                                        format:&format
+                                                                         error:&error];
+    }
+    @catch(NSException * exp)
+    {
+    }
+    
+    return metaDataDictionary;
 }
 
 -(NSString *)getDisplayName

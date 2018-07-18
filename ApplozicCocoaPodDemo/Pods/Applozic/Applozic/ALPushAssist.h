@@ -25,6 +25,10 @@
 -(BOOL)isContactVCOnTop;
 -(BOOL)isMessageContainerOnTop;
 -(BOOL)isUserProfileVCOnTop;
+-(BOOL)isVOIPViewOnTop;
 -(BOOL)isGroupUpdateVCOnTop;
+
++ (BOOL)isViewObjIsMsgContainerVC:(UIViewController *)viewObj;
++ (BOOL)isViewObjIsMsgVC:(UIViewController *)viewObj;
 
 @end

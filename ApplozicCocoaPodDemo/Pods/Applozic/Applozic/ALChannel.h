@@ -12,6 +12,11 @@
 #import "ALConversationProxy.h"
 
 #define CHANNEL_SPECIAL_CASE 7
+#define CHANNEL_DEFAULT_MUTE @"MUTE"
+#define CHANNEL_CONVERSATION_STATUS @"CONVERSATION_STATUS"
+#define CATEGORY @"AL_CATEGORY"
+
+
 /*********************
  type = 7 SPECIAL CASE
 *********************/
@@ -26,9 +31,9 @@ typedef enum
     BROADCAST = 5,
     OPEN = 6,
     GROUP_OF_TWO = 7,
+    CONTACT_GROUP = 9,
     BROADCAST_ONE_BY_ONE = 106
 } CHANNEL_TYPE;
-
 
 @interface ALChannel : ALJson
 
@@ -57,7 +62,11 @@ typedef enum
 -(void)parseMessage:(id) messageJson;
 -(NSNumber *)getChannelMemberParentKey:(NSString *)userId;
 -(BOOL) isNotificationMuted;
+-(BOOL) isConversationClosed;
+
 -(NSString*)getReceiverIdInGroupOfTwo;
+
 -(NSMutableDictionary *)getMetaDataDictionary:(NSString *)string;
+-(BOOL)isPartOfCategory:(NSString*)category;
 
 @end

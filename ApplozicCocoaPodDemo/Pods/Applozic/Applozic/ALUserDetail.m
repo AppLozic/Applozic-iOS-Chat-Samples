@@ -41,21 +41,23 @@
     self.userTypeId = [JSONString valueForKey:@"userTypeId"];
     
     self.deletedAtTime = [JSONString valueForKey:@"deletedAtTime"];
-
+    self.metadata = [JSONString valueForKey:@"metadata"];
+    self.roleType = [JSONString valueForKey:@"roleType"];
+    
 }
 
 -(void)userDetail
 {
     
-//    NSLog(@"USER ID : %@",self.userId);
-//    NSLog(@"CONNECTED : %d",self.connected);
-//    NSLog(@"LAST SEEN : %@",self.lastSeenAtTime);
-//    NSLog(@"UNREAD COUNT : %@",self.unreadCount);
-//    NSLog(@"IMAGE LINK: %@",self.imageLink);
-//    NSLog(@"Display Name: %@",self.displayName);
-//    NSLog(@"Contact Number : %@",self.contactNumber);
-//    NSLog(@"DeletedAt : %@",self.deletedAtTime);
- 
+    //    NSLog(@"USER ID : %@",self.userId);
+    //    NSLog(@"CONNECTED : %d",self.connected);
+    //    NSLog(@"LAST SEEN : %@",self.lastSeenAtTime);
+    //    NSLog(@"UNREAD COUNT : %@",self.unreadCount);
+    //    NSLog(@"IMAGE LINK: %@",self.imageLink);
+    //    NSLog(@"Display Name: %@",self.displayName);
+    //    NSLog(@"Contact Number : %@",self.contactNumber);
+    //    NSLog(@"DeletedAt : %@",self.deletedAtTime);
+    
 }
 
 -(id)initWithDictonary:(NSDictionary *)messageDictonary{
@@ -74,6 +76,8 @@
     self.contactNumber = [self getStringFromJsonValue:json[@"phoneNumber"]];
     self.userStatus = [self getStringFromJsonValue:json[@"statusMessage"]];
     self.deletedAtTime = [self getNSNumberFromJsonValue:json[@"deletedAtTime"]];
+    self.metadata = [[NSMutableDictionary  alloc] initWithDictionary:json[@"metadata"]];
+    self.roleType = [self getNSNumberFromJsonValue:json[@"roleType"]];
 }
 
 -(NSString *)getDisplayName

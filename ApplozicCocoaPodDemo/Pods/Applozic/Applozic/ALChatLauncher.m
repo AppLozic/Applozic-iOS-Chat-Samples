@@ -64,7 +64,6 @@
         chatView.text = text;
         chatView.individualLaunch = YES;
         chatView.chatViewDelegate = self;
-        
         NSLog(@"CALLED_VIA_NOTIFICATION");
         
         UINavigationController * conversationViewNavController = [self createNavigationControllerForVC:chatView];
@@ -146,19 +145,22 @@
     UINavigationController * navBAR = (UINavigationController *)[[tabBAR viewControllers] objectAtIndex:0];
     ALMessagesViewController * msgVC = (ALMessagesViewController *)[[navBAR viewControllers] objectAtIndex:0];
     msgVC.messagesViewDelegate = self;
-    
     [viewController presentViewController:theTabBar animated:YES completion:nil];
     
 }
 
 -(void)registerForNotification
 {
-    [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:
-                                                                         (UIUserNotificationTypeSound |
-                                                                          UIUserNotificationTypeAlert |
-                                                                          UIUserNotificationTypeBadge) categories:nil]];
+//    [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:
+//                                                                         (UIUserNotificationTypeSound |
+//                                                                          UIUserNotificationTypeAlert |
+//                                                                          UIUserNotificationTypeBadge) categories:nil]];
+//    
+//    [[UIApplication sharedApplication] registerForRemoteNotifications];
     
-    [[UIApplication sharedApplication] registerForRemoteNotifications];
+    UIUserNotificationSettings * APNSetting = [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound categories:nil];
+    
+    [[UIApplication sharedApplication] registerUserNotificationSettings:APNSetting];
 }
 
 -(void)launchContactList:(UIViewController *)uiViewController
@@ -181,15 +183,23 @@
     
     contextChatView.displayName      = displayName;
     contextChatView.conversationId   = alConversationProxy.Id;
-    contextChatView.channelKey       = alConversationProxy.groupId;
-    contextChatView.contactIds       = alConversationProxy.userId;
+    
+    if(alConversationProxy.userId != nil)
+    {
+        contextChatView.contactIds  = alConversationProxy.userId;
+        contextChatView.channelKey   = nil;
+    }
+    else
+    {
+        contextChatView.channelKey   = alConversationProxy.groupId;
+        contextChatView.contactIds  = nil;
+    }
     contextChatView.text             = text;
     contextChatView.individualLaunch = YES;
     
     UINavigationController *conversationViewNavController = [self createNavigationControllerForVC:contextChatView];
     conversationViewNavController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
     [viewController presentViewController:conversationViewNavController animated:YES completion:nil];
-    
 }
 
 -(void)launchChatListWithUserOrGroup:(NSString *)userId withChannel:(NSNumber*)channelKey andViewControllerObject:(UIViewController *)viewController
@@ -271,6 +281,20 @@
     UITabBarItem *item2 = [tabBAR.tabBar.items objectAtIndex:1];
     [item2 setTitle:[ALApplozicSettings getProfileTabTitle]];
     [item2 setImage:[ALApplozicSettings getProfileTabIcon]];
+}
+
+//============================================
+// launching contact screen with message
+//============================================
+
+-(void)launchContactScreenWithMessage:(ALMessage *)alMessage andFromViewController:(UIViewController *)viewController
+{
+    UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"Applozic" bundle:[NSBundle bundleForClass:ALChatViewController.class]];
+    ALNewContactsViewController *contactVC = (ALNewContactsViewController *)[storyboard instantiateViewControllerWithIdentifier:@"ALNewContactsViewController"];
+    contactVC.directContactVCLaunch = YES;
+    contactVC.alMessage = alMessage;
+    UINavigationController *conversationViewNavController = [[UINavigationController alloc] initWithRootViewController:contactVC];
+    [viewController presentViewController:conversationViewNavController animated:YES completion:nil];
 }
 
 @end

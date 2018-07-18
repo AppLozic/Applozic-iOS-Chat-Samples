@@ -6,10 +6,6 @@
 //  Copyright (c) 2015 AppLogic. All rights reserved.
 //
 
-#define INVALID_APPLICATIONID @"INVALID_APPLICATIONID"
-#define VERSION_CODE @"109"
-#define LOGOUT_URL @"/rest/ws/device/logout"
-
 #import "ALRegisterUserClientService.h"
 #import "ALRequestHandler.h"
 #import "ALResponseHandler.h"
@@ -21,13 +17,15 @@
 #import "ALMQTTConversationService.h"
 #import "ALMessageService.h"
 #import "ALConstant.h"
+#import "ALUserService.h"
+#import "ALContactDBService.h"
 
 @implementation ALRegisterUserClientService
 
 -(void) initWithCompletion:(ALUser *)user withCompletion:(void(^)(ALRegistrationResponse * response, NSError *error)) completion
 {
     NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/register/client",KBASE_URL];
-   
+    
     [ALUserDefaultsHandler setUserId:user.userId];
     [ALUserDefaultsHandler setPassword:user.password];
     [ALUserDefaultsHandler setDisplayName:user.displayName];
@@ -43,11 +41,16 @@
     [user setAuthenticationTypeId:[ALUserDefaultsHandler getUserAuthenticationTypeId]];
     [user setPassword:[ALUserDefaultsHandler getPassword]];
     [user setUnreadCountType:[ALUserDefaultsHandler getUnreadCountType]];
-    [user setDeviceApnsType:[ALUserDefaultsHandler getDeviceApnsType]];
+    [user setDeviceApnsType:!isDevelopmentBuild()];
     [user setEnableEncryption:[ALUserDefaultsHandler getEnableEncryption]];
-    
-    if([ALUserDefaultsHandler getAppModuleName] != NULL){
+    [user setRoleName:[ALApplozicSettings getUserRoleName]];
+    if([ALUserDefaultsHandler getAppModuleName] != NULL)
+    {
         [user setAppModuleName:[ALUserDefaultsHandler getAppModuleName]];
+    }
+    if([ALApplozicSettings isAudioVideoEnabled])
+    {
+        [user setFeatures:[NSMutableArray arrayWithArray:AV_FEATURE_ARRAY]];
     }
     [user setUserTypeId:[ALUserDefaultsHandler getUserTypeId]];
     
@@ -55,9 +58,10 @@
     NSError * error;
     NSData * postdata = [NSJSONSerialization dataWithJSONObject:user.dictionary options:0 error:&error];
     NSString *theParamString = [[NSString alloc] initWithData:postdata encoding:NSUTF8StringEncoding];
-    
-    NSLog(@"PARAM_STRING USER_REGISTRATION :: %@",theParamString);
-    
+
+    NSString *logParamText = [self getUserParamTextForLogging:user];
+    NSLog(@"PARAM_STRING USER_REGISTRATION :: %@",logParamText);
+
     NSMutableURLRequest * theRequest = [ALRequestHandler createPOSTRequestWithUrlString:theUrlString paramString:theParamString];
     
     [ALResponseHandler processRequest:theRequest andTag:@"CREATE ACCOUNT" WithCompletionHandler:^(id theJson, NSError *theError) {
@@ -86,25 +90,53 @@
             [ALUserDefaultsHandler setUserKeyString:response.userKey];
             [ALUserDefaultsHandler setUserPricingPackage:response.pricingPackage];
             
+            if(user.pushNotificationFormat){
+                [ALUserDefaultsHandler setPushNotificationFormat:user.pushNotificationFormat];
+            }
+        
+            if(response.roleType){
+                [ALUserDefaultsHandler setUserRoleType:response.roleType];
+            }
+            
+            if( response.notificationSoundFileName )
+            {
+                [ALUserDefaultsHandler setNotificationSoundFileName:response.notificationSoundFileName];
+            }
             if(response.imageLink)
             {
                 [ALUserDefaultsHandler setProfileImageLinkFromServer:response.imageLink];
             }
+            if(response.userEncryptionKey)
+            {
+                [ALUserDefaultsHandler setUserEncryption:response.userEncryptionKey];
+            }
+            
             if(response.statusMessage)
             {
                 [ALUserDefaultsHandler setLoggedInUserStatus:response.statusMessage];
             }
             if(response.brokerURL && ![response.brokerURL isEqualToString:@""])
             {
-                 NSArray * mqttURL = [response.brokerURL componentsSeparatedByString:@":"];
-                 NSString * MQTTURL = [mqttURL[1] substringFromIndex:2];
-                 NSLog(@"MQTT_URL :: %@",MQTTURL);
+                NSArray * mqttURL = [response.brokerURL componentsSeparatedByString:@":"];
+                NSString * MQTTURL = [mqttURL[1] substringFromIndex:2];
+                NSLog(@"MQTT_URL :: %@",MQTTURL);
                 [ALUserDefaultsHandler setMQTTURL:MQTTURL];
             }
             if(response.encryptionKey)
             {
                 [ALUserDefaultsHandler setEncryptionKey:response.encryptionKey];
             }
+            
+            ALContactDBService  * alContactDBService = [[ALContactDBService alloc] init];
+            ALContact *contact = [[ALContact alloc] init];
+            contact.userId = user.userId;
+            contact.displayName = response.displayName;
+            contact.contactImageUrl = response.imageLink;
+            contact.contactNumber  = response.contactNumber;
+            contact.roleType  =  [NSNumber numberWithShort:response.roleType];
+            contact.metadata  =  response.metadata;
+            [alContactDBService addContact:contact];
+            
             //[ALUserDefaultsHandler setLastSyncTime:(NSNumber *)response.lastSyncTime];
         }
         
@@ -131,6 +163,10 @@
         
     }];
     
+    ALUserService * alUserService = [ALUserService new];
+    [alUserService updateUserApplicationInfo];
+    
+    
 }
 
 
@@ -145,7 +181,10 @@
         [user setApplicationId: [ALUserDefaultsHandler getApplicationKey]];
         [user setUserId:[ALUserDefaultsHandler getUserId]];
         [user setPassword:[ALUserDefaultsHandler getPassword]];
+        [user setDisplayName:[ALUserDefaultsHandler getDisplayName]];
+        [user setEmail:[ALUserDefaultsHandler getEmailId]];
         [self initWithCompletion:user withCompletion: completion];
+        
     }
 }
 
@@ -154,25 +193,32 @@
     NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/register/update",KBASE_URL];
     
     ALUser * user = [ALUser new];
-
+    
     [user setUserId:[ALUserDefaultsHandler getUserId]];
     [user setApplicationId:[ALUserDefaultsHandler getApplicationKey]];
     [user setNotificationMode:notificationMode];
     [user setPassword:[ALUserDefaultsHandler getPassword]];
     [user setRegistrationId: [ALUserDefaultsHandler getApnDeviceToken]];
-    
+    [user setEnableEncryption:[ALUserDefaultsHandler getEnableEncryption]];
     [user setPrefContactAPI:2];
     [user setEmailVerified:true];
     [user setDeviceType:4];
-    [user setDeviceApnsType:[ALUserDefaultsHandler getDeviceApnsType]];
+    [user setDeviceApnsType:!isDevelopmentBuild()];
     [user setAppVersionCode: VERSION_CODE];
     [user setAuthenticationTypeId:[ALUserDefaultsHandler getUserAuthenticationTypeId]];
+    [user setRoleName:[ALApplozicSettings getUserRoleName]];
     
     if([ALUserDefaultsHandler getAppModuleName] != NULL){
         [user setAppModuleName:[ALUserDefaultsHandler getAppModuleName]];
     }
+    [user setPushNotificationFormat:[ALUserDefaultsHandler getPushNotificationFormat]];
+    if([ALUserDefaultsHandler getNotificationSoundFileName] != nil){
+        [user setNotificationSoundFileName:[ALUserDefaultsHandler getNotificationSoundFileName]];
+    }
+    
     [user setUserTypeId:[ALUserDefaultsHandler getUserTypeId]];
     
+    [user setUnreadCountType:[ALUserDefaultsHandler getUnreadCountType]];
     
     NSError * error;
     NSData * postdata = [NSJSONSerialization dataWithJSONObject:user.dictionary options:0 error:&error];
@@ -202,10 +248,10 @@
 
 -(void) disconnect {
     
-   // ALMQTTConversationService *ob  = [[ALMQTTConversationService alloc] init];
+    // ALMQTTConversationService *ob  = [[ALMQTTConversationService alloc] init];
     //[ob sendTypingStatus:[ALUserDefaultsHandler getApplicationKey] userID:[ALUserDefaultsHandler getUserId] typing:NO];
     
-  //  [[ALMQTTConversationService sharedInstance] unsubscribeToConversation];
+    //  [[ALMQTTConversationService sharedInstance] unsubscribeToConversation];
 }
 
 -(void)logoutWithCompletionHandler:(void(^)(ALAPIResponse *response, NSError *error))completion
@@ -214,18 +260,23 @@
     NSMutableURLRequest * request = [ALRequestHandler createPOSTRequestWithUrlString:urlString paramString:nil];
     
     [ALResponseHandler processRequest:request andTag:@"USER_LOGOUT" WithCompletionHandler:^(id theJson, NSError *error) {
-        
+
         NSLog(@"RESPONSE_USER_LOGOUT :: %@", (NSString *)theJson);
         ALAPIResponse *response = [[ALAPIResponse alloc] initWithJSONString:theJson];
         if(!error && [response.status isEqualToString:@"success"])
         {
             NSString *userKey = [ALUserDefaultsHandler getUserKeyString];
-//            [[UIApplication sharedApplication] unregisterForRemoteNotifications];
+            //            [[UIApplication sharedApplication] unregisterForRemoteNotifications];
             [ALUserDefaultsHandler clearAll];
             ALMessageDBService *messageDBService = [[ALMessageDBService alloc] init];
             [messageDBService deleteAllObjectsInCoreData];
             
             [[ALMQTTConversationService sharedInstance] unsubscribeToConversation: userKey];
+        } else {
+            [ALUserDefaultsHandler clearAll];
+            ALMessageDBService *messageDBService = [[ALMessageDBService alloc] init];
+            [messageDBService deleteAllObjectsInCoreData];
+            [[UIApplication sharedApplication] unregisterForRemoteNotifications];
         }
         
         completion(response,error);
@@ -270,7 +321,7 @@
         }
         NSLog(@"Response: APP UPDATED:%@",theJson);
     }];
-
+    
     
 }
 
@@ -289,4 +340,39 @@
     }];
 }
 
+-(NSString *)getUserParamTextForLogging:(ALUser *)user
+{
+    NSString *passwordText = user.password ? @"***":@"";
+    [user setPassword: passwordText];
+    NSError * error;
+    NSData * userData = [NSJSONSerialization dataWithJSONObject:user.dictionary options:0 error:&error];
+    NSString *logParamString = [[NSString alloc] initWithData:userData encoding:NSUTF8StringEncoding];
+    return logParamString;
+}
+
+static BOOL isDevelopmentBuild(void) {
+#if TARGET_IPHONE_SIMULATOR
+    return YES;
+#else
+    static BOOL isDevelopment = NO;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // There is no provisioning profile in AppStore Apps.
+        NSData *data = [NSData dataWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"embedded" ofType:@"mobileprovision"]];
+        if (data) {
+            const char *bytes = [data bytes];
+            NSMutableString *profile = [[NSMutableString alloc] initWithCapacity:data.length];
+            for (NSUInteger i = 0; i < data.length; i++) {
+                [profile appendFormat:@"%c", bytes[i]];
+            }
+            // Look for debug value, if detected we're a development build.
+            NSString *cleared = [[profile componentsSeparatedByCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] componentsJoinedByString:@""];
+            isDevelopment = [cleared rangeOfString:@"<key>get-task-allow</key><true/>"].length > 0;
+        }
+    });
+    return isDevelopment;
+#endif
+}
+
 @end
+

@@ -39,5 +39,7 @@
 @dynamic pairedMessageKey;
 @dynamic metadata;
 @dynamic msgHidden;
+@dynamic replyMessageType;
+
 
 @end

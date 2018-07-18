@@ -22,7 +22,11 @@
 #import "ALUserBlockResponse.h"
 #import "ALUserService.h"
 #import "NSString+Encode.h"
-
+#import "ALApplozicSettings.h"
+#import "UIImageView+WebCache.h"
+#import "ALConnection.h"
+#import "ALConnectionQueueHandler.h"
+#import "ALApplozicSettings.h"
 
 @implementation ALMessageClientService
 
@@ -57,6 +61,109 @@
         
     }];
 
+}
+
+-(void) downloadImageUrl: (NSString *) blobKey withCompletion:(void(^)(NSString * fileURL, NSError *error)) completion{
+     [self getNSMutableURLRequestForImage:blobKey withCompletion:^(NSMutableURLRequest *urlRequest, NSString *fileUrl) {
+         NSMutableURLRequest * nsMutableURLRequest = urlRequest;
+
+         if(nsMutableURLRequest){
+             [ALResponseHandler processRequest:urlRequest andTag:@"FILE DOWNLOAD URL" WithCompletionHandler:^(id theJson, NSError *theError) {
+                 
+                 if (theError)
+                 {
+                     completion(nil,theError);
+                     return;
+                 }
+                 NSString * imageDownloadURL = (NSString *)theJson;
+                 NSLog(@"RESPONSE_IMG_URL :: %@",imageDownloadURL);
+                 completion(imageDownloadURL, nil);
+                 
+             }];
+         }else{
+             completion(fileUrl,nil);
+         }
+     }];
+    
+}
+
+-(void)getNSMutableURLRequestForImage:(NSString *) blobKey  withCompletion:(void(^)(NSMutableURLRequest * urlRequest, NSString *fileUrl)) completion{
+    
+    NSMutableURLRequest * urlRequest = [[NSMutableURLRequest alloc] init];
+    if([ALApplozicSettings isGoogleCloudServiceEnabled]){
+        NSString * theUrlString = [NSString stringWithFormat:@"%@files/url",KBASE_FILE_URL];
+        NSString * blobParamString = [@"" stringByAppendingFormat:@"key=%@",blobKey];
+        urlRequest = [ALRequestHandler createGETRequestWithUrlString:theUrlString paramString:blobParamString];
+        completion(urlRequest, nil);
+        return;
+    }else if([ALApplozicSettings isS3StorageServiceEnabled]) {
+        NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/file/url",KBASE_FILE_URL];
+        NSString * blobParamString = [@"" stringByAppendingFormat:@"key=%@",blobKey];
+        urlRequest = [ALRequestHandler createGETRequestWithUrlString:theUrlString paramString:blobParamString];
+        completion(urlRequest, nil);
+        return;
+    }else if([ALApplozicSettings isStorageServiceEnabled]) {
+        NSString * theUrlString = [NSString stringWithFormat:@"%@%@?key=%@",KBASE_FILE_URL,IMAGE_DOWNLOAD_ENDPOINT,blobKey];
+        completion(nil, theUrlString);
+        return;
+    }else {
+        NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/aws/file/%@",KBASE_FILE_URL,blobKey];
+        completion(nil, theUrlString);
+        return;
+    }
+}
+
+-(void)getNSMutableURLRequestForThumbnail: (ALMessage *) message withCompletion:(void(^)(NSMutableURLRequest * urlRequest, NSString *fileUrl)) completion{
+    
+    NSMutableURLRequest * urlRequest = [[NSMutableURLRequest alloc] init];
+    if([ALApplozicSettings isGoogleCloudServiceEnabled]){
+        NSString * theUrlString = [NSString stringWithFormat:@"%@files/url",KBASE_FILE_URL];
+        NSString * blobParamString = [@"" stringByAppendingFormat:@"key=%@",message.fileMeta.thumbnailBlobKey];
+        urlRequest = [ALRequestHandler createGETRequestWithUrlString:theUrlString paramString:blobParamString];
+        completion(urlRequest,nil);
+        return;
+    }else if([ALApplozicSettings isS3StorageServiceEnabled]) {
+        NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/file/url",KBASE_FILE_URL];
+        NSString * blobParamString = [@"" stringByAppendingFormat:@"key=%@",message.fileMeta.thumbnailBlobKey];
+        urlRequest = [ALRequestHandler createGETRequestWithUrlString:theUrlString paramString:blobParamString];
+        completion(urlRequest,nil);
+        return;
+    }else {
+        completion(nil,message.fileMeta.thumbnailUrl);
+        return;
+    }
+    
+}
+
+-(void) downloadImageThumbnailUrl: (ALMessage *) message withCompletion:(void(^)(NSString * fileURL, NSError *error)) completion{
+    [self getNSMutableURLRequestForThumbnail:message withCompletion:^(NSMutableURLRequest *urlRequest, NSString *fileUrl) {
+        NSMutableURLRequest * nsMutableURLRequest = urlRequest;
+        if(nsMutableURLRequest){
+            [ALResponseHandler processRequest:urlRequest andTag:@"FILE DOWNLOAD URL" WithCompletionHandler:^(id theJson, NSError *theError) {
+                
+                if (theError)
+                {
+                    completion(nil,theError);
+                    return;
+                }
+                NSString * imageDownloadURL = (NSString *)theJson;
+                NSLog(@"RESPONSE_IMG_URL :: %@",imageDownloadURL);
+                completion(imageDownloadURL, nil);
+                
+            }];
+        }else{
+            completion(fileUrl,nil);
+            return;
+        }
+        
+    }];
+   
+}
+
+-(void) downloadImageUrlAndSet: (NSString *) blobKey imageView:(UIImageView *) imageView defaultImage:(NSString *) defaultImage {
+    
+    NSURL * theUrl1 = [NSURL URLWithString:blobKey];
+    [imageView sd_setImageWithURL:theUrl1 placeholderImage:[ALUtilityClass getImageFromFramworkBundle:defaultImage] options:SDWebImageRefreshCached];
 }
 
 -(void) addWelcomeMessage:(NSNumber *)channelKey
@@ -112,6 +219,10 @@
     {
       theParamString = [NSString stringWithFormat:@"startIndex=%@&mainPageSize=%lu&endTime=%@&deletedGroupIncluded=%@",
                         @"0", (unsigned long)mainPageSize, startTime,@(YES)];
+    }
+    if([ALApplozicSettings getCategoryName]){
+        theParamString = [theParamString stringByAppendingString:[NSString stringWithFormat:@"&category=%@",
+        [ALApplozicSettings getCategoryName]]];
     }
     
     NSMutableURLRequest * theRequest = [ALRequestHandler createGETRequestWithUrlString:theUrlString paramString:theParamString];
@@ -172,11 +283,11 @@
     
 }
 
--(void)getMessageListForUser:(MessageListRequest *)messageListRequest withCompletion:(void (^)(NSMutableArray *, NSError *, NSMutableArray *))completion
+-(void)getMessageListForUser:(MessageListRequest *)messageListRequest withOpenGroup:(BOOL )isOpenGroup withCompletion:(void (^)(NSMutableArray *, NSError *, NSMutableArray *))completion
 {
-   NSLog(@"CHATVC_OPENS_1st TIME_CALL");
-   NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/message/list",KBASE_URL];
-   NSMutableURLRequest * theRequest = [ALRequestHandler createGETRequestWithUrlString:theUrlString paramString:messageListRequest.getParamString];
+    NSLog(@"CHATVC_OPENS_1st TIME_CALL");
+    NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/message/list",KBASE_URL];
+    NSMutableURLRequest * theRequest = [ALRequestHandler createGETRequestWithUrlString:theUrlString paramString:messageListRequest.getParamString];
     
     [ALResponseHandler processRequest:theRequest andTag:@"GET MESSAGES LIST FOR USERID" WithCompletionHandler:^(id theJson, NSError *theError) {
         
@@ -200,12 +311,13 @@
         }
         
         ALMessageList *messageListResponse = [[ALMessageList alloc] initWithJSONString:theJson
-                                                                          andWithUserId:messageListRequest.userId
-                                                                           andWithGroup:messageListRequest.channelKey];
+                                                                         andWithUserId:messageListRequest.userId
+                                                                          andWithGroup:messageListRequest.channelKey];
         
-        ALMessageDBService *almessageDBService = [[ALMessageDBService alloc] init];
-        [almessageDBService addMessageList:messageListResponse.messageList];
-        
+        if(!isOpenGroup){
+            ALMessageDBService *almessageDBService = [[ALMessageDBService alloc] init];
+            [almessageDBService addMessageList:messageListResponse.messageList];
+        }
         ALConversationService * alConversationService = [[ALConversationService alloc] init];
         [alConversationService addConversations:messageListResponse.conversationPxyList];
         
@@ -216,29 +328,48 @@
         NSLog(@"MSG_LIST RESPONSE :: %@",(NSString *)theJson);
         
     }];
-    
+}
+
+-(void)getMessageListForUser:(MessageListRequest *)messageListRequest withCompletion:(void (^)(NSMutableArray *, NSError *, NSMutableArray *))completion
+{
+    [self getMessageListForUser:messageListRequest withOpenGroup:NO withCompletion:^(NSMutableArray *messages, NSError *error, NSMutableArray *userDetailArray) {
+
+        completion(messages, error, userDetailArray);
+
+    }];
 }
 
 
 -(void) sendPhotoForUserInfo:(NSDictionary *)userInfo withCompletion:(void(^)(NSString * message, NSError *error)) completion {
-    
-    NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/aws/file/url",KBASE_FILE_URL];
-    
-    NSMutableURLRequest * theRequest = [ALRequestHandler createGETRequestWithUrlString:theUrlString paramString:nil];
-    
-    [ALResponseHandler processRequest:theRequest andTag:@"CREATE FILE URL" WithCompletionHandler:^(id theJson, NSError *theError) {
-        
-        if (theError)
-        {
-            completion(nil,theError);
-            return;
-        }
-        
-        NSString *imagePostingURL = (NSString *)theJson;
-        NSLog(@"RESPONSE_IMG_URL :: %@",imagePostingURL);
-        completion(imagePostingURL, nil);
-        
-    }];
+
+    if(ALApplozicSettings.isStorageServiceEnabled) {
+        NSString * theUrlString = [NSString stringWithFormat:@"%@%@", KBASE_FILE_URL, IMAGE_UPLOAD_ENDPOINT];
+        completion(theUrlString, nil);
+    }else if(ALApplozicSettings.isS3StorageServiceEnabled) {
+        NSString * theUrlString = [NSString stringWithFormat:@"%@%@", KBASE_FILE_URL, CUSTOM_STORAGE_IMAGE_UPLOAD_ENDPOINT];
+        completion(theUrlString, nil);
+    }else if(ALApplozicSettings.isGoogleCloudServiceEnabled){
+        NSString * theUrlString = [NSString stringWithFormat:@"%@%@", KBASE_FILE_URL, GOOGLE_CLOUD_STORAGE_IMAGE_UPLOAD_ENDPOINT];
+       completion(theUrlString, nil);
+    }else {
+        NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/aws/file/url",KBASE_FILE_URL];
+
+        NSMutableURLRequest * theRequest = [ALRequestHandler createGETRequestWithUrlString:theUrlString paramString:nil];
+
+        [ALResponseHandler processRequest:theRequest andTag:@"CREATE FILE URL" WithCompletionHandler:^(id theJson, NSError *theError) {
+
+            if (theError)
+            {
+                completion(nil,theError);
+                return;
+            }
+
+            NSString *imagePostingURL = (NSString *)theJson;
+            NSLog(@"RESPONSE_IMG_URL :: %@",imagePostingURL);
+            completion(imagePostingURL, nil);
+            
+        }];
+    }
 }
 
 -(void) getLatestMessageForUser:(NSString *)deviceKeyString withCompletion:(void (^)( ALSyncMessageFeed *, NSError *))completion

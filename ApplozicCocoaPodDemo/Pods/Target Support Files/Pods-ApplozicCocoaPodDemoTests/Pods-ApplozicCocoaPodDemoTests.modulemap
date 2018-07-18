@@ -1,0 +1,6 @@
+framework module Pods_ApplozicCocoaPodDemoTests {
+  umbrella header "Pods-ApplozicCocoaPodDemoTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

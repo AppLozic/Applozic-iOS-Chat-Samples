@@ -240,7 +240,7 @@ __weak static UIViewController *_defaultViewController;
     
     UIWindow * keyWindow = [[UIApplication sharedApplication] keyWindow];
     keyWindow.opaque=NO;
-    //keyWindow.windowLevel=UIWindowLevelStatusBar+1; //Causes the navigationBar to Hide....
+    keyWindow.windowLevel=UIWindowLevelStatusBar+1; //Causes the navigationBar to Hide....
     [keyWindow addSubview:currentView];
     [keyWindow bringSubviewToFront:currentView];
     
@@ -363,6 +363,7 @@ __weak static UIViewController *_defaultViewController;
      } completion:^(BOOL finished)
      {
          [currentView removeFromSuperview];
+             [[[[UIApplication sharedApplication] delegate] window] setWindowLevel:UIWindowLevelNormal];
          
          if ([self.messages count] > 0)
          {

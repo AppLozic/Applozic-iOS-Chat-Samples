@@ -40,7 +40,7 @@
     self.locationManager.delegate = self;
     
     
-    [self.locationManager requestAlwaysAuthorization];
+    //[self.locationManager requestAlwaysAuthorization];
     [self.locationManager requestWhenInUseAuthorization];
     
     if([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)])
@@ -53,7 +53,11 @@
     [self.mapKitView setShowsUserLocation:YES];
     [self.mapKitView setDelegate:self];
     self.geocoder = [[CLGeocoder alloc] init];
- 
+    
+    [self setTitle:NSLocalizedStringWithDefaultValue(@"sendLocationViewTitle", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Send Location", @"")] ;
+    
+    [_sendLocationButton setTitle:NSLocalizedStringWithDefaultValue(@"sendLocationButtonText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Send Location", @"") forState:UIControlStateNormal]; // To set the title
+    
 }
 
 -(void)viewWillDisappear:(BOOL)animated
@@ -70,7 +74,8 @@
     
     if (![ALDataNetworkConnection checkDataNetworkAvailable])
     {
-        [TSMessage showNotificationInViewController:self title:@"" subtitle:@"No Internet" type:TSMessageNotificationTypeError duration:1.0 canBeDismissedByUser:NO];
+        [TSMessage showNotificationInViewController:self title:@"" subtitle:        NSLocalizedStringWithDefaultValue(@"noInternetMessage", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"No Internet", @"")
+                                               type:TSMessageNotificationTypeError duration:1.0 canBeDismissedByUser:NO];
     }
 }
 
@@ -83,16 +88,16 @@
 #pragma mark- Send Location Button Action
 //======================================
 - (IBAction)sendLocation:(id)sender {
-
+    
     _sendLocationButton.enabled=YES;
     region = self.mapKitView.region;
-
+    
     NSString * lat = [NSString stringWithFormat:@"%.8f",region.center.latitude];
     NSString * lon = [NSString stringWithFormat:@"%.8f",region.center.longitude];
     NSDictionary * latLongDic = [[NSDictionary alloc] initWithObjectsAndKeys:lat,@"lat",lon,@"lon", nil];
     
     NSString *jsonString = [self createJson:latLongDic];
-
+    
     [self.sendLocationButton setEnabled:NO];
     
     if([ALDataNetworkConnection checkDataNetworkAvailable]){
@@ -118,7 +123,7 @@
     
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:latLongDic
-                                                       options:NSJSONWritingPrettyPrinted 
+                                                       options:NSJSONWritingPrettyPrinted
                                                          error:&error];
     
     if (! jsonData) {
@@ -143,8 +148,11 @@
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title
                                                             message:message
                                                            delegate:self
-                                                  cancelButtonTitle:@"Cancel"
-                                                  otherButtonTitles:@"Settings", nil];
+                                                  cancelButtonTitle:
+                                  NSLocalizedStringWithDefaultValue(@"cancelOptionText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Cancel", @"")
+                                                  otherButtonTitles:
+                                  NSLocalizedStringWithDefaultValue(@"settings", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Settings", @"")
+                                  , nil];
         [alertView show];
     }
     else if (status == kCLAuthorizationStatusNotDetermined) {
@@ -167,7 +175,7 @@
 }
 
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
-
+    
     CLLocation *newLocation = [locations lastObject];
     
     self.lattY = [NSString stringWithFormat:@"%f",newLocation.coordinate.latitude];

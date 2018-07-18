@@ -46,7 +46,7 @@
 - (void)stream:(NSStream*)sender handleEvent:(NSStreamEvent)eventCode {
     
     if (eventCode & NSStreamEventHasSpaceAvailable) {
-        DDLogVerbose(@"[MQTTCFSocketEncoder] NSStreamEventHasSpaceAvailable");
+        ALDDLogVerbose(@"[MQTTCFSocketEncoder] NSStreamEventHasSpaceAvailable");
         if(![self applySSLSecurityPolicy:sender withEvent:eventCode]){
             self.state = MQTTCFSocketEncoderStateError;
             self.error = [NSError errorWithDomain:@"MQTT"

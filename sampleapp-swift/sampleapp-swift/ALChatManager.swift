@@ -209,8 +209,46 @@ class ALChatManager: NSObject {
             }
         })
     }
-
     
+    //====================================================================================================================
+    // Call This method if you want create a group of two and launch chat
+    //====================================================================================================================
+
+    func launchGroupOfTwo(withClientId clientGroupId: String?, withMetaData metadata: NSMutableDictionary, andWithUser userId: String?, andFrom viewController: UIViewController?) {
+        let channelService = ALChannelService()
+
+
+        channelService.getChannelInformation(nil, orClientChannelKey: clientGroupId, withCompletion: { alChannel in
+            guard let alChannel = alChannel else {
+
+                channelService.createChannel(clientGroupId, orClientChannelKey: clientGroupId, andMembersList: [userId], andImageLink: nil, channelType: Int16(GROUP_OF_TWO.rawValue), andMetaData: metadata, withCompletion: { alChannelInRespose, error in
+                        if let aKey = alChannelInRespose?.key {
+                            print(" group of two id \(aKey)")
+                        }
+                        self.launchChatForGroup((alChannelInRespose?.key)!, fromController: viewController!)
+
+                    })
+                return;
+            }
+
+            if (alChannel.key != nil) {
+                if ((alChannel.metadata != nil) && !alChannel.metadata.isEqual(to: metadata as! [AnyHashable: Any])) {
+
+                    channelService.updateChannelMetaData(alChannel.key, orClientChannelKey: nil, metadata: metadata, withCompletion: { error in
+
+                        self.launchChatForGroup(alChannel.key, fromController: viewController!)
+
+                    })
+                } else {
+                    self.launchChatForGroup(alChannel.key, fromController: viewController!)
+                }
+            }
+
+        })
+
+    }
+
+
     // ----------------------  ---------------------------------------------------------------------------------------------//
     //     This method can be used to get app logged-in user's information.
     //     if user information is stored in DB or preference, Code to get user's information should go here.

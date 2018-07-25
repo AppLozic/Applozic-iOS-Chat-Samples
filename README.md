@@ -9,7 +9,7 @@ Signup at https://www.applozic.com/ to get the applicationKey from dashboard
 
 #### How to change the applicationKey in sample projects ?
 
-Need to go search tab of of any of below Xcode project  and find for reference of **applozic-sample-app** and replace it with every  occurrence of string
+Need to go search tab of of any of below Xcode project  and find for reference of **applozic-sample-app** and replace it with every  occurrence of string with your applicationKey 
 
 
 **ApplozicCocoaPodDemo :** Sample app using Applozic cocoapods.

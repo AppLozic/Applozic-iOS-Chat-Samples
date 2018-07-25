@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1879811A2077A9A600D511BD /* Applozic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 187981182077A98800D511BD /* Applozic.framework */; };
-		1879811B2077A9A600D511BD /* Applozic.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 187981182077A98800D511BD /* Applozic.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		18EBAA072108910600603AAF /* Applozic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EBAA062108910600603AAF /* Applozic.framework */; };
+		18EBAA092108910C00603AAF /* Applozic.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 18EBAA062108910600603AAF /* Applozic.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		29A5114D1CC0C14900E1D2D8 /* DVChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A5114C1CC0C14900E1D2D8 /* DVChatViewController.swift */; };
 		46D1B3F91DB6857D00F50A70 /* restrictWords.txt in Resources */ = {isa = PBXBuildFile; fileRef = 46D1B3F81DB6857D00F50A70 /* restrictWords.txt */; };
 		6DB2153E1C69FD00007CA71B /* LaunchChatFromSimpleVCViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB2153D1C69FCFF007CA71B /* LaunchChatFromSimpleVCViewController.swift */; };
@@ -29,7 +29,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1879811B2077A9A600D511BD /* Applozic.framework in Embed Frameworks */,
+				18EBAA092108910C00603AAF /* Applozic.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -37,7 +37,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		187981182077A98800D511BD /* Applozic.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Applozic.framework; sourceTree = "<group>"; };
+		18EBAA062108910600603AAF /* Applozic.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Applozic.framework; sourceTree = "<group>"; };
 		29A5114C1CC0C14900E1D2D8 /* DVChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DVChatViewController.swift; sourceTree = "<group>"; };
 		4645B1361DA25D2E00044DB7 /* sampleapp-swift.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "sampleapp-swift.entitlements"; sourceTree = "<group>"; };
 		46D1B3F81DB6857D00F50A70 /* restrictWords.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = restrictWords.txt; sourceTree = "<group>"; };
@@ -61,7 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1879811A2077A9A600D511BD /* Applozic.framework in Frameworks */,
+				18EBAA072108910600603AAF /* Applozic.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,7 +71,7 @@
 		6DB75B481C35221700077658 = {
 			isa = PBXGroup;
 			children = (
-				187981182077A98800D511BD /* Applozic.framework */,
+				18EBAA062108910600603AAF /* Applozic.framework */,
 				46D1B3F81DB6857D00F50A70 /* restrictWords.txt */,
 				6DB75B781C35250800077658 /* NSObject+ApplozicBridge.h */,
 				6DB75B791C35250800077658 /* NSObject+ApplozicBridge.m */,
@@ -315,7 +315,7 @@
 		6DB75B671C35221700077658 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "sampleapp-swift/sampleapp-swift.entitlements";
@@ -344,7 +344,7 @@
 		6DB75B681C35221700077658 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "sampleapp-swift/sampleapp-swift.entitlements";

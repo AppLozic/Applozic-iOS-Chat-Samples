@@ -51,4 +51,10 @@
 
 -(void)launchChatListWithParentKey:(NSNumber *)parentGroupKey andFromViewController:(UIViewController *)viewController;
 
+-(void)launchGroupOfTwoWithClientId:(NSString *)userIdOfReceiver
+                         withItemId:(NSString *)itemId
+                       withMetaData:(NSMutableDictionary *)metadata
+                        andWithUser:(NSString *)userId
+              andFromViewController:(UIViewController *)viewController;
+
 @end

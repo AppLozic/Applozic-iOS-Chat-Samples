@@ -84,7 +84,7 @@
 #define SWIFT_FRAMEWORK @"com.applozic.userfefault.SWIFT_FRAMEWORK"
 #define DEDICATED_SERVER @"com.applozic.userfefault.DEDICATED_SERVER"
 #define HIDE_ATTACHMENT_OPTION @"com.applozic.HIDE_ATTACHMENT_OPTIONS"
-#define CUSTOM_STORAGE @"com.applozic.userdefault.CUSTOM_STORAGE"
+#define S3_STORAGE_SERVICE @"com.applozic.userdefault.S3_STORAGE_SERVICE"
 #define DEFAULT_GROUP_TYPE @"com.applozic.DEFAULT_GROUP_TYPE"
 #define CONTACTS_GROUP_ID_LIST @"com.applozic.userdefault.CONTACTS_GROUP_ID_LIST"
 #define SAVE_VIDEOS_TO_GALLERY @"com.applozic.userdefault.SAVE_VIDEOS_TO_GALLERY"
@@ -92,6 +92,14 @@
 #define AL_USER_ROLE_NAME @"com.applozic.userdefault.AL_USER_ROLE_NAME"
 #define AL_GROUP_CONVEERSATION_CLOSE @"com.applozic.userdefault.AL_GROUP_CONVEERSATION_CLOSE"
 #define DROP_IN_SHADOW_IN_NAVIGATION_BAR @"com.applozic.userdefault.DROP_IN_SHADOW_IN_NAVIGATION_BAR"
+#define APPLOZIC_LOCALIZABLE @"com.applozic.userdefault.APPLOZIC_LOCALIZABLE"
+#define AL_CATEGORY_NAME @"com.applozic.userdefault.AL_CATEGORY_NAME"
+#define DELETE_CONVERSATION_OPTION @"com.applozic.userdefault.DELETE_CONVERSATION_OPTION"
+#define GOOGLE_CLOUD_SERVICE_ENABLE @"com.applozic.userdefault.GOOGLE_CLOUD_SERVICE_ENABLE"
+#define TEMPLATE_MESSAGES @"com.applozic.TEMPLATE_MESSAGES"
+#define TEMPLATE_MESSAGE_VIEW @"com.applozic.TEMPLATE_MESSAGE_VIEW"
+#define AL_CONTACT_SEARCH @"com.applozic.AL_CONTACT_SEARCH"
+#define CHANNEL_MEMBER_INFO_IN_SUBTITLE @"com.applozic.CHANNEL_MEMBER_INFO_IN_SUBTITLE"
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
@@ -251,7 +259,7 @@
 +(UIColor *)getStatusBarBGColor;
 +(void)setStatusBarBGColor:(UIColor *)color;
 
-+(UIStatusBarStyle)getStatusBarStyle;            
++(UIStatusBarStyle)getStatusBarStyle;
 +(void)setStatusBarStyle:(UIStatusBarStyle)style;
 
 +(void)setMaxTextViewLines:(int)numberOfLines;
@@ -272,7 +280,7 @@
 +(BOOL)getReceiverUserProfileOption;
 +(void)setReceiverUserProfileOption:(BOOL)flag;
 
-+(float)getCustomMessageFontSize; 
++(float)getCustomMessageFontSize;
 +(void)setCustomMessageFontSize:(float)fontSize;
 
 +(NSString *)getCustomMessageFont;
@@ -293,7 +301,7 @@
 +(void) setContactTypeToFilter:(NSMutableArray*)arrayWithIds;
 +(NSMutableArray*) getContactTypeToFilter;
 
-+(NSString *)getCustomNavigationControllerClassName; 
++(NSString *)getCustomNavigationControllerClassName;
 +(void)setNavigationControllerClassName:(NSString *)className;
 
 +(BOOL)getSubGroupLaunchFlag;
@@ -359,10 +367,11 @@
 +(BOOL)isStorageServiceEnabled;
 +(void)enableStorageService:(BOOL)flag;
 
++(BOOL)isGoogleCloudServiceEnabled;
++(void)enableGoogleCloudService:(BOOL)flag;
 
 +(BOOL)isConversationCloseButtonEnabled;
 +(void)setConversationCloseButton:(BOOL)flag;
-
 
 +(void) setHideAttachmentsOption:(NSArray*)array;
 
@@ -377,8 +386,8 @@
 +(BOOL) isShareContactOptionHidden;
 +(BOOL) isAttachmentButtonHidden;
 
-+(BOOL)isCustomStorageServiceEnabled;
-+(void)enableCustomStorageService:(BOOL)flag;
++(BOOL)isS3StorageServiceEnabled;
++(void)enableS3StorageService:(BOOL)flag;
 +(void) setDefaultGroupType:(NSInteger)type;
 +(NSInteger) getDefaultGroupType;
 +(void) enableSaveVideosToGallery:(BOOL)flag;
@@ -391,5 +400,25 @@
 
 +(void)setDropShadowInNavigationBar:(BOOL)flag;
 +(BOOL)isDropShadowInNavigationBarEnabled;
+
++(void)setDeleteConversationOption:(BOOL)flag;
++(BOOL)isDeleteConversationOptionEnabled;
+
++(NSString *)getLocalizableName;
++(void)setLocalizableName:(NSString *)localizableName;
++(void) setTemplateMessages:(NSMutableDictionary*)dictionary;
++(NSMutableDictionary*) getTemplateMessages;
+
++(BOOL)isTemplateMessageEnabled;
++(void)enableTeamplateMessage:(BOOL)flag;
+
++(void)setCategoryName:(NSString*)categoryName;
++(NSString*)getCategoryName;
+
++(BOOL)isContactSearchEnabled;
++(void)enableContactSearch:(BOOL)flag;
+
++(BOOL)isChannelMembersInfoInNavigationBarEnabled;
++(void)showChannelMembersInfoInNavigationBar:(BOOL)flag;
 
 @end

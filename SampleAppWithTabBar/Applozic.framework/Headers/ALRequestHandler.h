@@ -14,4 +14,5 @@
 
 +(NSMutableURLRequest *) createPOSTRequestWithUrlString:(NSString *) urlString paramString:(NSString *) paramString;
 
++(NSMutableURLRequest *) createGETRequestWithUrlStringWithoutHeader:(NSString *) urlString paramString:(NSString *) paramString;
 @end

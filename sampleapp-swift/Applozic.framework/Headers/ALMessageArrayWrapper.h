@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "ALMessage.h"
+#import "ALApplozicSettings.h"
 
 @interface ALMessageArrayWrapper : NSObject
 

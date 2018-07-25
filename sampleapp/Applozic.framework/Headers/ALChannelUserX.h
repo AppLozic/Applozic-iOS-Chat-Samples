@@ -10,6 +10,17 @@
 #import <CoreData/NSManagedObject.h>
 #import "ALJson.h"
 
+
+
+typedef enum
+{   USER = 0,
+    ADMIN = 1,
+    MODERATOR = 2,
+    MEMBER = 3
+} ROLE_TYPE;
+
+
+
 @interface ALChannelUserX : ALJson
 
 @property (nonatomic, strong) NSString *userKey;
@@ -18,6 +29,7 @@
 @property (nonatomic, strong) NSNumber *unreadCount;
 @property (nonatomic, strong) NSNumber *parentKey;
 @property (nonatomic, copy) NSManagedObjectID *channelUserXDBObjectId;
+@property (nonatomic, strong) NSNumber *role;
 
 -(id)initWithDictonary:(NSDictionary *)messageDictonary;
 

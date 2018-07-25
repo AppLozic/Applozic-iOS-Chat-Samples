@@ -7,24 +7,12 @@
 
 #import "ALUserDefaultsHandler.h"
 
+#define APPLOZIC_SDK_VERSION @"4.0.2"
+
 #define KBASE_URL ([ALUserDefaultsHandler getBASEURL])
 #define MQTT_URL ([ALUserDefaultsHandler getMQTTURL])
 #define KBASE_FILE_URL ([ALUserDefaultsHandler getFILEURL])
 #define MQTT_PORT ([ALUserDefaultsHandler getMQTTPort])
-
-//#define KBASE_URL @"https://apps.applozic.com"
-//#define MQTT_URL @"apps.applozic.com"
-//#define KBASE_FILE_URL @"https://applozic.appspot.com"
-
-//#define KBASE_URL @"https://apps-test.applozic.com"
-//#define MQTT_URL @"apps-test.applozic.com"
-//#define KBASE_FILE_URL @"https://mobi-com-alpha.appspot.com"
-
-//#define KBASE_URL @"https://staging.applozic.com"
-//#define MQTT_URL @"staging.applozic.com"
-//#define KBASE_FILE_URL @"https://mobi-com-alpha.appspot.com"
-
-//#define MQTT_PORT @"1883"
 
 #define GREY_COLOR ([UIColor colorWithWhite:0.7 alpha:0.1])
 #define TEXT_VIEW_TO_MESSAGE_VIEW_RATIO 1.4 // Proper scolling.... 
@@ -55,6 +43,13 @@
 #define CONNECTION_TYPE_USER_IMG_UPLOAD @"CONNECTION_TYPE_USER_IMG_UPLOAD"
 #define CONNECTION_TYPE_GROUP_IMG_UPLOAD @"CONNECTION_TYPE_GROUP_UPLOAD"
 #define IMAGE_UPLOAD_URL @"/rest/ws/upload/file"
+#define IMAGE_UPLOAD_ENDPOINT @"/files/upload/"
+#define CUSTOM_STORAGE_IMAGE_UPLOAD_ENDPOINT @"/rest/ws/upload/image?aclsPrivate=true"
+#define GOOGLE_CLOUD_STORAGE_IMAGE_UPLOAD_ENDPOINT @"/rest/ws/upload/image"
+#define IMAGE_THUMBNAIL_ENDPOIT @"/files/"
+#define IMAGE_DOWNLOAD_ENDPOINT @"/files/get/"
+#define AL_EMPTY_JSON_STRING @"\"EMPTY_LIST\""
+
 
 #define SOURCE_IOS 3
 
@@ -69,6 +64,20 @@ typedef enum {
     UNREAD = 0,
     READ = 1
 } MessageStatus;
+
+// USER TYPE FOR INTERNAL USE
+
+typedef enum {
+    BOT  = 1,
+    APPLICATION_ADMIN =   2,
+    USER_ROLE  =  3,
+    ADMIN_ROLE  = 4,
+    BUSINESS =  5,
+    APPLICATION_BROADCASTER =  6,
+    SUPPORT  = 7,
+    APPLICATION_WEB_ADMIN =8
+} USER_ROLE_TYPE;
+
 
 typedef enum {
     APP_STATE_BACKGROUND = -1,
@@ -90,5 +99,6 @@ typedef enum {
     STARTER = 1,
     LAUNCH = 2,
     GROWTH = 3,
-    ENTERPRISE = 4
+    ENTERPRISE = 4,
+    SUSPENDED = 6
 } PRICING_PACKAGE;

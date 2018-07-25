@@ -4,3 +4,8 @@ framework module Applozic {
   export *
   module * { export * }
 }
+
+module Applozic.Swift {
+    header "Applozic-Swift.h"
+    requires objc
+}

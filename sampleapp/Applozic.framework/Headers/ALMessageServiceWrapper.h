@@ -28,6 +28,8 @@
 
 -(void)sendTextMessage:(NSString*)text andtoContact:(NSString*)toContactId;
 
+-(void)sendTextMessage:(NSString*)messageText andtoContact:(NSString*)contactId orGroupId:(NSNumber*)channelKey;
+
 -(void) sendMessage:(ALMessage *)alMessage
 withAttachmentAtLocation:(NSString *)attachmentLocalPath
 andWithStatusDelegate:(id)statusDelegate

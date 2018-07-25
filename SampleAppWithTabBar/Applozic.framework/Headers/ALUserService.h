@@ -58,5 +58,12 @@
 
 -(void) fetchAndupdateUserDetails:(NSMutableArray *)userArray withCompletion:(void (^)(NSMutableArray * array, NSError *error))completion;
 
+-(void)getUserDetail:(NSString*)userId withCompletion:(void(^)(ALContact *contact))completion;
+
+-(void)updateUserApplicationInfo;
+
+-(void)updatePassword:(NSString*)oldPassword withNewPassword :(NSString *) newPassword withCompletion:(void(^)( ALAPIResponse* alAPIResponse, NSError *theError))completion;
+
+-(void)getListOfUsersWithUserName:(NSString *)userName withCompletion:(void(^)(ALAPIResponse* response, NSError * error))completion;
 
 @end

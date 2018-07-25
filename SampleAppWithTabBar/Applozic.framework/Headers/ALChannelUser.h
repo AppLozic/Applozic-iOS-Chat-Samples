@@ -10,9 +10,9 @@
 
 @interface ALChannelUser : ALJson
 
-@property NSNumber * role;
-@property NSString * userId;
-@property NSNumber * parentGroupKey;
+@property (nonatomic, strong) NSNumber * role;
+@property (nonatomic, strong) NSString * userId;
+@property (nonatomic, strong) NSNumber * parentGroupKey;
 
 -(id)initWithDictonary:(NSDictionary *)messageDictonary;
 -(void)parseMessage:(id) messageJson;

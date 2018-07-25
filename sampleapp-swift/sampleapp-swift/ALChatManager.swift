@@ -436,6 +436,8 @@ func ALDefaultChatViewSettings ()
      ALApplozicSettings.setUserProfileHidden(false)
      ALApplozicSettings.setFontFace("Helvetica")
      ALApplozicSettings.setChatWallpaperImageName("<WALLPAPER NAME>")
+     ALApplozicSettings.showChannelMembersInfo(inNavigationBar: true)
+    
      /****************************************************************************************************************/
      
      

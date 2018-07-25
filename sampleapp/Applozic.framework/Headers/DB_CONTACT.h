@@ -28,5 +28,6 @@
 @property (nonatomic, retain) NSNumber * userTypeId;
 @property (nonatomic, retain) NSNumber * contactType;
 @property (nonatomic, retain) NSNumber * deletedAtTime;
-
+@property (nonatomic, retain) NSString * metadata;
+@property (nonatomic, retain) NSNumber * roleType;
 @end

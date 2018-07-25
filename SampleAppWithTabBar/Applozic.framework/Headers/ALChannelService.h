@@ -21,6 +21,8 @@
 #import "ALChannelClientService.h"
 #import "ALUserDefaultsHandler.h"
 #import "ALChannelSyncResponse.h"
+#import "AlChannelFeedResponse.h"
+
 
 @interface ALChannelService : NSObject
 
@@ -34,6 +36,9 @@
 
 -(NSString *)stringFromChannelUserList:(NSNumber *)key;
 
+-(void)getChannelInformationByResponse:(NSNumber *)channelKey orClientChannelKey:(NSString *)clientChannelKey withCompletion:(void (^)(NSError *error,ALChannel *alChannel3,AlChannelFeedResponse *channelResponse)) completion;
+
+
 -(void)createChannel:(NSString *)channelName orClientChannelKey:(NSString *)clientChannelKey
       andMembersList:(NSMutableArray *)memberArray andImageLink:(NSString *)imageLink
       withCompletion:(void(^)(ALChannel *alChannel, NSError *error))completion;
@@ -46,11 +51,20 @@
       andMembersList:(NSMutableArray *)memberArray andImageLink:(NSString *)imageLink channelType:(short)type
          andMetaData:(NSMutableDictionary *)metaData withCompletion:(void(^)(ALChannel *alChannel, NSError *error))completion;
 
+-(void)createChannel:(NSString *)channelName orClientChannelKey:(NSString *)clientChannelKey
+      andMembersList:(NSMutableArray *)memberArray andImageLink:(NSString *)imageLink channelType:(short)type
+         andMetaData:(NSMutableDictionary *)metaData adminUser:(NSString *)adminUserId withCompletion:(void(^)(ALChannel *alChannel, NSError *error))completion;
+
+-(void)createChannel:(NSString *)channelName andParentChannelKey:(NSNumber *)parentChannelKey orClientChannelKey:(NSString *)clientChannelKey
+      andMembersList:(NSMutableArray *)memberArray andImageLink:(NSString *)imageLink channelType:(short)type
+         andMetaData:(NSMutableDictionary *)metaData  adminUser:(NSString *)adminUserId withCompletion:(void(^)(ALChannel *alChannel, NSError *error))completion;
+
+
 -(void)addMemberToChannel:(NSString *)userId andChannelKey:(NSNumber *)channelKey orClientChannelKey:(NSString *)clientChannelKey
-            withCompletion:(void(^)(NSError *error, ALAPIResponse *response))completion;
+           withCompletion:(void(^)(NSError *error, ALAPIResponse *response))completion;
 
 -(void)removeMemberFromChannel:(NSString *)userId andChannelKey:(NSNumber *)channelKey orClientChannelKey:(NSString *)clientChannelKey
-                 withCompletion:(void(^)(NSError *error, ALAPIResponse *response))completion;
+                withCompletion:(void(^)(NSError *error, ALAPIResponse *response))completion;
 
 -(void)deleteChannel:(NSNumber *)channelKey orClientChannelKey:(NSString *)clientChannelKey
       withCompletion:(void(^)(NSError *error, ALAPIResponse *response))completion;
@@ -60,17 +74,27 @@
 -(void)leaveChannel:(NSNumber *)channelKey andUserId:(NSString *)userId orClientChannelKey:(NSString *)clientChannelKey
      withCompletion:(void(^)(NSError *error))completion;
 
+-(void)addMultipleUsersToChannel:(NSMutableArray* )channelKeys channelUsers:(NSMutableArray *)channelUsers andCompletion:(void(^)(NSError * error))completion;
+
 -(void)syncCallForChannel;
 
--(void)updateChannel:(NSNumber *)channelKey andNewName:(NSString *)newName andImageURL:(NSString *)imageURL
-  orClientChannelKey:(NSString *)clientChannelKey isUpdatingMetaData:(BOOL)flag metadata:(NSMutableDictionary *)metaData
-         orChildKeys:(NSMutableArray *)childKeysList withCompletion:(void(^)(NSError *error))completion;
+-(void)updateChannel:(NSNumber *)channelKey andNewName:(NSString *)newName andImageURL:(NSString *)imageURL orClientChannelKey:(NSString *)clientChannelKey
+  isUpdatingMetaData:(BOOL)flag metadata:(NSMutableDictionary *)metaData orChildKeys:(NSMutableArray *)childKeysList orChannelUsers:(NSMutableArray *)channelUsers withCompletion:(void(^)(NSError *error))completion;
+
+-(void)updateChannelMetaData:(NSNumber *)channelKey
+          orClientChannelKey:(NSString *)clientChannelKey
+                    metadata:(NSMutableDictionary *)metaData
+              withCompletion:(void(^)(NSError *error))completion;
 
 +(void)markConversationAsRead:(NSNumber *)channelKey withCompletion:(void (^)(NSString *, NSError *))completion;
 
 -(BOOL)isChannelLeft:(NSNumber*)groupID;
 
 +(BOOL)isChannelDeleted:(NSNumber *)groupId;
+
++(BOOL)isConversationClosed:(NSNumber *)groupId;
+
++(void)closeGroupConverstion :(NSNumber *) groupId  withCompletion:(void(^)(NSError *error))completion ;
 
 +(BOOL)isChannelMuted:(NSNumber *)groupId;
 
@@ -99,7 +123,53 @@
 
 -(void)removeClientChildKeyList:(NSMutableArray *)clientChildKeyList andParentKey:(NSString *)clientParentKey
                  withCompletion:(void(^)(id json, NSError *error))completion;
-    
+
 -(void)muteChannel:(ALMuteRequest *)muteRequest withCompletion:(void(^)(ALAPIResponse * response, NSError *error))completion;
 
+-(void)createBroadcastChannelWithMembersList:(NSMutableArray *)memberArray
+                                 andMetaData:(NSMutableDictionary *)metaData
+                              withCompletion:(void(^)(ALChannel *alChannel, NSError *error))completion;
+
+-(ALChannelUserX *)loadChannelUserX:(NSNumber *)channelKey;
+
+-(void)getChannelInfoByIdsOrClientIds:(NSMutableArray*)channelIds
+                   orClinetChannelIds:(NSMutableArray*) clientChannelIds
+                       withCompletion:(void(^)(NSMutableArray* channelInfoList, NSError *error))completion;
+
+-(void)getChannelListForCategory:(NSString*)category
+                  withCompletion:(void(^)(NSMutableArray * channelInfoList, NSError * error))completion;
+
+
+-(void)getAllChannelsForApplications:(NSNumber*)endTime withCompletion:(void(^)(NSMutableArray * channelInfoList, NSError * error))completion;
+
+
++(void) addMemberToContactGroupOfType:(NSString*) contactsGroupId withMembers: (NSMutableArray *)membersArray withGroupType :(short) groupType withCompletion:(void(^)(ALAPIResponse * response, NSError * error))completion;
+
++(void) addMemberToContactGroup:(NSString*) contactsGroupId withMembers:(NSMutableArray *)membersArray  withCompletion:(void(^)(ALAPIResponse * response, NSError * error))completion;
+
++(void) getMembersFromContactGroupOfType:(NSString *)contactGroupId  withGroupType :(short) groupType withCompletion:(void(^)(NSError *error, ALChannel *channel)) completion;
+
+-(NSMutableArray *)getListOfAllUsersInChannelByNameForContactsGroup:(NSString *)channelName;
+
++(void) removeMemberFromContactGroup:(NSString*) contactsGroupId withUserId :(NSString*) userId  withCompletion:(void(^)(ALAPIResponse * response, NSError * error))completion;
+
++(void) removeMemberFromContactGroupOfType:(NSString*) contactsGroupId  withGroupType:(short) groupType withUserId :(NSString*) userId  withCompletion:(void(^)(ALAPIResponse * response, NSError * error))completion;
+
++(void)getMembersIdsForContactGroups:(NSArray*)contactGroupIds withCompletion:(void(^)(NSError *error, NSArray *membersArray)) completion;
+
+-(void)createChannel:(NSString *)channelName orClientChannelKey:(NSString *)clientChannelKey
+      andMembersList:(NSMutableArray *)memberArray andImageLink:(NSString *)imageLink channelType:(short)type
+         andMetaData:(NSMutableDictionary *)metaData adminUser:(NSString *)adminUserId withGroupUsers : (NSMutableArray*) groupRoleUsers withCompletion:(void(^)(ALChannel *alChannel, NSError *error))completion;
+
+/**
+ Returns a dictionary containing required key value pairs to turn off the notifications
+ for all the group action messages.
+ */
+- (NSDictionary *)metadataToTurnOffActionMessagesNotifications;
+
+/**
+ Returns a dictionary containing required key value pairs to hide all the action messages
+ and turn off the notifications for them.
+ */
+- (NSDictionary *)metadataToHideActionMessagesAndTurnOffNotifications;
 @end

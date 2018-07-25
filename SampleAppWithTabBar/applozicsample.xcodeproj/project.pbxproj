@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		18EBAA0D2108944600603AAF /* Applozic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 469F977D1E7D2AF500103CFE /* Applozic.framework */; };
+		18EBAA0E2108944600603AAF /* Applozic.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 469F977D1E7D2AF500103CFE /* Applozic.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2997194A1C94068E00A897E0 /* LaunchChatFromSimpleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 299719481C94068E00A897E0 /* LaunchChatFromSimpleViewController.m */; };
 		460829631DB68417001B14CF /* restrictWords.txt in Resources */ = {isa = PBXBuildFile; fileRef = 460829621DB68417001B14CF /* restrictWords.txt */; };
-		469F977E1E7D2AF500103CFE /* Applozic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 469F977D1E7D2AF500103CFE /* Applozic.framework */; };
-		469F977F1E7D2AF500103CFE /* Applozic.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 469F977D1E7D2AF500103CFE /* Applozic.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6D4F28CB1BC58F6C007E7B35 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6D4F28B01BC554D8007E7B35 /* Main.storyboard */; };
 		6D4F28CF1BC6429F007E7B35 /* ApplozicLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D4F28CE1BC6429F007E7B35 /* ApplozicLoginViewController.m */; };
 		6D6DF1F61BC551FA00EBA00F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D6DF1F51BC551FA00EBA00F /* main.m */; };
@@ -24,13 +24,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		6D46B6C21BCE4C8F0014A5D3 /* Embed Frameworks */ = {
+		18EBAA0F2108944600603AAF /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				469F977F1E7D2AF500103CFE /* Applozic.framework in Embed Frameworks */,
+				18EBAA0E2108944600603AAF /* Applozic.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -67,7 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				469F977E1E7D2AF500103CFE /* Applozic.framework in Frameworks */,
+				18EBAA0D2108944600603AAF /* Applozic.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,7 +160,7 @@
 				6D6DF1ED1BC551FA00EBA00F /* Sources */,
 				6D6DF1EE1BC551FA00EBA00F /* Frameworks */,
 				6D6DF1EF1BC551FA00EBA00F /* Resources */,
-				6D46B6C21BCE4C8F0014A5D3 /* Embed Frameworks */,
+				18EBAA0F2108944600603AAF /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -342,6 +342,7 @@
 		6D6DF20C1BC551FA00EBA00F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = applozicdemo/applozicSample.entitlements;
@@ -369,6 +370,7 @@
 		6D6DF20D1BC551FA00EBA00F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = applozicdemo/applozicSample.entitlements;

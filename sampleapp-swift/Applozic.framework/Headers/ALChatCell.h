@@ -27,6 +27,7 @@
 -(void)openUserChat:(ALMessage *)alMessage;
 -(void)processMessageReply:(ALMessage *) message;
 -(void)scrollToReplyMessage:(ALMessage*)message;
+-(void)handleTapGestureForKeyBoard;
 
 @end
 

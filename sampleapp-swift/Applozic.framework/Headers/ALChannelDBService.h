@@ -14,6 +14,7 @@
 #import "ALChannelUserX.h"
 #import "ALConversationProxy.h"
 #import "DB_ConversationProxy.h"
+#import "ALApplozicSettings.h"
 
 @interface ALChannelDBService : NSObject
 
@@ -46,6 +47,8 @@
 -(NSMutableArray*)getAllChannelKeyAndName;
 
 -(void)updateChannel:(NSNumber *)channelKey andNewName:(NSString *)newName orImageURL:(NSString *)imageURL orChildKeys:(NSMutableArray *)childKeysList isUpdatingMetaData:(BOOL)flag  orChannelUsers:(NSMutableArray *)channelUsers;
+
+-(void)updateChannelMetaData:(NSNumber *)channelKey metaData:(NSMutableDictionary *)newMetaData;
 
 -(void)processArrayAfterSyncCall:(NSMutableArray *)channelArray;
 

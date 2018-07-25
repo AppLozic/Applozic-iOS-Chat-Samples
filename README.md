@@ -1,6 +1,15 @@
 # Applozic-iOS-Chat-Samples
 Applozic iOS Chat and In-App Messaging Samples
 
+
+How to get the apploozic applicationKey ?
+-->Signup at https://www.applozic.com/ to get the applicationKey from dashboard 
+
+
+How to change the applicationKey in sample projects ?
+-- Need to go serach tab of of any of below Xcode project  and  need to find for **applozic-sample-app** and replace it with every  occurrence of string
+
+
 **ApplozicCocoaPodDemo :** Sample app using Applozic cocoapods.
 
 **SampleAppWithTabBar :** Sample app in **Objective-C** that helps in integrating and show Applozic ViewControllers in your Tab Bar Application.

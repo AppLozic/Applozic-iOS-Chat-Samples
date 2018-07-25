@@ -38,6 +38,7 @@
 -(void)populateDataFromDictonary:(NSDictionary *)dict;
 
 -(NSString *)getDisplayName;
+-(NSMutableDictionary *)getMetaDataDictionary:(NSString *)string;
 
 @property (nonatomic,strong) NSNumber * unreadCount;
 
@@ -45,6 +46,9 @@
 @property (nonatomic) BOOL blockBy;
 @property (nonatomic,retain) NSNumber * userTypeId;
 @property (nonatomic,retain) NSNumber * contactType;
-@property (nonatomic,retain) NSNumber *deletedAtTime; 
+@property (nonatomic,retain) NSNumber *deletedAtTime;
+@property (nonatomic,retain) NSMutableDictionary * metadata;
+@property (nonatomic,retain) NSNumber * roleType;
+
 
 @end

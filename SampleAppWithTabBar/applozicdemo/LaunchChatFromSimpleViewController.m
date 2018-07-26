@@ -79,13 +79,11 @@
         [_activityView startAnimating];
     }
     [self.view addSubview:_activityView];
-    ALUser *user = [[ALUser alloc] init];
-    [user setUserId:[ALUserDefaultsHandler getUserId]];
-    [user setEmail:[ALUserDefaultsHandler getEmailId]];
-    [user setPassword:@""];
+
+    UIStoryboard *storyboardM = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIViewController *launchChatViaTabBar = [storyboardM instantiateViewControllerWithIdentifier:@"ALTabBarController"];
+    [self presentViewController:launchChatViaTabBar animated:YES completion:nil];
     
-    ALChatManager * chatManager = [[ALChatManager alloc] initWithApplicationKey:@"applozic-sample-app"];
-    [chatManager registerUserAndLaunchChat:user andFromController:self forUser:nil withGroupId:nil];
     
     //Adding sample contacts...
     [self insertInitialContacts];

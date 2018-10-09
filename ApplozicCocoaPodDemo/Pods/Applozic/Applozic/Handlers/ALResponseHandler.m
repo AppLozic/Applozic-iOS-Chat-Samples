@@ -26,29 +26,30 @@
                                if(connectionError.code == kCFURLErrorUserCancelledAuthentication)
                                {
                                    NSString * failingURL = connectionError.userInfo[@"NSErrorFailingURLStringKey"] != nil ? connectionError.userInfo[@"NSErrorFailingURLStringKey"]:@"Empty";
-                                   NSLog(@"Authentication error: HTTP 401 : ERROR CODE : %ld, FAILING URL: %@",  (long)connectionError.code,  failingURL);
+                                   ALSLog(ALLoggerSeverityError, @"Authentication error: HTTP 401 : ERROR CODE : %ld, FAILING URL: %@",  (long)connectionError.code,  failingURL);
                                    reponseCompletion(nil,[self errorWithDescription:@"Authentication error: 401"]);
                                    return;
                                }
                                else if(connectionError.code == kCFURLErrorNotConnectedToInternet)
                                {
                                    NSString * failingURL = connectionError.userInfo[@"NSErrorFailingURLStringKey"] != nil ? connectionError.userInfo[@"NSErrorFailingURLStringKey"]:@"Empty";
-                                   NSLog(@"NO INTERNET CONNECTIVITY, ERROR CODE : %ld, FAILING URL: %@",  (long)connectionError.code, failingURL);
+                                   ALSLog(ALLoggerSeverityError, @"NO INTERNET CONNECTIVITY, ERROR CODE : %ld, FAILING URL: %@",  (long)connectionError.code, failingURL);
                                    reponseCompletion(nil,[self errorWithDescription:@"No Internet connectivity"]);
                                    return;
                                }
-                               //connection error
+
+                               // Handle any other connection error
                                else if (connectionError)
                                {
-                                   NSLog(@"ERROR_RESPONSE : %@ && ERROR:CODE : %ld ", connectionError.description, (long)connectionError.code);
-                                   reponseCompletion(nil,[self errorWithDescription:@"Unable to connect with the server. Check your internet connection and try again"]);
+                                   ALSLog(ALLoggerSeverityError, @"ERROR_RESPONSE : %@ && ERROR:CODE : %ld ", connectionError.description, (long)connectionError.code);
+                                   reponseCompletion(nil, [self errorWithDescription:connectionError.localizedDescription]);
                                    return;
                                }
                                
                                if (theHttpResponse.statusCode != 200 && theHttpResponse.statusCode != 201)
                                {
                                    NSMutableString * errorString = [[NSMutableString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                                   NSLog(@"api error : %@ - %@",tag,errorString);
+                                   ALSLog(ALLoggerSeverityError, @"api error : %@ - %@",tag,errorString);
                                    reponseCompletion(nil,[self errorWithDescription:message_SomethingWentWrong]);
                                    return;
                                }
@@ -56,14 +57,14 @@
                                if (data == nil)
                                {
                                    reponseCompletion(nil,[self errorWithDescription:message_SomethingWentWrong]);
-                                   NSLog(@"api error - %@",tag);
+                                   ALSLog(ALLoggerSeverityError, @"api error - %@",tag);
                                    return;
                                }
                                
                                id theJson = nil;
                                
                                // DECRYPTING DATA WITH KEY
-                               if([ALUserDefaultsHandler getEncryptionKey] && ![tag isEqualToString:@"CREATE ACCOUNT"] && ![tag isEqualToString:@"CREATE FILE URL"] && ![tag isEqualToString:@"UPDATE NOTIFICATION MODE"])
+                               if([ALUserDefaultsHandler getEncryptionKey] && ![tag isEqualToString:@"CREATE ACCOUNT"] && ![tag isEqualToString:@"CREATE FILE URL"] && ![tag isEqualToString:@"UPDATE NOTIFICATION MODE"] && ![tag isEqualToString:@"FILE DOWNLOAD URL"])
                                {
                                    
                                    NSData *base64DecodedData = [[NSData alloc] initWithBase64EncodedData:data options:0];
@@ -72,7 +73,7 @@
                                    if (theData == nil)
                                    {
                                        reponseCompletion(nil,[self errorWithDescription:message_SomethingWentWrong]);
-                                       NSLog(@"api error - %@",tag);
+                                       ALSLog(ALLoggerSeverityError, @"api error - %@",tag);
                                        return;
                                    }
                                    
@@ -84,7 +85,7 @@
                                        
                                    }else{
                                        reponseCompletion(nil,[self errorWithDescription:message_SomethingWentWrong]);
-                                       NSLog(@"api error - %@",tag);
+                                       ALSLog(ALLoggerSeverityError, @"api error - %@",tag);
                                        return;
                                    }
                                }

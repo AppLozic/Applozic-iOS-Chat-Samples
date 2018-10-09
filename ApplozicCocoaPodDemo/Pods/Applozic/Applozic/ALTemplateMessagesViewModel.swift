@@ -36,7 +36,7 @@ import Foundation
             return CGSize(width: 0, height: 0)
         }
         
-        let size = (messageTemplates[row].text as NSString).size(withAttributes: [NSAttributedStringKey.font: textFont!])
+        let size = (messageTemplates[row].text as NSString).size(withAttributes: [NSAttributedString.Key.font: textFont!])
         let newSize = CGSize(width: +size.width+leftRightPadding, height: height)
         return newSize
     }

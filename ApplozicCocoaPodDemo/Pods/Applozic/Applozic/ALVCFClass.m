@@ -97,7 +97,7 @@
     }
     
     NSError *theError = (__bridge NSError *)CFerror;
-    NSLog(@"ERROR VCARD (IF ANY) :: %@",theError.description);
+    ALSLog(ALLoggerSeverityError, @"ERROR VCARD (IF ANY) :: %@",theError.description);
     
     // get the first name
     self.firstName = (__bridge_transfer NSString *)ABRecordCopyValue(person, kABPersonFirstNameProperty);
@@ -172,7 +172,7 @@
     if(!ABAddressBookSave(book, &CFError))
     {
         NSError *error = (__bridge NSError *)CFError;
-        NSLog(@"ERROR_IN_SAVE_CONTACT : %@",error.description);
+        ALSLog(ALLoggerSeverityError, @"ERROR_IN_SAVE_CONTACT : %@",error.description);
         
         UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:@"Application Settings"
                                                              message:@"Enable Contacts Permission"

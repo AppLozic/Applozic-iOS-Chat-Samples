@@ -138,7 +138,7 @@
                                    actionWithTitle:NSLocalizedStringWithDefaultValue(@"okText", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"OK", @"")                                   style:UIAlertActionStyleDefault
                                    handler:^(UIAlertAction *action)
                                    {
-                                       NSLog(@"OK action");
+                                       ALSLog(ALLoggerSeverityInfo, @"OK action");
                                    }];
         [alertController addAction:okAction];
         [self presentViewController:alertController animated:YES completion:nil];
@@ -201,7 +201,7 @@
           if(!error)
           {
         
-              NSLog(@"ALGroupCreationViewController updated the group info");
+              ALSLog(ALLoggerSeverityInfo, @"ALGroupCreationViewController updated the group info");
               [self.navigationController popViewControllerAnimated:YES];
               [self.grpInfoDelegate updateGroupInformation];
           }
@@ -381,7 +381,7 @@
         NSMutableData *body = [NSMutableData data];
         NSString *FileParamConstant = @"file";
         NSData *imageData = [[NSData alloc] initWithContentsOfFile:filePath];
-        NSLog(@"IMAGE_DATA :: %f",imageData.length/1024.0);
+        ALSLog(ALLoggerSeverityInfo, @"IMAGE_DATA :: %f",imageData.length/1024.0);
         
         //Assuming data is not nil we add this to the multipart form
         if (imageData)
@@ -430,7 +430,7 @@
 
 -(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-    NSLog(@"GROUP_IMAGE UPLOAD_ERROR :: %@",error.description);
+    ALSLog(ALLoggerSeverityError, @"GROUP_IMAGE UPLOAD_ERROR :: %@",error.description);
     [self.navigationItem.rightBarButtonItem setEnabled:YES];
     [self.activityIndicator stopAnimating];
 }
@@ -438,17 +438,17 @@
 -(void)connection:(NSURLConnection *)connection didSendBodyData:(NSInteger)bytesWritten
 totalBytesWritten:(NSInteger)totalBytesWritten totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
-    NSLog(@"GROUP_IMAGE UPLOAD PROGRESS :: %lu out of %lu",totalBytesWritten,totalBytesExpectedToWrite);
+    ALSLog(ALLoggerSeverityInfo, @"GROUP_IMAGE UPLOAD PROGRESS :: %ld out of %ld",(long)totalBytesWritten,(long)totalBytesExpectedToWrite);
 }
 
 -(void)connectionDidFinishLoading:(ALConnection *)connection
 {
-    NSLog(@"CONNNECTION_FINISHED");
+    ALSLog(ALLoggerSeverityInfo, @"CONNNECTION_FINISHED");
     [[[ALConnectionQueueHandler sharedConnectionQueueHandler] getCurrentConnectionQueue] removeObject:connection];
     if([connection.connectionType isEqualToString:CONNECTION_TYPE_GROUP_IMG_UPLOAD])
     {
         NSString *imageLinkFromServer = [[NSString alloc] initWithData:connection.mData encoding:NSUTF8StringEncoding];
-        NSLog(@"GROUP_IMAGE_LINK :: %@",imageLinkFromServer);
+        ALSLog(ALLoggerSeverityInfo, @"GROUP_IMAGE_LINK :: %@",imageLinkFromServer);
         self.groupImageURL = imageLinkFromServer;
     }
     [self.navigationItem.rightBarButtonItem setEnabled:YES];

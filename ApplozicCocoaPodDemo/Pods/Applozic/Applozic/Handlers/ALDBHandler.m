@@ -38,9 +38,9 @@
         NSPersistentContainer * container = [[NSPersistentContainer alloc] initWithName:@"AppLozic" managedObjectModel:self.managedObjectModel];
 
         [container loadPersistentStoresWithCompletionHandler:^(NSPersistentStoreDescription* store, NSError * error) {
-            NSLog(@"pers url: %@",container.persistentStoreCoordinator.persistentStores.firstObject.URL);
+            ALSLog(ALLoggerSeverityInfo, @"pers url: %@",container.persistentStoreCoordinator.persistentStores.firstObject.URL);
             if(error != nil) {
-                NSLog(@"%@", error);
+                ALSLog(ALLoggerSeverityError, @"%@", error);
             }
         }];
         self.persistentContainer = container;
@@ -116,7 +116,7 @@
         
         // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
         
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+        ALSLog(ALLoggerSeverityError, @"Unresolved error %@, %@", error, [error userInfo]);
         
         abort();
     }
@@ -166,7 +166,7 @@
             
             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
             
-            NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+            ALSLog(ALLoggerSeverityError, @"Unresolved error %@, %@", error, [error userInfo]);
             
             abort();
         }
@@ -184,7 +184,7 @@
         
         if (!result) {
             
-            NSLog(@"Failure to delete the contacts");
+            ALSLog(ALLoggerSeverityError, @"Failure to delete the contacts");
             break;
         }
     }
@@ -221,8 +221,8 @@
     
     if (!success) {
         
-        NSLog(@"Unable to save managed object context.");
-        NSLog(@"%@, %@", deleteError, deleteError.localizedDescription);
+        ALSLog(ALLoggerSeverityError, @"Unable to save managed object context.");
+        ALSLog(ALLoggerSeverityError, @"%@, %@", deleteError, deleteError.localizedDescription);
     }
     
     return success;
@@ -252,8 +252,8 @@
     
     if (!success) {
         
-        NSLog(@"Unable to save managed object context.");
-        NSLog(@"%@, %@", deleteError, deleteError.localizedDescription);
+        ALSLog(ALLoggerSeverityError, @"Unable to save managed object context.");
+        ALSLog(ALLoggerSeverityError, @"%@, %@", deleteError, deleteError.localizedDescription);
     }
     
     return success;
@@ -271,7 +271,7 @@
         
         if (!result) {
             
-            NSLog(@"Failure to update the contacts");
+            ALSLog(ALLoggerSeverityError, @"Failure to update the contacts");
             break;
         }
     }
@@ -319,7 +319,7 @@
     
     if (!success) {
         
-        NSLog(@"DB ERROR :%@",error);
+        ALSLog(ALLoggerSeverityError, @"DB ERROR :%@",error);
     }
     
     return success;
@@ -344,6 +344,11 @@
 }
 
 - (ALContact *) loadContactByKey:(NSString *) key value:(NSString*) value {
+
+    if(!value){
+        return nil;
+    }
+
     DB_CONTACT *dbContact = [self getContactByKey:key value:value];
     ALContact *contact = [[ALContact alloc]init];
 
@@ -430,7 +435,7 @@
     result = [self.managedObjectContext save:&error];
     
     if (!result) {
-        NSLog(@"DB ERROR :%@",error);
+        ALSLog(ALLoggerSeverityError, @"DB ERROR :%@",error);
     }
     
     return result;

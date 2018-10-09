@@ -25,7 +25,7 @@
 -(void)getAddress {
     
     [self setup];
-    NSLog(@"get Address...");
+    ALSLog(ALLoggerSeverityInfo, @"get Address...");
 
 }
 
@@ -34,7 +34,7 @@
     [_locationManager requestWhenInUseAuthorization];
     [_locationManager startUpdatingLocation];
     //[_locationManager requestLocation];
-    NSLog(@"get Address...####");
+    ALSLog(ALLoggerSeverityInfo, @"get Address...####");
 
 
 }
@@ -44,22 +44,14 @@
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-    NSLog(@"didFailWithError: %@", error);
-    
-}
-
-- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
-{
-    NSLog(@"didUpdateToLocation: %@", newLocation);
-    CLLocation *currentLocation = newLocation;
-    [ self handleLocationUpdate: currentLocation];
+    ALSLog(ALLoggerSeverityError, @"didFailWithError: %@", error);
     
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     
-    NSLog(@"didUpdateLocations called:");
+    ALSLog(ALLoggerSeverityInfo, @"didUpdateLocations called:");
     CLLocation *newLocation = locations[[locations count] -1];
     CLLocation *currentLocation = newLocation;
     [ self handleLocationUpdate: currentLocation];
@@ -78,27 +70,27 @@
     }
     
     // Reverse Geocoding
-    NSLog(@"Resolving the Address");
+    ALSLog(ALLoggerSeverityInfo, @"Resolving the Address");
     _geocoder = [[CLGeocoder alloc]init];
     
     [self.geocoder reverseGeocodeLocation:currentLocation completionHandler:^(NSArray *placemarks, NSError *error) {
         NSMutableDictionary * dict =  [[NSMutableDictionary alloc]init];
         if(error){
-            NSLog(@"%@", [error localizedDescription]);
+            ALSLog(ALLoggerSeverityError, @"%@", [error localizedDescription]);
             [dict setObject:error.debugDescription forKey:@"error"];
             
         }
         
         CLPlacemark *placemark = [placemarks lastObject];
         
-      _addressString = [NSString stringWithFormat:@"%@ %@\n%@ %@\n%@\n%@",
+      self->_addressString = [NSString stringWithFormat:@"%@ %@\n%@ %@\n%@\n%@",
                               placemark.subThoroughfare, placemark.thoroughfare,
                               placemark.postalCode, placemark.locality,
                               placemark.administrativeArea,
                               placemark.country];
         
-        [dict setObject:_addressString forKey:@"address"];
-        [dict setObject:_googleURL forKey:@"googleurl"];
+        [dict setObject:self->_addressString forKey:@"address"];
+        [dict setObject:self->_googleURL forKey:@"googleurl"];
 
         [self.locationDelegate  handleAddress:dict ];
         

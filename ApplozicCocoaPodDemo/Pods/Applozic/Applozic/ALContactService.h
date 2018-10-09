@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "ALContact.h"
 #import "DB_CONTACT.h"
+#import "ALUserDetail.h"
 
 
 
@@ -48,4 +49,5 @@
 
 -(BOOL)isUserDeleted:(NSString *)userId;
 
+-(ALUserDetail *)updateMuteAfterTime:(NSNumber*)notificationAfterTime andUserId:(NSString*)userId;
 @end

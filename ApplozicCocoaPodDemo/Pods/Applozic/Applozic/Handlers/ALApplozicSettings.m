@@ -28,11 +28,34 @@
     return [[NSUserDefaults standardUserDefaults] valueForKey:FONT_FACE];
 }
 
++(void)setChatCellFontTextStyle:(NSString *)fontTextStyle
+{
+    [[NSUserDefaults standardUserDefaults] setObject:fontTextStyle forKey:CHAT_CELL_FONT_TEXT_STYLE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSString *)getChatCellFontTextStyle
+{
+    return [[NSUserDefaults standardUserDefaults] objectForKey:CHAT_CELL_FONT_TEXT_STYLE];
+}
+
++(void)setChatChannelCellFontTextStyle:(NSString *)fontTextStyle
+{
+    [[NSUserDefaults standardUserDefaults] setObject:fontTextStyle forKey:CHAT_CHANNEL_CELL_FONT_TEXT_STYLE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSString *)getChatChannelCellFontTextStyle
+{
+    return [[NSUserDefaults standardUserDefaults] objectForKey:CHAT_CHANNEL_CELL_FONT_TEXT_STYLE];
+}
+
 +(void)setTitleForConversationScreen:(NSString *)titleText
 {
     [[NSUserDefaults standardUserDefaults] setValue:titleText forKey:CONVERSATION_TITLE];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
+
 
 +(NSString *)getTitleForConversationScreen
 {
@@ -315,6 +338,17 @@
 +(void)setCustomClassName:(NSString *)className
 {
     [[NSUserDefaults standardUserDefaults] setValue:className forKey:THIRD_PARTY_VC_NAME];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)getOptionToPushNotificationToShowCustomGroupDetalVC
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:THIRD_PARTY_DETAIL_VC_NOTIFICATION];
+}
+
++(void)setOptionToPushNotificationToShowCustomGroupDetalVC:(BOOL)option
+{
+    [[NSUserDefaults standardUserDefaults] setBool:option forKey:THIRD_PARTY_DETAIL_VC_NOTIFICATION];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
@@ -1009,14 +1043,14 @@
 }
 
 +(void) setTemplateMessages:(NSMutableDictionary*)dictionary{
-    
+
     [[NSUserDefaults standardUserDefaults] setObject:dictionary forKey:TEMPLATE_MESSAGES];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 
 +(NSMutableDictionary*) getTemplateMessages{
-    
+
     return [[NSUserDefaults standardUserDefaults] objectForKey:TEMPLATE_MESSAGES];
 }
 
@@ -1158,7 +1192,7 @@
 +(void)setCategoryName:(NSString*)categoryName{
     [[NSUserDefaults standardUserDefaults] setValue:categoryName forKey:AL_CATEGORY_NAME];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    
+
 }
 
 +(NSString*)getCategoryName{
@@ -1174,6 +1208,122 @@
 {
     [[NSUserDefaults standardUserDefaults] setBool:flag forKey:DELETE_CONVERSATION_OPTION];
     [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isContactSearchEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:AL_CONTACT_SEARCH];
+}
+
++(void)enableContactSearch:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:AL_CONTACT_SEARCH];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isChannelMembersInfoInNavigationBarEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:CHANNEL_MEMBER_INFO_IN_SUBTITLE];
+}
+
++(void)showChannelMembersInfoInNavigationBar:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:CHANNEL_MEMBER_INFO_IN_SUBTITLE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(NSArray *) metadataKeysToHideMessages
+{
+    return [[NSUserDefaults standardUserDefaults] objectForKey:HIDE_MESSAGES_WITH_METADATA_KEYS];
+}
+
++(void) hideMessagesWithMetadataKeys:(NSArray *)keys
+{
+    [[NSUserDefaults standardUserDefaults] setObject:keys forKey:HIDE_MESSAGES_WITH_METADATA_KEYS];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)isMultiSelectGalleryViewDisabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:ALDisableMultiSelectGalleryView];
+}
++(void)disableMultiSelectGalleryView:(BOOL)enabled
+{
+    [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:ALDisableMultiSelectGalleryView];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(BOOL)is5MinVideoLimitInGalleryEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:AL_5MIN_VIDEO_LIMIT_IN_GALLERY];
+}
++(void)enable5MinVideoLimitInGallery:(BOOL)enabled
+{
+    [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:AL_5MIN_VIDEO_LIMIT_IN_GALLERY];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(void)setBackgroundColorForAttachmentPlusIcon:(UIColor *)backgroundColor
+{
+    NSData *backgroundColorData = [NSKeyedArchiver archivedDataWithRootObject:backgroundColor];
+    [[NSUserDefaults standardUserDefaults] setObject:backgroundColorData forKey:BACKGROUND_COLOR_FOR_ATTACHMENT_PLUS_ICON];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(UIColor *)getBackgroundColorForAttachmentPlusIcon
+{
+    NSData *backgroundColorData = [[NSUserDefaults standardUserDefaults] objectForKey:BACKGROUND_COLOR_FOR_ATTACHMENT_PLUS_ICON];
+    UIColor *backgroundColor = [NSKeyedUnarchiver unarchiveObjectWithData:backgroundColorData];
+    return backgroundColor;
+}
+
++(void) clearAll
+{
+    NSDictionary * dictionary = [[NSUserDefaults standardUserDefaults] dictionaryRepresentation];
+    NSArray * keyArray = [dictionary allKeys];
+    for(NSString * defaultKeyString in keyArray)
+    {
+        if([defaultKeyString hasPrefix:@"com.applozic"] && ![defaultKeyString isEqualToString:APN_DEVICE_TOKEN])
+        {
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:defaultKeyString];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+    }
+}
+
++(BOOL)isTextStyleInCellEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:AL_TEXT_STYLE_FOR_CELL];
+}
+
++(void)enableTextStyleCell:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults] setBool:flag forKey:AL_TEXT_STYLE_FOR_CELL];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(void)setChatCellTextFontSize:(float)fontSize
+{
+    [[NSUserDefaults standardUserDefaults] setFloat:fontSize forKey:AL_CHAT_CELL_FONT_SIZE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(float)getChatCellTextFontSize
+{
+    float size = [[NSUserDefaults standardUserDefaults] floatForKey:AL_CHAT_CELL_FONT_SIZE];
+    return size ? size : 14;
+}
+
++(void)setChannelCellTextFontSize:(float)fontSize
+{
+    [[NSUserDefaults standardUserDefaults] setFloat:fontSize forKey:AL_CHANNEL_CELL_FONT_SIZE];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++(float)getChannelCellTextFontSize
+{
+    float size = [[NSUserDefaults standardUserDefaults] floatForKey:AL_CHANNEL_CELL_FONT_SIZE];
+    return size ? size : 14;
 }
 
 @end

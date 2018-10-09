@@ -100,7 +100,7 @@
     CELL_WIDTH = viewSize.width - 120;
     CELL_HEIGHT = viewSize.width - 220;
     
-    if([alMessage.type isEqualToString:@MT_INBOX_CONSTANT])
+    if([alMessage isReceivedMessage])
     {
         [self.contentView bringSubviewToFront:self.mChannelMemberName];
         
@@ -127,11 +127,12 @@
         
         if( alMessage.groupId )
         {
+            [self.mChannelMemberName setTextColor: [ALColorUtility getColorForAlphabet:receiverName]];
             [self.mChannelMemberName setText:receiverName];
             [self.mChannelMemberName setHidden:NO];
             self.mChannelMemberName.frame = CGRectMake(self.mBubleImageView.frame.origin.x + 5,
                                                        self.mBubleImageView.frame.origin.y + 2,
-                                                       self.mBubleImageView.frame.size.width + 30, 20);
+                                                       self.mBubleImageView.frame.size.width -5, 20);
             
             CELL_HEIGHT = CELL_HEIGHT + self.mChannelMemberName.frame.size.height ;
             imageViewY = imageViewY + self.mChannelMemberName.frame.size.height;
@@ -214,31 +215,34 @@
     
         self.mMessageStatusImageView.hidden = NO;
         NSString * imageName;
-        
-        switch (alMessage.status.intValue)
-        {
-            case DELIVERED_AND_READ :
+
+
+        if(((self.channel && self.channel.type != OPEN) || self.contact)){
+
+            switch (alMessage.status.intValue)
             {
-                imageName = @"ic_action_read.png";
+                case DELIVERED_AND_READ :
+                {
+                    imageName = @"ic_action_read.png";
+                }
+                    break;
+                case DELIVERED:
+                {
+                    imageName = @"ic_action_message_delivered.png";
+                }
+                    break;
+                case SENT:
+                {
+                    imageName = @"ic_action_message_sent.png";
+                }
+                    break;
+                default:
+                {
+                    imageName = @"ic_action_about.png";
+                }
+                    break;
             }
-            break;
-            case DELIVERED:
-            {
-                imageName = @"ic_action_message_delivered.png";
-            }
-            break;
-            case SENT:
-            {
-                imageName = @"ic_action_message_sent.png";
-            }
-            break;
-            default:
-            {
-                imageName = @"ic_action_about.png";
-            }
-            break;
         }
-        
         
         self.mMessageStatusImageView.image = [ALUtilityClass getImageFromFramworkBundle:imageName];
     }
@@ -274,29 +278,28 @@
 }
 
 
-
 #pragma mark - Menu option tap Method -
 
 -(void) proccessTapForMenu:(id)tap{
-    
+
     [self processKeyBoardHideTap];
 
     UIMenuItem * messageForward = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"forwardOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Forward", @"") action:@selector(messageForward:)];
     UIMenuItem * messageReply = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"replyOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Reply", @"") action:@selector(messageReply:)];
-    
+
     if ([self.mMessage.type isEqualToString:@MT_INBOX_CONSTANT]){
-        
+
         [[UIMenuController sharedMenuController] setMenuItems: @[messageForward,messageReply]];
-        
+
     }else if ([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT]){
 
-        
+
         UIMenuItem * msgInfo = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"infoOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Info", @"") action:@selector(msgInfo:)];
-        
+
         [[UIMenuController sharedMenuController] setMenuItems: @[msgInfo,messageReply,messageForward]];
     }
     [[UIMenuController sharedMenuController] update];
-    
+
 }
 
 
@@ -341,7 +344,7 @@
 
 -(void)showMaps:(UITapGestureRecognizer *)sender
 {
-    NSString * URLString = [NSString stringWithFormat:@"https://maps.google.com/maps?q=loc:%@",[self formatLocationJson:super.mMessage]];
+    NSString * URLString = [NSString stringWithFormat:@"https://maps.google.com/maps?q=%@",[self formatLocationJson:super.mMessage]];
     NSURL * locationURL = [NSURL URLWithString:URLString];
     [[UIApplication sharedApplication] openURL:locationURL];
 }
@@ -360,7 +363,7 @@
             }
         }
         
-    if([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT] && self.mMessage.groupId)
+    if([self.mMessage isSentMessage] && self.mMessage.groupId)
     {
         return (self.mMessage.isDownloadRequired? (action == @selector(delete:) || action == @selector(msgInfo:)):(action == @selector(delete:)|| action == @selector(msgInfo:)|| [self isForwardMenuEnabled:action] || [self isMessageReplyMenuEnabled:action]) );
     }
@@ -375,7 +378,7 @@
     [self.delegate deleteMessageFromView:self.mMessage];
     [ALMessageService deleteMessage:self.mMessage.key andContactId:self.mMessage.contactIds withCompletion:^(NSString *string, NSError *error) {
         
-        NSLog(@"DELETE MESSAGE ERROR :: %@", error.description);
+        ALSLog(ALLoggerSeverityError, @"DELETE MESSAGE ERROR :: %@", error.description);
     }];
 }
 
@@ -387,7 +390,7 @@
 
 -(void) messageForward:(id)sender
 {
-    NSLog(@"Message forward option is pressed");
+    ALSLog(ALLoggerSeverityInfo, @"Message forward option is pressed");
     [self.delegate processForwardMessage:self.mMessage];
     
 }
@@ -434,7 +437,7 @@
 
 -(void) messageReply:(id)sender
 {
-    NSLog(@"Message forward option is pressed");
+    ALSLog(ALLoggerSeverityInfo, @"Message forward option is pressed");
     [self.delegate processMessageReply:self.mMessage];
     
 }
@@ -443,6 +446,12 @@
 {
     return ([ALApplozicSettings isReplyOptionEnabled] && action == @selector(messageReply:));
     
+}
+
+-(void)processOpenChat
+{
+    [self processKeyBoardHideTap];
+    [self.delegate openUserChat:self.mMessage];
 }
 
 @end

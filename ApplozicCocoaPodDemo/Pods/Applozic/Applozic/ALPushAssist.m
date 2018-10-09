@@ -89,7 +89,7 @@
 
 -(BOOL)isVOIPViewOnTop
 {
-    NSLog(@"VOIP_VIEW : %@",self.topViewController);
+    ALSLog(ALLoggerSeverityInfo, @"VOIP_VIEW : %@",self.topViewController);
     return ([self.topViewController isKindOfClass:NSClassFromString([ALApplozicSettings getAudioVideoClassName])]);
 }
 

@@ -20,6 +20,12 @@
 #import "ALAudioAttachmentViewController.h"
 #import "ALVCardClass.h"
 #import <ContactsUI/CNContactPickerViewController.h>
+#import "ALNewContactsViewController.h"
+
+extern NSString * const ThirdPartyDetailVCNotification;
+extern NSString * const ThirdPartyDetailVCNotificationNavigationVC;
+extern NSString * const ThirdPartyDetailVCNotificationALContact;
+extern NSString * const ThirdPartyDetailVCNotificationChannelKey;
 
 @protocol ALChatViewControllerDelegate <NSObject>
 
@@ -28,7 +34,7 @@
 
 @end
 
-@interface ALChatViewController : ALBaseViewController<UITableViewDataSource,UITableViewDelegate,UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,ALMapViewControllerDelegate,ALChatCellDelegate,CNContactPickerDelegate>
+@interface ALChatViewController : ALBaseViewController<UITableViewDataSource,UITableViewDelegate,UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,ALMapViewControllerDelegate,ALChatCellDelegate,CNContactPickerDelegate,ALForwardMessageDelegate>
 
 @property (strong, nonatomic) ALContact * alContact;
 @property (nonatomic, strong) ALChannel * alChannel;

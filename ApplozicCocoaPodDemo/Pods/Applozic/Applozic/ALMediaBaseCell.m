@@ -94,7 +94,7 @@
         [self.contentView addSubview:self.mDowloadRetryButton];
 
         self.imageWithText = [[UITextView alloc] init];
-        [self.imageWithText setFont:[UIFont fontWithName:[ALApplozicSettings getFontFace] size:MESSAGE_TEXT_SIZE]];
+        [self.imageWithText setFont:[UIFont fontWithName:[ALApplozicSettings getFontFace] size:[ALApplozicSettings getChatCellTextFontSize]]];
         self.imageWithText.editable = NO;
         self.imageWithText.scrollEnabled = NO;
         self.imageWithText.textContainerInset = UIEdgeInsetsZero;
@@ -205,7 +205,7 @@
     
     self.replyParentView.hidden=NO;
     
-    NSLog(@"processReplyOfChat called");
+    ALSLog(ALLoggerSeverityInfo, @"processReplyOfChat called");
     self.replyUIView = [[MessageReplyView alloc] init];
     
     [self.replyUIView setBackgroundColor:[UIColor clearColor]];
@@ -216,12 +216,12 @@
     if( (self.mBubleImageView.frame.size.width) > replyWidthRequired )
     {
         replyWidthRequired = (self.mBubleImageView.frame.size.width);
-        NSLog(@" replyWidthRequired is less from parent one : %d", replyWidthRequired);
+        ALSLog(ALLoggerSeverityInfo, @"replyWidthRequired is less from parent one : %f", replyWidthRequired);
     }
     else
     {
         replyWidthRequired = replyWidthRequired;
-        NSLog(@" replyWidthRequired is grater from parent one : %d", replyWidthRequired);
+        ALSLog(ALLoggerSeverityInfo, @"replyWidthRequired is grater from parent one : %f", replyWidthRequired);
         
     }
     

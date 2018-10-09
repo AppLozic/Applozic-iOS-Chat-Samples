@@ -64,7 +64,7 @@
         chatView.text = text;
         chatView.individualLaunch = YES;
         chatView.chatViewDelegate = self;
-        NSLog(@"CALLED_VIA_NOTIFICATION");
+        ALSLog(ALLoggerSeverityInfo, @"CALLED_VIA_NOTIFICATION");
         
         UINavigationController * conversationViewNavController = [self createNavigationControllerForVC:chatView];
         conversationViewNavController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
@@ -109,7 +109,7 @@
                                //Channel information
                                
                                
-       NSLog(@" alChannel ###%@ ", alChannel.name);
+       ALSLog(ALLoggerSeverityInfo, @" alChannel ###%@ ", alChannel.name);
        UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"Applozic"
                                    
                                                             bundle:[NSBundle bundleForClass:ALChatViewController.class]];
@@ -147,20 +147,6 @@
     msgVC.messagesViewDelegate = self;
     [viewController presentViewController:theTabBar animated:YES completion:nil];
     
-}
-
--(void)registerForNotification
-{
-//    [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:
-//                                                                         (UIUserNotificationTypeSound |
-//                                                                          UIUserNotificationTypeAlert |
-//                                                                          UIUserNotificationTypeBadge) categories:nil]];
-//    
-//    [[UIApplication sharedApplication] registerForRemoteNotifications];
-    
-    UIUserNotificationSettings * APNSetting = [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound categories:nil];
-    
-    [[UIApplication sharedApplication] registerUserNotificationSettings:APNSetting];
 }
 
 -(void)launchContactList:(UIViewController *)uiViewController

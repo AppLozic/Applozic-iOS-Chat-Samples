@@ -18,6 +18,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *emailId;
 @property (strong, nonatomic) IBOutlet UILabel *phoneNo;
 @property (strong, nonatomic) IBOutlet UIButton *callButton;
+@property (strong, nonatomic) IBOutlet UILabel *muteUserLabel;
 
 @property (strong, nonatomic) ALContact *alContact;
 

@@ -46,43 +46,43 @@ class DVChatViewController: UIViewController {
     
     fileprivate func showViewControllerInContainerView(_ viewController: UIViewController){
         
-        for vc in self.childViewControllers{
+        for vc in self.children{
             
-            vc.willMove(toParentViewController: nil)
+            vc.willMove(toParent: nil)
             vc.view.removeFromSuperview()
-            vc.removeFromParentViewController()
+            vc.removeFromParent()
         }
-        self.addChildViewController(viewController)
+        self.addChild(viewController)
         viewController.view.frame = CGRect(x: 0, y: 0, width: containerView.frame.size.width, height: containerView.frame.size.height);
         containerView.addSubview(viewController.view)
-        viewController.didMove(toParentViewController: self)
+        viewController.didMove(toParent: self)
         
         containerView.addConstraint( NSLayoutConstraint(item: viewController.view,
-            attribute: NSLayoutAttribute.leading,
-            relatedBy: NSLayoutRelation.equal,
+                                                        attribute: NSLayoutConstraint.Attribute.leading,
+                                                        relatedBy: NSLayoutConstraint.Relation.equal,
             toItem: containerView,
-            attribute: NSLayoutAttribute.leading,
+            attribute: NSLayoutConstraint.Attribute.leading,
             multiplier: 1,
             constant: 0 ) );
         containerView.addConstraint( NSLayoutConstraint(item: viewController.view,
-            attribute: NSLayoutAttribute.top,
-            relatedBy: NSLayoutRelation.equal,
+                                                        attribute: NSLayoutConstraint.Attribute.top,
+                                                        relatedBy: NSLayoutConstraint.Relation.equal,
             toItem: containerView,
-            attribute: NSLayoutAttribute.top,
+            attribute: NSLayoutConstraint.Attribute.top,
             multiplier: 1,
             constant: 0 ) );
         containerView.addConstraint( NSLayoutConstraint(item: viewController.view,
-            attribute: NSLayoutAttribute.bottom,
-            relatedBy: NSLayoutRelation.equal,
+                                                        attribute: NSLayoutConstraint.Attribute.bottom,
+                                                        relatedBy: NSLayoutConstraint.Relation.equal,
             toItem: containerView,
-            attribute: NSLayoutAttribute.bottom,
+            attribute: NSLayoutConstraint.Attribute.bottom,
             multiplier: 1,
             constant: 0 ) );
         containerView.addConstraint( NSLayoutConstraint(item: viewController.view,
-            attribute: NSLayoutAttribute.trailing,
-            relatedBy: NSLayoutRelation.equal,
+                                                        attribute: NSLayoutConstraint.Attribute.trailing,
+                                                        relatedBy: NSLayoutConstraint.Relation.equal,
             toItem: containerView,
-            attribute: NSLayoutAttribute.trailing,
+            attribute: NSLayoutConstraint.Attribute.trailing,
             multiplier: 1,
             constant: 0 ) );
         

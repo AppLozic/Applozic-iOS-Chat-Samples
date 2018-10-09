@@ -18,7 +18,7 @@
 #import <Applozic/ALChatLauncher.h>
 #import <Applozic/ALMessageDBService.h>
 #import "ALChatManager.h"
-#import <LaunchChatFromSimpleViewController.h>
+#import "LaunchChatFromSimpleViewController.h"
 
 @interface ApplozicLoginViewController ()
 
@@ -173,7 +173,7 @@
     [ALUserDefaultsHandler setUserAuthenticationTypeId:(short)APPLOZIC];
     
     ALChatManager * chatManager = [[ALChatManager alloc] initWithApplicationKey:@"applozic-sample-app"];
-    [chatManager registerUser:user];
+    [chatManager connectUser:user];
     
     UIStoryboard* storyboardM = [UIStoryboard storyboardWithName:@"Main"
                                                           bundle:nil];
@@ -232,7 +232,7 @@
     [ALUserDefaultsHandler setUserAuthenticationTypeId:(short)APPLOZIC];
     
     ALChatManager * chatManager = [[ALChatManager alloc] initWithApplicationKey:@"applozic-sample-app"];
-    [chatManager registerUserWithCompletion:user withHandler:^(ALRegistrationResponse *rResponse, NSError *error) {
+    [chatManager connectUserWithCompletion:user withHandler:^(ALRegistrationResponse *rResponse, NSError *error) {
         
         [self launchChatListViaTabBar];
     }];

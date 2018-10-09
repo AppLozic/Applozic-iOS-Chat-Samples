@@ -68,7 +68,7 @@
 
 - (void) share:(id)sender{
     
-    NSLog(@"shareButton pressed");
+    ALSLog(ALLoggerSeverityInfo, @"shareButton pressed");
     
     //Image iteself
     UIImage *imagetoshare = self.image;
@@ -76,7 +76,7 @@
     // Message if associated with image
     ALMessage * alMessage = self.alMessage;
     NSString * messageString = alMessage.message;
-    NSLog(@"MSG_STRING :: %@",messageString);
+    ALSLog(ALLoggerSeverityInfo, @"MSG_STRING :: %@",messageString);
     
     NSArray *activityItems = @[imagetoshare];
     

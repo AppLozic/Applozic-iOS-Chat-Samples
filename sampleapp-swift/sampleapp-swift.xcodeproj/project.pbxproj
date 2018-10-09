@@ -337,7 +337,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "global Customer Demo";
 				SWIFT_OBJC_BRIDGING_HEADER = "sampleapp-swift/sampleapp-swift-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -365,7 +365,7 @@
 				PROVISIONING_PROFILE = "6c37d470-f30f-4ad6-a3fd-0aca617dfe89";
 				PROVISIONING_PROFILE_SPECIFIER = "global Customer Demo";
 				SWIFT_OBJC_BRIDGING_HEADER = "sampleapp-swift/sampleapp-swift-Bridging-Header.h";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};

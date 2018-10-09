@@ -43,20 +43,12 @@
     self.deletedAtTime = [JSONString valueForKey:@"deletedAtTime"];
     self.metadata = [JSONString valueForKey:@"metadata"];
     self.roleType = [JSONString valueForKey:@"roleType"];
+    self.notificationAfterTime = [JSONString valueForKey:@"notificationAfterTime"];
     
 }
 
 -(void)userDetail
 {
-    
-    //    NSLog(@"USER ID : %@",self.userId);
-    //    NSLog(@"CONNECTED : %d",self.connected);
-    //    NSLog(@"LAST SEEN : %@",self.lastSeenAtTime);
-    //    NSLog(@"UNREAD COUNT : %@",self.unreadCount);
-    //    NSLog(@"IMAGE LINK: %@",self.imageLink);
-    //    NSLog(@"Display Name: %@",self.displayName);
-    //    NSLog(@"Contact Number : %@",self.contactNumber);
-    //    NSLog(@"DeletedAt : %@",self.deletedAtTime);
     
 }
 
@@ -78,6 +70,8 @@
     self.deletedAtTime = [self getNSNumberFromJsonValue:json[@"deletedAtTime"]];
     self.metadata = [[NSMutableDictionary  alloc] initWithDictionary:json[@"metadata"]];
     self.roleType = [self getNSNumberFromJsonValue:json[@"roleType"]];
+    self.notificationAfterTime = [self getNSNumberFromJsonValue:json[@"notificationAfterTime"]];
+
 }
 
 -(NSString *)getDisplayName
@@ -101,6 +95,12 @@
     {
         self.userIdString = [tempString substringFromIndex:1];
     }
+}
+
+-(BOOL)isNotificationMuted{
+    
+    long secsUtc1970 = [[NSNumber numberWithDouble:[[NSDate date]timeIntervalSince1970] ] longValue ]*1000L;
+    return (_notificationAfterTime && [_notificationAfterTime longValue]> secsUtc1970);
 }
 
 @end

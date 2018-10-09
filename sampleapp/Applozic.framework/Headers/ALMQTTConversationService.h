@@ -11,6 +11,8 @@
 #import "ALMessage.h"
 #import "ALUserDetail.h"
 #import "ALSyncCallService.h"
+#import "ALUserDetail.h"
+#import "ALRealTimeUpdate.h"
 
 @protocol ALMQTTConversationDelegate <NSObject>
 
@@ -29,6 +31,7 @@
 
 @end
 
+
 @interface ALMQTTConversationService : NSObject <MQTTSessionDelegate>
 
 +(ALMQTTConversationService *)sharedInstance;
@@ -37,13 +40,15 @@
 
 @property (nonatomic, strong) id<ALMQTTConversationDelegate>mqttConversationDelegate;
 
+@property (nonatomic, strong) id<ApplozicUpdatesDelegate>realTimeUpdate;
+
 @property (nonatomic, readwrite) MQTTSession *session;
 
 -(void) subscribeToConversation;
 
 -(void) unsubscribeToConversation;
 
--(void) unsubscribeToConversation: (NSString *)userKey;
+-(BOOL) unsubscribeToConversation: (NSString *)userKey;
 
 -(void) sendTypingStatus:(NSString *) applicationKey userID:(NSString *) userId andChannelKey:(NSNumber *)channelKey typing: (BOOL) typing;
 

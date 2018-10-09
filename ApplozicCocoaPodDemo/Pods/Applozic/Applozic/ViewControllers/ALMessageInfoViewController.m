@@ -137,12 +137,12 @@
         ALMessageInfo *msgInfo;
         if(indexPath.section == 1)
         {
-            msgInfo = readList[indexPath.row];
+            msgInfo = self->readList[indexPath.row];
             [self cellAtIndexPath:msgInfo inSection:indexPath.section];
         }
         else if(indexPath.section == 2)
         {
-            msgInfo = deliveredList[indexPath.row];
+            msgInfo = self->deliveredList[indexPath.row];
             [self cellAtIndexPath:msgInfo inSection:indexPath.section];
         }
     });
@@ -182,18 +182,18 @@
         
         if(!theError)
         {
-            arrayList = [NSMutableArray arrayWithArray:msgInfo.msgInfoList];
+            self->arrayList = [NSMutableArray arrayWithArray:msgInfo.msgInfoList];
             
-            for (ALMessageInfo *info in arrayList)
+            for (ALMessageInfo *info in self->arrayList)
             {
                 if(info.messageStatus == (short)READ)
                 {
-                    [readList addObject:info];
+                    [self->readList addObject:info];
                 }
                 
                 if(info.messageStatus == (short)DELIVERED)
                 {
-                    [deliveredList addObject:info];
+                    [self->deliveredList addObject:info];
                 }
                 
             }

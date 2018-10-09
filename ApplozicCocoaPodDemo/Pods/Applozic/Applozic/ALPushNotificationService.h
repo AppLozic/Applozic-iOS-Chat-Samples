@@ -42,11 +42,14 @@
 #import "ALUserDetail.h"
 #import "ALSyncCallService.h"
 #import <Applozic/ALChatLauncher.h>
-
+#import "ALMQTTConversationService.h"
+#import "ALRealTimeUpdate.h"
 
 @interface ALPushNotificationService : NSObject
 
 -(BOOL) isApplozicNotification: (NSDictionary *) dictionary;
+
+@property (nonatomic, strong) id<ApplozicUpdatesDelegate>realTimeUpdate;
 
 -(BOOL) processPushNotification: (NSDictionary *) dictionary updateUI: (NSNumber*) updateUI;
 

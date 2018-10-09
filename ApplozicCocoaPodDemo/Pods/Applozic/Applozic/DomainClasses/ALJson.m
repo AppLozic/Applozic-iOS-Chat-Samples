@@ -67,13 +67,13 @@
             
         }
         else {
-            NSLog(@"Invalid type for %@ (%@)", NSStringFromClass([self class]), key);
+            ALSLog(ALLoggerSeverityInfo, @"Invalid type for %@ (%@)", NSStringFromClass([self class]), key);
         }
     }
     free(properties);
 }
     @catch (NSException *exception) {
-        NSLog(@"Exception in ALJson %@",exception);
+        ALSLog(ALLoggerSeverityInfo, @"Exception in ALJson %@",exception);
     }
     return dictionary;
 }

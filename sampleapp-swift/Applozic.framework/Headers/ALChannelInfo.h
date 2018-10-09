@@ -7,10 +7,19 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ALJson.h"
 
-@interface ALChannelInfo : NSObject
+@interface ALChannelInfo : ALJson
 
 @property (nonatomic, strong) NSString *groupName;
-@property (nonatomic, strong) NSMutableArray *members;
+@property (nonatomic, strong) NSString *clientGroupId;
+@property (nonatomic, strong) NSMutableArray *groupMemberList;
+@property (nonatomic, strong) NSString *imageUrl;
+@property (nonatomic, strong) NSString *admin;
+@property (nonatomic, strong) NSString *parentClientGroupId;
+@property (nonatomic, strong) NSNumber *parentKey;
+@property(nonatomic) short type;
+@property (nonatomic, strong) NSMutableDictionary *metadata;
+@property (nonatomic, strong) NSMutableArray *groupRoleUsers;
 
 @end

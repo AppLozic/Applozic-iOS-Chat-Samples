@@ -184,7 +184,7 @@ static inline CGFloat funcQuadOut(CGFloat ft, CGFloat f0, CGFloat f1) {
         if ( [animation.fromValue isKindOfClass:[NSNumber class]] ) {
             value = [NSNumber numberWithDouble:[animation.fromValue doubleValue] + (position*([animation.toValue doubleValue] - [animation.fromValue doubleValue]))];
         } else {
-            NSLog(@"Unsupported property type %@", NSStringFromClass([animation.fromValue class]));
+            ALSLog(ALLoggerSeverityInfo, @"Unsupported property type %@", NSStringFromClass([animation.fromValue class]));
         }
         
         // Apply new value

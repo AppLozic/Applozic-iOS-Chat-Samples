@@ -41,24 +41,24 @@
 
 - (BOOL)canPerformWithActivityItems:(NSArray *)activityItems
 {
-    NSLog(@"%s", __FUNCTION__);
+    ALSLog(ALLoggerSeverityInfo, @"%s", __FUNCTION__);
     return YES;
 }
 
 - (void)prepareWithActivityItems:(NSArray *)activityItems
 {
-    NSLog(@"%s",__FUNCTION__);
+    ALSLog(ALLoggerSeverityInfo, @"%s",__FUNCTION__);
 }
 
 - (UIViewController *)activityViewController
 {
-    NSLog(@"%s",__FUNCTION__);
+    ALSLog(ALLoggerSeverityInfo, @"%s",__FUNCTION__);
     return nil;
 }
 
 - (void)performActivity{
     //TODO: Open Recent Chats...
-    NSLog(@"TODO: Open Recent Chats");
+    ALSLog(ALLoggerSeverityInfo, @"TODO: Open Recent Chats");
 
     [self.imageActivityDelegate showContactsToShareImage];
 }

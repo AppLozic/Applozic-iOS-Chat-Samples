@@ -23,6 +23,7 @@
 #import "ALGroupDetailViewController.h"
 #import "ALUserProfileVC.h"
 #import "ALUserService.h"
+#import "Applozic.h"
 
 
 @implementation ALNotificationView
@@ -129,11 +130,11 @@
 -(void)buildAndShowNotificationWithcompletionHandler:(void (^)(BOOL))handler
 {
 
-    if([ALUserDefaultsHandler getNotificationMode] == NOTIFICATION_DISABLE)
+    if([self.alMessageObject isNotificationDisabled])
     {
         return;
     }
-
+    
     NSString * title; // Title of Notification Banner (Display Name or Group Name)
     NSString * subtitle = self.text; //Message to be shown
 
@@ -226,7 +227,7 @@
 -(void)buildAndShowNotification:(id)delegate
 {
     
-    if([ALUserDefaultsHandler getNotificationMode] == NOTIFICATION_DISABLE )
+    if([self.alMessageObject isNotificationDisabled])
     {
         return;
     }
@@ -321,7 +322,7 @@
                  ALMessagesViewController* class2=(ALMessagesViewController*)delegate;
                  if(self.groupId)
                  {
-                     class2.channelKey = self.groupId; NSLog(@"CLASS %@",class2.channelKey);
+                     class2.channelKey = self.groupId; ALSLog(ALLoggerSeverityInfo, @"CLASS %@",class2.channelKey);
                      //_contactId=self.groupId; CRASH: if you send contactId as NSNumber.
                  }
                  else
@@ -329,8 +330,8 @@
                      class2.channelKey = nil;
                      self.groupId = nil;
                  }
-                 NSLog(@"onTopMessageVC: ContactID %@ and ChannelID %@",self.contactId, self.groupId);
-                 [class2 createDetailChatViewController:_contactId];
+                 ALSLog(ALLoggerSeverityInfo, @"onTopMessageVC: ContactID %@ and ChannelID %@",self.contactId, self.groupId);
+                 [class2 createDetailChatViewController:self.contactId];
                  self.checkContactId = [NSString stringWithFormat:@"%@",self.contactId];
              }
              else if([delegate isKindOfClass:[ALChatViewController class]] && top.isChatViewOnTop)
@@ -345,7 +346,7 @@
              }
              else if ([delegate isKindOfClass:[ALUserProfileVC class]] && top.isUserProfileVCOnTop)
              {
-                 NSLog(@"OnTop UserProfile VC : ContactID %@ and ChannelID %@",self.contactId, self.groupId);
+                 ALSLog(ALLoggerSeverityInfo, @"OnTop UserProfile VC : ContactID %@ and ChannelID %@",self.contactId, self.groupId);
                  ALUserProfileVC * userProfileVC = (ALUserProfileVC *)delegate;
                  [userProfileVC.tabBarController setSelectedIndex:0];
                  UINavigationController *navVC = (UINavigationController *)userProfileVC.tabBarController.selectedViewController;
@@ -363,7 +364,7 @@
              }
              else if ([delegate isKindOfClass:[ALNewContactsViewController class]] && top.isContactVCOnTop)
              {
-                 NSLog(@"OnTop CONTACT VC : ContactID %@ and ChannelID %@",self.contactId, self.groupId);
+                 ALSLog(ALLoggerSeverityInfo, @"OnTop CONTACT VC : ContactID %@ and ChannelID %@",self.contactId, self.groupId);
                  ALNewContactsViewController *contactVC = (ALNewContactsViewController *)delegate;
                  ALMessagesViewController *msgVC = (ALMessagesViewController *)[contactVC.navigationController.viewControllers objectAtIndex:0];
                  
@@ -390,12 +391,27 @@
              }
              else
              {
-                 NSLog(@"View Already Opened and Notification coming already");
+                //This will come here once the notiifcation clicked from other views for opening the chat screen
+                 
+                 if(top.isChatViewOnTop){
+                     [self updateChatScreen:delegate];
+                 }else{
+                     ALChatLauncher *chatLauncher = [[ALChatLauncher alloc] initWithApplicationId:[ALUserDefaultsHandler getApplicationKey]];
+                     
+                     if(self.groupId){
+                         self.contactId = nil;
+                     }else{
+                         self.groupId = nil;
+                     }
+                     
+                     [chatLauncher launchIndividualChat:self.contactId withGroupId: self.groupId withDisplayName:nil andViewControllerObject:top.topViewController andWithText:nil];
+                 }
+
              }
          }
          @catch (NSException * exp)
          {
-             NSLog(@"ALNotificationView : ON TAP NOTIFICATION EXCEPTION : %@", exp.description);
+             ALSLog(ALLoggerSeverityInfo, @"ALNotificationView : ON TAP NOTIFICATION EXCEPTION : %@", exp.description);
          }
          @finally
          {
@@ -412,7 +428,7 @@
 {
     // Chat View is Opened....
     ALChatViewController * class1 = (ALChatViewController*)delegate;
-    NSLog(@"onTopChatVC: ContactID %@ and ChannelID %@",self.contactId, self.groupId);
+    ALSLog(ALLoggerSeverityInfo, @"onTopChatVC: ContactID %@ and ChannelID %@",self.contactId, self.groupId);
     if(self.groupId){
         [class1 updateChannelSubscribing:class1.channelKey andNewChannel:self.groupId];
         class1.channelKey = self.groupId;

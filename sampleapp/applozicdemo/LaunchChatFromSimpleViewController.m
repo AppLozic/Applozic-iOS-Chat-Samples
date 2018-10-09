@@ -93,7 +93,7 @@
     [user setPassword:@""];
     
     ALChatManager * chatManager = [[ALChatManager alloc] initWithApplicationKey:@"applozic-sample-app"];
-    [chatManager registerUserAndLaunchChat:user andFromController:self forUser:nil withGroupId:nil];
+    [chatManager connectUserAndLaunchChat:user andFromController:self forUser:nil withGroupId:nil];
     
     //Adding sample contacts...
     [self insertInitialContacts];

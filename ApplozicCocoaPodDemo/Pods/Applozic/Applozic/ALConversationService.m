@@ -106,7 +106,7 @@
     
     if (conversationArray.count != 0) {
         ALConversationProxy * conversationProxy = conversationArray[0];
-        NSLog(@"Conversation Proxy List Found In DB :%@",conversationProxy.topicDetailJson);
+        ALSLog(ALLoggerSeverityInfo, @"Conversation Proxy List Found In DB :%@",conversationProxy.topicDetailJson);
         completion(nil,conversationProxy);
     }
     else{
@@ -118,7 +118,7 @@
                 [self addConversations:proxyArr];
             }
             else{
-                NSLog(@"ALConversationService : Error creatingConversation ");
+                ALSLog(ALLoggerSeverityError, @"ALConversationService : Error creatingConversation ");
             }
             completion(error,response.alConversationProxy);
         }];
@@ -129,19 +129,19 @@
 -(void)fetchTopicDetails:(NSNumber *)alConversationProxyID{
     
     if ([self getConversationByKey:alConversationProxyID]){
-        NSLog(@"Conversation/Topic Alerady exists");
+        ALSLog(ALLoggerSeverityWarn, @"Conversation/Topic Alerady exists");
         return;
     }
     
     [ALConversationClientService fetchTopicDetails:alConversationProxyID andCompletion:^(NSError * error, ALAPIResponse * response) {
         
         if(!error){
-           NSLog(@"ALAPIResponse: FETCH TOPIC DEATIL  %@",response);
+           ALSLog(ALLoggerSeverityInfo, @"ALAPIResponse: FETCH TOPIC DEATIL  %@",response);
              NSMutableArray * proxyArr = [[NSMutableArray alloc] initWithObjects:response, nil];
             [self addTopicDetails:proxyArr];
         }
         else{
-            NSLog(@"ALAPIResponse : Error FETCHING TOPIC DEATILS ");
+            ALSLog(ALLoggerSeverityError, @"ALAPIResponse : Error FETCHING TOPIC DEATILS ");
         }
 
     }];

@@ -15,6 +15,7 @@
 #import "ALConversationProxy.h"
 #import "DB_ConversationProxy.h"
 #import "ALApplozicSettings.h"
+#import "ALRealTimeUpdate.h"
 
 @interface ALChannelDBService : NSObject
 
@@ -50,7 +51,7 @@
 
 -(void)updateChannelMetaData:(NSNumber *)channelKey metaData:(NSMutableDictionary *)newMetaData;
 
--(void)processArrayAfterSyncCall:(NSMutableArray *)channelArray;
+-(void)createChannelsAndUpdateInfo:(NSMutableArray *)channelArray withDelegate:(id<ApplozicUpdatesDelegate>)delegate;
 
 -(NSMutableArray *)getListOfAllUsersInChannel:(NSNumber *)key;
 //New Added...
@@ -66,6 +67,8 @@
 
 -(BOOL)isChannelDeleted:(NSNumber *)groupId;
 -(BOOL)isConversaionClosed:(NSNumber *)groupId;
+
+-(BOOL)isAdminBroadcastChannel:(NSNumber *)groupId;
 
 -(void) updateChannelParentKey:(NSNumber *)channelKey
               andWithParentKey:(NSNumber *)channelParentKey isAdding:(BOOL)flag;
@@ -85,6 +88,7 @@
 
 -(void)updateMuteAfterTime:(NSNumber*)notificationAfterTime andChnnelKey:(NSNumber*)channelKey;
 
+-(ALUserDetail *)updateMuteAfterTime:(NSNumber*)notificationAfterTime andUserId:(NSString*)userId;
 
 -(DB_CHANNEL_USER_X *)getChannelUserX:(NSNumber *)channelKey;
 

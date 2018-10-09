@@ -157,4 +157,8 @@
     return [alContactDBService isUserDeleted:userId];
 }
 
+-(ALUserDetail *)updateMuteAfterTime:(NSNumber*)notificationAfterTime andUserId:(NSString*)userId{
+    ALContactDBService *contactDataBase = [[ALContactDBService alloc] init];
+   return  [contactDataBase updateMuteAfterTime:notificationAfterTime andUserId:userId];
+}
 @end

@@ -30,7 +30,7 @@
     alConversationProxy.topicDetailJson =dbConversation.topicDetailJson;
     alConversationProxy.groupId = dbConversation.groupId;
     alConversationProxy.userId =  dbConversation.userId;
-    NSLog(@" parseMessage  called for conversation proxy topicDetailJson : %@",self.topicDetailJson);
+    ALSLog(ALLoggerSeverityInfo, @" parseMessage  called for conversation proxy topicDetailJson : %@",self.topicDetailJson);
     return alConversationProxy;
 }
 

@@ -25,13 +25,13 @@ class LaunchChatFromSimpleVCViewController: UIViewController {
     @IBAction func launchList(_ sender: AnyObject) {
         
         let chatManager : ALChatManager = ALChatManager(applicationKey: "applozic-sample-app")
-        chatManager.registerUserAndLaunchChat(getUserDetail(), fromController: self, forUser:nil)
+        chatManager.connectUserAndLaunchChat(getUserDetail(), fromController: self, forUser:nil)
     }
     
     @IBAction func launchUserChat(_ sender: AnyObject)
     {
         let chatManager : ALChatManager =  ALChatManager(applicationKey: "applozic-sample-app")
-        chatManager.registerUserAndLaunchChat(getUserDetail(), fromController: self, forUser:"applozic")
+        chatManager.connectUserAndLaunchChat(getUserDetail(), fromController: self, forUser:"applozic")
         //        chatManager.launchChatForGroup(groupId: NSNumber(value:1344640 as Int32), fromController: self)
     }
     

@@ -16,7 +16,7 @@
         #define ALDDLogInfo NSLog
         #define ALDDLogError NSLog
     #else
-        #define ALDDLogVerbose(...)
+        #define ALDDLogVerbose(ALLoggerSeverityInfo, ...)
         #define ALDDLogWarn(...)
         #define ALDDLogInfo(...)
         #define ALDDLogError(...)

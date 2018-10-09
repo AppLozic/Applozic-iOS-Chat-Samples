@@ -38,8 +38,8 @@ class AppLogicLoginViewController: UIViewController {
         
         if(ALChatManager.isNilOrEmpty( self.userName.text as NSString?))
         {
-            let alert = UIAlertController(title: "Applozic", message: "Please enter userId ", preferredStyle: UIAlertControllerStyle.alert)
-            alert.addAction(UIAlertAction(title: "Okay", style: UIAlertActionStyle.default, handler: nil))
+            let alert = UIAlertController(title: "Applozic", message: "Please enter userId ", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
             return;
         }
@@ -58,7 +58,9 @@ class AppLogicLoginViewController: UIViewController {
         }
         
         let chatManager = ALChatManager(applicationKey: "applozic-sample-app")
-         chatManager.registerUser(alUser) { (response, error) in
+        chatManager.connectUserWithCompletion(alUser) { (response, error) in
+
+
             if (error == nil)
             {
                 let viewController:UIViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "LaunchChatFromSimpleViewController") as UIViewController
@@ -74,8 +76,8 @@ class AppLogicLoginViewController: UIViewController {
         alUser.applicationId = ALChatManager.applicationId
         
         if(ALChatManager.isNilOrEmpty( self.userName.text as NSString?)){
-            let alert = UIAlertController(title: "Applozic", message: "Please enter userId ", preferredStyle: UIAlertControllerStyle.alert)
-            alert.addAction(UIAlertAction(title: "Okay", style: UIAlertActionStyle.default, handler: nil))
+            let alert = UIAlertController(title: "Applozic", message: "Please enter userId ", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: nil))
             self.present(alert, animated: true, completion: nil)
             return;
         }
@@ -94,7 +96,7 @@ class AppLogicLoginViewController: UIViewController {
         }
         
         let chatManager = ALChatManager(applicationKey: "applozic-sample-app")
-        chatManager.registerUser(alUser) { (response, error) in
+        chatManager.connectUserWithCompletion(alUser) { (response, error) in
             
             if (error == nil)
             {

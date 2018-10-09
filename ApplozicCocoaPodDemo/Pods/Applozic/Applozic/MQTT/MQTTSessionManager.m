@@ -278,7 +278,7 @@
    securityPolicy:(MQTTSSLSecurityPolicy *)securityPolicy
      certificates:(NSArray *)certificates
     protocolLevel:(MQTTProtocolVersion)protocolLevel {
-    ALDDLogVerbose(@"MQTTSessionManager connectTo:%@", host);
+    ALSLog(ALLoggerSeverityInfo, @"MQTTSessionManager connectTo:%@", host);
     BOOL shouldReconnect = self.session != nil;
     if (!self.session ||
         ![host isEqualToString:self.host] ||
@@ -344,11 +344,11 @@
         self.reconnectFlag = FALSE;
     }
     if(shouldReconnect){
-        ALDDLogVerbose(@"[MQTTSessionManager] reconnecting");
+        ALSLog(ALLoggerSeverityInfo, @"[MQTTSessionManager] reconnecting");
         [self disconnect];
         [self reconnect];
     }else{
-        ALDDLogVerbose(@"[MQTTSessionManager] connecting");
+        ALSLog(ALLoggerSeverityInfo, @"[MQTTSessionManager] connecting");
         [self connectToInternal];
     }
 }
@@ -398,7 +398,7 @@
                                    @(MQTTSessionEventProtocolError): @"protocoll error",
                                    @(MQTTSessionEventConnectionClosedByBroker): @"connection closed by broker"
                                    };
-    ALDDLogVerbose(@"[MQTTSessionManager] eventCode: %@ (%ld) %@", events[@(eventCode)], (long)eventCode, error);
+    ALSLog(ALLoggerSeverityInfo, @"[MQTTSessionManager] eventCode: %@ (%ld) %@", events[@(eventCode)], (long)eventCode, error);
 #endif
     [self.reconnectTimer invalidate];
     switch (eventCode) {
@@ -553,7 +553,7 @@
         }
     }
     self.internalSubscriptions = newSubscriptions;
-    ALDDLogVerbose(@"MQTTSessionManager internalSubscriptions: %@", self.internalSubscriptions);
+    ALSLog(ALLoggerSeverityInfo, @"MQTTSessionManager internalSubscriptions: %@", self.internalSubscriptions);
 }
 
 @end

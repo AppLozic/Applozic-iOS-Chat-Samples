@@ -71,15 +71,8 @@
         {
             
         }
-        
-        //        if(![ALUserDefaultsHandler getApnDeviceToken]){
-        //            [self.chatLauncher registerForNotification];
-        //        }
-        
-        if(![[UIApplication sharedApplication] isRegisteredForRemoteNotifications])
-        {
-            [self.chatLauncher registerForNotification];
-        }
+    
+
     }];
 }
 
@@ -126,16 +119,7 @@
             completion(nil, passError);
             return;
         }
-        
-        //        if(![ALUserDefaultsHandler getApnDeviceToken])
-        //        {
-        //            [self.chatLauncher registerForNotification];
-        //        }
-        if(![[UIApplication sharedApplication] isRegisteredForRemoteNotifications])
-        {
-            [self.chatLauncher registerForNotification];
-        }
-        
+
         completion(rResponse, error);
     }];
 }

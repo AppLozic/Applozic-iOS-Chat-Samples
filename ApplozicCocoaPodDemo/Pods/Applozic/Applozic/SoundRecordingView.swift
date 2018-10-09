@@ -96,9 +96,11 @@ import Foundation
 
     private func setupRecordingSession()
     {
-        recordingSession = AVAudioSession.sharedInstance()
         do {
-            try recordingSession.setCategory(AVAudioSessionCategoryPlayAndRecord)
+            // Getting audio session from objective c for swift 4.2 setCategory is not  available for IOS 9 in swift
+            
+            let alAudioSession = ALAudioSession()
+            recordingSession = alAudioSession.getWithPlayback(false)
             try recordingSession.overrideOutputAudioPort(.speaker)
             try recordingSession.setActive(true)
             recordingSession.requestRecordPermission() {[weak self] allowed in
@@ -120,11 +122,11 @@ import Foundation
     private func checkMicrophonePermission() -> Bool {
 
         let soundSession = AVAudioSession.sharedInstance()
-        let permissionStatus = soundSession.recordPermission()
+        let permissionStatus = soundSession.recordPermission
         var isAllow = false
 
         switch (permissionStatus) {
-        case AVAudioSessionRecordPermission.undetermined:
+        case AVAudioSession.RecordPermission.undetermined:
             soundSession.requestRecordPermission({ (isGrant) in
                 if (isGrant) {
                     isAllow = true
@@ -134,15 +136,13 @@ import Foundation
                 }
             })
             break
-        case AVAudioSessionRecordPermission.denied:
+        case AVAudioSession.RecordPermission.denied:
             // direct to settings...
             isAllow = false
             break;
-        case AVAudioSessionRecordPermission.granted:
+        case AVAudioSession.RecordPermission.granted:
             // mic access ok...
             isAllow = true
-            break;
-        default:
             break;
         }
 
@@ -203,7 +203,9 @@ import Foundation
             AVEncoderAudioQualityKey: AVAudioQuality.medium.rawValue
         ]
         do {
-            try recordingSession.setCategory(AVAudioSessionCategoryPlayAndRecord)
+            // Getting audio session from objective c for swift 4.2 setCategory is not  available for IOS 9 in swift
+            let alAudioSession = ALAudioSession()
+            recordingSession = alAudioSession.getWithPlayback(false)
             try recordingSession.overrideOutputAudioPort(.speaker)
             try recordingSession.setActive(true)
             audioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
@@ -265,7 +267,10 @@ import Foundation
 
         recordingSession = AVAudioSession.sharedInstance()
         do {
-            try recordingSession.setCategory(AVAudioSessionCategoryPlayback)
+            // Getting audio session from objective c for swift 4.2 setCategory is not  available for IOS 9 in swift
+            
+            let alAudioSession = ALAudioSession()
+            recordingSession = alAudioSession.getWithPlayback(true)
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             guard let player = audioPlayer else { return }
 

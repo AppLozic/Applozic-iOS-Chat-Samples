@@ -62,6 +62,8 @@
 #define PROGRESS_HEIGHT 30
 #define MEDIATRACKLENGTH_HEIGHT 20
 #define MEDIATRACKLENGTH_WIDTH 80
+#define AL_MEDIA_TRACK_PROGRESS_PADDING_Y 30
+
 
 @interface ALAudioCell()
 
@@ -80,13 +82,7 @@
     if(self)
     {
         
-        self.mediaName = [[UILabel alloc] init];
-        [self.mediaName setTextColor:[UIColor blackColor]];
-        [self.mediaName setBackgroundColor:[UIColor clearColor]];
-        [self.mediaName setFont:[UIFont fontWithName:[ALApplozicSettings getFontFace] size:DATE_LABEL_SIZE]];
-        [self.contentView addSubview:self.mediaName];
-        [self.mediaName setNumberOfLines:2];
-        [self.contentView sizeToFit];
+          [self.contentView sizeToFit];
         
         
         self.playPauseStop = [[UIButton alloc] init];
@@ -107,7 +103,6 @@
         
         if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
             self.transform = CGAffineTransformMakeScale(-1.0, 1.0);
-            self.mediaName.transform = CGAffineTransformMakeScale(-1.0, 1.0);
             self.playPauseStop.transform = CGAffineTransformMakeScale(-1.0, 1.0);
             self.mediaTrackProgress.transform = CGAffineTransformMakeScale(-1.0, 1.0);
             self.mediaTrackLength.transform = CGAffineTransformMakeScale(-1.0, 1.0);
@@ -136,7 +131,6 @@
     BOOL today = [[NSCalendar currentCalendar] isDateInToday:[NSDate dateWithTimeIntervalSince1970:[alMessage.createdAtTime doubleValue]/1000]];
     NSString * theDate = [NSString stringWithFormat:@"%@",[alMessage getCreatedAtTimeChat:today]];
     
-    [self.mediaName setText:alMessage.fileMeta.name];
     self.mediaTrackLength.text = [self getAudioLength:alMessage.imageFilePath];
     [self.contentView bringSubviewToFront:self.mDowloadRetryButton];
     
@@ -163,7 +157,7 @@
     [self.mUserProfileImageView setUserInteractionEnabled:YES];
     [self.mUserProfileImageView addGestureRecognizer:tapForOpenChat];
     
-    if([alMessage.type isEqualToString:@MT_INBOX_CONSTANT])
+    if([alMessage isReceivedMessage])
     {
         self.mBubleImageView.backgroundColor = [ALApplozicSettings getReceiveMsgColor];
         
@@ -231,11 +225,6 @@
                                                 paypauseBUttonY,
                                                 BUTTON_PADDING_WIDTH, BUTTON_PADDING_HEIGHT)];
         
-        
-        CGFloat nameWidth = self.mBubleImageView.frame.size.width - self.playPauseStop.frame.size.width - 20;
-        CGFloat nameX = self.playPauseStop.frame.origin.x + self.playPauseStop.frame.size.width + 10;
-        [self.mediaName setFrame:CGRectMake(nameX, self.playPauseStop.frame.origin.y, nameWidth, MEDIA_NAME_HEIGHT)];
-        
         [self.mDowloadRetryButton setFrame:CGRectMake(self.playPauseStop.frame.origin.x ,
                                                       self.playPauseStop.frame.origin.y,
                                                       DOWNLOAD_RETRY_WIDTH, DOWNLOAD_RETRY_HEIGHT)];
@@ -245,7 +234,7 @@
         CGFloat progressBarWidth = self.mBubleImageView.frame.size.width - self.playPauseStop.frame.size.width - 30;
         
         CGFloat progressX = self.playPauseStop.frame.origin.x + self.playPauseStop.frame.size.width + 10;
-        [self.mediaTrackProgress setFrame:CGRectMake(progressX, self.mediaName.frame.origin.y + self.mediaName.frame.size.height,
+        [self.mediaTrackProgress setFrame:CGRectMake(progressX, self.playPauseStop.frame.origin.y+AL_MEDIA_TRACK_PROGRESS_PADDING_Y,
                                                      progressBarWidth, PROGRESS_HEIGHT)];
         
         [self.mediaTrackLength setFrame:CGRectMake(self.mediaTrackProgress.frame.origin.x,
@@ -312,7 +301,7 @@
             
         }
                 [self.mDowloadRetryButton setFrame:CGRectMake(self.playPauseStop.frame.origin.x ,
-                                                      self.playPauseStop.frame.origin.y,
+                                                     self.playPauseStop.frame.origin.y,
                                                       DOWNLOAD_RETRY_WIDTH, DOWNLOAD_RETRY_WIDTH)];
         
         [self setupProgressValueX: (self.playPauseStop.frame.origin.x) andY: (self.playPauseStop.frame.origin.y)];
@@ -323,13 +312,8 @@
         
         CGFloat progressX = self.playPauseStop.frame.origin.x + self.playPauseStop.frame.size.width + 10;
         
-        CGFloat nameWidth = self.mBubleImageView.frame.size.width - self.playPauseStop.frame.size.width - 20;
-        CGFloat nameX = self.playPauseStop.frame.origin.x + self.playPauseStop.frame.size.width + 10;
-        
-        [self.mediaName setFrame:CGRectMake(nameX, self.playPauseStop.frame.origin.y, nameWidth, MEDIA_NAME_HEIGHT)];
-        
         [self.mediaTrackProgress setFrame:CGRectMake(progressX,
-                                                     self.mediaName.frame.origin.y + self.mediaName.frame.size.height
+                                                     self.playPauseStop.frame.origin.y+AL_MEDIA_TRACK_PROGRESS_PADDING_Y
                                                      ,progressBarWidth, PROGRESS_HEIGHT)];
         
         [self.mediaTrackLength setFrame:CGRectMake(self.mediaTrackProgress.frame.origin.x,
@@ -351,7 +335,7 @@
         if (alMessage.inProgress == YES)
         {
             self.progresLabel.alpha = 1;
-            NSLog(@"calling you progress label....");
+            ALSLog(ALLoggerSeverityInfo, @"calling you progress label....");
         }
         
         else if(!alMessage.imageFilePath && alMessage.fileMeta.blobKey)
@@ -373,11 +357,9 @@
         NSString * docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
         NSString * filePath = [docDir stringByAppendingPathComponent:alMessage.imageFilePath];
         NSURL * soundFileURL = [NSURL fileURLWithPath:filePath];
-        NSLog(@"SOUND_URL :: %@",[soundFileURL path]);
+        ALSLog(ALLoggerSeverityInfo, @"SOUND_URL :: %@",[soundFileURL path]);
         [self.playPauseStop setHidden:NO];
     }
-
-    [self.mediaName sizeToFit];
     
     self.playPauseStop.layer.cornerRadius = self.playPauseStop.frame.size.width/2;
     self.playPauseStop.layer.masksToBounds = YES;
@@ -389,7 +371,7 @@
     
     self.mDateLabel.text = theDate;
     
-    if ([alMessage.type isEqualToString:@MT_OUTBOX_CONSTANT]) {
+    if ([alMessage isSentMessage]  && ((self.channel && self.channel.type != OPEN) || self.contact)) {
         
         self.mMessageStatusImageView.hidden = NO;
         NSString * imageName;
@@ -425,25 +407,24 @@
 #pragma mark - Menu option tap Method -
 
 -(void) proccessTapForMenu:(id)tap{
-    
     [self processKeyBoardHideTap];
 
     UIMenuItem * messageForward = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"forwardOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Forward", @"") action:@selector(messageForward:)];
     UIMenuItem * messageReply = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"replyOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Reply", @"") action:@selector(messageReply:)];
-    
+
     if ([self.mMessage.type isEqualToString:@MT_INBOX_CONSTANT]){
-        
+
         [[UIMenuController sharedMenuController] setMenuItems: @[messageForward,messageReply]];
-        
+
     }else if ([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT]){
 
-        
+
         UIMenuItem * msgInfo = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"infoOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Info", @"") action:@selector(msgInfo:)];
-        
+
         [[UIMenuController sharedMenuController] setMenuItems: @[msgInfo,messageReply,messageForward]];
     }
     [[UIMenuController sharedMenuController] update];
-    
+
 }
 
 
@@ -460,7 +441,7 @@
 
     }
         
-    if([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT] && self.mMessage.groupId){
+    if([self.mMessage isSentMessage] && self.mMessage.groupId){
         
         return (self.mMessage.isDownloadRequired? (action == @selector(delete:) || action == @selector(msgInfo:)):(action == @selector(delete:)|| action == @selector(msgInfo:)|| [self isForwardMenuEnabled:action] || [self isMessageReplyMenuEnabled:action] ));
     }
@@ -473,14 +454,14 @@
     [self.delegate deleteMessageFromView:self.mMessage];
     [ALMessageService deleteMessage:self.mMessage.key andContactId:self.mMessage.contactIds withCompletion:^(NSString *string, NSError *error) {
         
-        NSLog(@"DELETE MESSAGE ERROR :: %@", error.description);
+        ALSLog(ALLoggerSeverityError, @"DELETE MESSAGE ERROR :: %@", error.description);
     }];
 }
 
 
 -(void) messageForward:(id)sender
 {
-    NSLog(@"Message forward option is pressed");
+    ALSLog(ALLoggerSeverityInfo, @"Message forward option is pressed");
     [self.delegate processForwardMessage:self.mMessage];
     
 }
@@ -607,7 +588,7 @@
     [self setNeedsDisplay];
     self.progresLabel.startDegree = 0;
     self.progresLabel.endDegree = metaInfo.progressValue;
-     NSLog(@"##observer is called....%f",self.progresLabel.endDegree);
+     ALSLog(ALLoggerSeverityInfo, @"##observer is called....%f",self.progresLabel.endDegree);
 }
 
 -(void) hidePlayButtonOnUploading
@@ -648,7 +629,7 @@
 
 -(void) messageReply:(id)sender
 {
-    NSLog(@"Message forward option is pressed");
+    ALSLog(ALLoggerSeverityInfo, @"Message forward option is pressed");
     [self.delegate processMessageReply:self.mMessage];
     
 }

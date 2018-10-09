@@ -3,8 +3,8 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/Applozic"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
 LD_RUNPATH_SEARCH_PATHS = $(inherited) '@executable_path/Frameworks' '@loader_path/Frameworks'
 OTHER_CFLAGS = $(inherited) -iquote "${PODS_CONFIGURATION_BUILD_DIR}/Applozic/Applozic.framework/Headers" -iquote "${PODS_CONFIGURATION_BUILD_DIR}/SDWebImage/SDWebImage.framework/Headers"
-OTHER_LDFLAGS = $(inherited) -framework "Applozic" -framework "SDWebImage"
-OTHER_SWIFT_FLAGS = $(inherited) "-D" "COCOAPODS"
+OTHER_LDFLAGS = $(inherited) -framework "AVFoundation" -framework "AddressBook" -framework "AddressBookUI" -framework "Applozic" -framework "Contacts" -framework "ContactsUI" -framework "CoreLocation" -framework "Foundation" -framework "ImageIO" -framework "MediaPlayer" -framework "SDWebImage" -framework "SystemConfiguration" -framework "UIKit"
+OTHER_SWIFT_FLAGS = $(inherited) -D COCOAPODS
 PODS_BUILD_DIR = ${BUILD_DIR}
 PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
 PODS_PODFILE_DIR_PATH = ${SRCROOT}/.

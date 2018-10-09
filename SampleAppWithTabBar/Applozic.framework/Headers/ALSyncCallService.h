@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "ALMessage.h"
 #import "ALUserDetail.h"
+#import "ALRealTimeUpdate.h"
 
 @interface ALSyncCallService : NSObject
 
@@ -17,6 +18,8 @@
 -(void) updateDeliveryStatusForContact:(NSString *)contactId withStatus:(int)status;
 
 -(void) syncCall: (ALMessage *) alMessage;
+
+-(void) syncCall: (ALMessage *) alMessage withDelegate:(id<ApplozicUpdatesDelegate>)theDelegate;
 
 -(void) updateConnectedStatus: (ALUserDetail *) alUserDetail;
 

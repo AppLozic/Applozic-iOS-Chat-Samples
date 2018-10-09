@@ -197,7 +197,7 @@
 
 -(void)setEndDegree:(CGFloat)endDegree timing:(TPPropertyAnimationTiming)timing duration:(CGFloat)duration delay:(CGFloat)delay
 {
-     NSLog(@" ### setEndDegree called....");
+     ALSLog(ALLoggerSeverityInfo, @" ### setEndDegree called....");
     TPPropertyAnimation *animation = [TPPropertyAnimation propertyAnimationWithKeyPath:@"endDegree"];
     animation.fromValue = @(_endDegree+90);
     animation.toValue = @(endDegree);

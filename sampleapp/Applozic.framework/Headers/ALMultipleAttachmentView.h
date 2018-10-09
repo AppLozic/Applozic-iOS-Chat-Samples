@@ -21,9 +21,6 @@
 @property (nonatomic, strong) NSMutableArray * imageArray;
 @property (nonatomic, strong) NSMutableArray * mediaFileArray;
 
-@property (nonatomic, strong) UIImage * classImage;
-@property (nonatomic, strong) NSString * classVideoPath;
-
 @property (nonatomic, weak) id <ALMUltipleAttachmentDelegate> multipleAttachmentDelegate;
 
 @end

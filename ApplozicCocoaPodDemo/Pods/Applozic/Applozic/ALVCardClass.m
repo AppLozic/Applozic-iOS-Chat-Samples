@@ -31,7 +31,7 @@
     }
     
     [vCardData writeToFile:vcfCARDPath atomically:YES];
-    NSLog(@"ERROR_IF_ANY WHILE SAVING VCF FILE :: %@",errorVCFCARD.description);
+    ALSLog(ALLoggerSeverityError, @"ERROR_IF_ANY WHILE SAVING VCF FILE :: %@",errorVCFCARD.description);
     return vcfCARDPath;
 }
 
@@ -41,7 +41,7 @@
     NSError *errorVCF;
     NSArray *contactList = [NSArray arrayWithArray:[CNContactVCardSerialization contactsWithData:dataString error:&errorVCF]];
     
-    NSLog(@"ERROR_IF_ANY :: %@", errorVCF);
+    ALSLog(ALLoggerSeverityError, @"ERROR_IF_ANY :: %@", errorVCF);
     
     if(contactList.count == 0)
     {
@@ -97,7 +97,7 @@
     NSError * error;
     [store executeSaveRequest:saveRequest error:&error];
     
-    NSLog(@"ERROR SAVING_CONTACT (IF ANY) : %@", error.description);
+    ALSLog(ALLoggerSeverityError, @"ERROR SAVING_CONTACT (IF ANY) : %@", error.description);
     
     if(error)
     {

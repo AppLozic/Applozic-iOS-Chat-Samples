@@ -49,6 +49,8 @@
 @property (nonatomic,retain) NSNumber *deletedAtTime;
 @property (nonatomic,retain) NSMutableDictionary * metadata;
 @property (nonatomic,retain) NSNumber * roleType;
+@property (nonatomic, strong) NSNumber * notificationAfterTime;
+-(BOOL)isNotificationMuted;
 
 
 @end

@@ -27,7 +27,7 @@
     CGSize theTextSize = [ALUtilityClass getSizeForText:theMessage.message
                                                maxWidth:cellFrame.size.width - 115
                                                    font:[ALApplozicSettings getFontFace]
-                                               fontSize:MESSAGE_TEXT_SIZE];
+                                               fontSize:[ALApplozicSettings getChatCellTextFontSize]];
     
     return theTextSize;
 }
@@ -127,7 +127,7 @@
     CGSize theTextSize = [ALUtilityClass getSizeForText:alMessage.message
                                                maxWidth:cellFrame.size.width - 115
                                                    font:@"Helvetica"
-                                               fontSize:CH_MESSAGE_TEXT_SIZE];
+                                               fontSize:[ALApplozicSettings getChannelCellTextFontSize]];
     
     CGFloat HEIGHT = theTextSize.height + 30;    
     return HEIGHT;

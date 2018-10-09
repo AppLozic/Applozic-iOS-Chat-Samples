@@ -29,6 +29,7 @@
 @dynamic deletedAtTime;
 @dynamic roleType;
 @dynamic metadata;
+@dynamic notificationAfterTime;
 
 
 @end

@@ -85,7 +85,6 @@ FOUNDATION_EXPORT const unsigned char ApplozicVersionString[];
 #import <Applozic/ALConversationClientService.h>
 #import <Applozic/ALConversationCreateResponse.h>
 #import <Applozic/ALConversationDBService.h>
-#import <Applozic/ALLogs.h>
 #import <Applozic/ALMQTTConversationService.h>
 #import <Applozic/ALMultipleAttachmentView.h>
 #import <Applozic/ALPushAssist.h>
@@ -106,7 +105,7 @@ FOUNDATION_EXPORT const unsigned char ApplozicVersionString[];
 #import <Applozic/AlChannelResponse.h>
 #import <Applozic/AlChannelFeedResponse.h>
 #import <Applozic/ALGroupUser.h>
-
+#import <Applozic/ALLogger.h>
 #import <Applozic/ALChannelMsgCell.h>
 #import <Applozic/ALChannelUser.h>
 #import <Applozic/ALVOIPCell.h>
@@ -117,3 +116,9 @@ FOUNDATION_EXPORT const unsigned char ApplozicVersionString[];
 #import <Applozic/MQTTSSLSecurityPolicyDecoder.h>
 #import <Applozic/MQTTSessionManager.h>
 #import <Applozic/MQTTSSLSecurityPolicyEncoder.h>
+#import <Applozic/ALMessageBuilder.h>
+#import <Applozic/ApplozicClient.h>
+#import <Applozic/ALRealTimeUpdate.h>
+#import <Applozic/ALMultimediaData.h>
+#import <Applozic/UIImage+animatedGIF.h>
+#import <Applozic/ALAudioSession.h>

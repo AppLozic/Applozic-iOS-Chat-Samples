@@ -14,8 +14,8 @@
 #define CHANNEL_SPECIAL_CASE 7
 #define CHANNEL_DEFAULT_MUTE @"MUTE"
 #define CHANNEL_CONVERSATION_STATUS @"CONVERSATION_STATUS"
-#define CATEGORY @"AL_CATEGORY"
 
+static NSString *const AL_CATEGORY = @"AL_CATEGORY";
 static NSString * const AL_CONTEXT_BASED_CHAT = @"AL_CONTEXT_BASED_CHAT";
 
 /*********************
@@ -65,6 +65,7 @@ typedef enum
 -(BOOL) isNotificationMuted;
 -(BOOL) isConversationClosed;
 -(BOOL) isContextBasedChat;
+-(BOOL) isBroadcastGroup;
 -(NSString*)getReceiverIdInGroupOfTwo;
 
 -(NSMutableDictionary *)getMetaDataDictionary:(NSString *)string;

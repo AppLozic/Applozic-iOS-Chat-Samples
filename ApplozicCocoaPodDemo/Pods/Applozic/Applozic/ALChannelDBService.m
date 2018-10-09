@@ -99,7 +99,7 @@
     [theDBHandler.managedObjectContext save:&error];
     if(error)
     {
-        NSLog(@"ERROR IN insertChannel METHOD %@",error);
+        ALSLog(ALLoggerSeverityError, @"ERROR IN insertChannel METHOD %@",error);
     }
 }
 
@@ -180,7 +180,7 @@
     [theDBHandler.managedObjectContext save:&error];
     if(error)
     {
-        NSLog(@"ERROR IN insertChannelUserX METHOD %@",error);
+        ALSLog(ALLoggerSeverityError, @"ERROR IN insertChannelUserX METHOD %@",error);
     }
     
 }
@@ -218,7 +218,7 @@
     NSArray *fetchedObjects = [theDBHandler.managedObjectContext executeFetchRequest:fetchRequest error:&error];
     if (error)
     {
-        NSLog(@"ERROR IN FETCH MEMBER LIST");
+        ALSLog(ALLoggerSeverityError, @"ERROR IN FETCH MEMBER LIST");
     }
     else
     {
@@ -587,7 +587,7 @@
     }
     else
     {
-        NSLog(@"NO MEMBER FOUND");
+        ALSLog(ALLoggerSeverityWarn, @"NO MEMBER FOUND");
     }
 }
 
@@ -619,7 +619,7 @@
     }
     else
     {
-        NSLog(@"NO ENTRY FOUND");
+        ALSLog(ALLoggerSeverityWarn, @"NO ENTRY FOUND");
     }
 }
 
@@ -663,7 +663,7 @@
     }
     else
     {
-        NSLog(@"NO ENTRY FOUND");
+        ALSLog(ALLoggerSeverityWarn, @"NO ENTRY FOUND");
     }
     return alChannels;
 }
@@ -730,7 +730,7 @@
     }
     else
     {
-        NSLog(@"UPDATE_CHANNEL_DB : NO CHANNEL FOUND");
+        ALSLog(ALLoggerSeverityError, @"UPDATE_CHANNEL_DB : NO CHANNEL FOUND");
     }
 }
 
@@ -758,7 +758,7 @@
     }
     else
     {
-        NSLog(@"UPDATE_CHANNEL_DB : NO CHANNEL FOUND");
+        ALSLog(ALLoggerSeverityError, @"UPDATE_CHANNEL_DB : NO CHANNEL FOUND");
     }
 }
 
@@ -823,7 +823,7 @@
     }
     else
     {
-        NSLog(@"NO CHANNEL FOUND");
+        ALSLog(ALLoggerSeverityError, @"NO CHANNEL FOUND");
     }
 }
 
@@ -839,7 +839,7 @@
     }
     else
     {
-        NSLog(@"NO CHANNEL : %@ FOUND",groupId);
+        ALSLog(ALLoggerSeverityError, @"NO CHANNEL : %@ FOUND",groupId);
     }
 }
 
@@ -867,14 +867,29 @@
     return NO;
 }
 
-
--(void)processArrayAfterSyncCall:(NSMutableArray *)channelArray
+-(BOOL)isAdminBroadcastChannel:(NSNumber *)groupId
 {
+    DB_CHANNEL *dbChannel = [self getChannelByKey:groupId];
+    ALChannel *channel = [ALChannel new];
+    NSMutableDictionary *metadata = [channel getMetaDataDictionary:dbChannel.metadata];
+    
+    return (metadata && [[metadata valueForKey:@"AL_ADMIN_BROADCAST"] isEqualToString:@"true"]);
+}
+
+
+-(void)createChannelsAndUpdateInfo:(NSMutableArray *)channelArray withDelegate:(id<ApplozicUpdatesDelegate>)delegate{
+   
     for(ALChannel *channelObject in channelArray)
     {
         [self createChannel:channelObject];
+        if(delegate){
+            [delegate onChannelUpdated:channelObject];
+        }
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"Update_channel_Info" object:channelObject];
     }
+
 }
+
 
 //------------------------------------------
 #pragma mark AFTER LEAVE LOGOUT and LOGIN
@@ -917,7 +932,7 @@
         messages =  [self getUnreadMessagesForGroup:channelKey];
     }
     else{
-        NSLog(@"channelKey null for marking unread");
+        ALSLog(ALLoggerSeverityError, @"channelKey null for marking unread");
     }
     
     if(messages.count > 0)
@@ -930,7 +945,7 @@
         req.resultType = NSUpdatedObjectsCountResultType;
         ALDBHandler * dbHandler = [ALDBHandler sharedInstance];
         NSBatchUpdateResult *res = (NSBatchUpdateResult *)[dbHandler.managedObjectContext executeRequest:req error:nil];
-        NSLog(@"%@ objects updated", res.result);
+        ALSLog(ALLoggerSeverityInfo, @"%@ objects updated", res.result);
     }
     return messages.count;
 }
@@ -979,7 +994,7 @@
     }
     else
     {
-        NSLog(@"CHANNEL_NOT_FOUND :: %@",clientChannelKey);
+        ALSLog(ALLoggerSeverityError, @"CHANNEL_NOT_FOUND :: %@",clientChannelKey);
         return nil;
     }
 }
@@ -1024,8 +1039,8 @@
     NSError *fetchError = nil;
     NSArray *result = [dbHandler.managedObjectContext executeFetchRequest:fetchRequest error:&fetchError];
     
-    NSLog(@"CHILD CHANNEL FOUND : %lu WITH PARENT KEY : %@",result.count, parentGroupKey);
-    NSLog(@"ERROR (IF-ANY) : %@",fetchError.description);
+    ALSLog(ALLoggerSeverityInfo, @"CHILD CHANNEL FOUND : %lu WITH PARENT KEY : %@",(unsigned long)result.count, parentGroupKey);
+    ALSLog(ALLoggerSeverityError, @"ERROR (IF-ANY) : %@",fetchError.description);
     
     for(DB_CHANNEL *dbChannel in result)
     {

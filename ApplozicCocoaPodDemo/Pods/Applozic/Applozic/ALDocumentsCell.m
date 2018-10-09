@@ -149,7 +149,7 @@
     [self.mUserProfileImageView setUserInteractionEnabled:YES];
     [self.mUserProfileImageView addGestureRecognizer:tapForOpenChat];
     
-    if([alMessage.type isEqualToString:@MT_INBOX_CONSTANT])
+    if([alMessage isReceivedMessage])
     {
         [self.mUserProfileImageView setFrame:CGRectMake(USER_PROFILE_PADDING_X, 0, USER_PROFILE_WIDTH, USER_PROFILE_HEIGHT)];
         
@@ -180,8 +180,8 @@
             
             self.mChannelMemberName.frame = CGRectMake(self.mBubleImageView.frame.origin.x + CHANNEL_PADDING_X,
                                                        self.mBubleImageView.frame.origin.y + CHANNEL_PADDING_Y,
-                                                       self.mBubleImageView.frame.size.width +
-                                                       CHANNEL_PADDING_WIDTH, CHANNEL_PADDING_HEIGHT);
+                                                       self.mBubleImageView.frame.size.width
+                                                       , CHANNEL_PADDING_HEIGHT);
             requiredHeight =  requiredHeight + self.mChannelMemberName.frame.size.height;
             imageViewY = imageViewY + self.mChannelMemberName.frame.size.height;
             
@@ -386,7 +386,7 @@
     
     self.mDateLabel.text = theDate;
     
-    if ([alMessage.type isEqualToString:@MT_OUTBOX_CONSTANT])
+    if ([alMessage isSentMessage] && ((self.channel && self.channel.type != OPEN) || self.contact))
     {
         self.mMessageStatusImageView.hidden = NO;
         NSString * imageName;
@@ -425,25 +425,25 @@
 #pragma mark - Menu option tap Method -
 
 -(void) proccessTapForMenu:(id)tap{
-    
+
     [self processKeyBoardHideTap];
 
     UIMenuItem * messageForward = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"forwardOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Forward", @"") action:@selector(messageForward:)];
     UIMenuItem * messageReply = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"replyOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Reply", @"") action:@selector(messageReply:)];
-    
+
     if ([self.mMessage.type isEqualToString:@MT_INBOX_CONSTANT]){
-        
+
         [[UIMenuController sharedMenuController] setMenuItems: @[messageForward,messageReply]];
-        
+
     }else if ([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT]){
 
-        
+
         UIMenuItem * msgInfo = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"infoOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Info", @"") action:@selector(msgInfo:)];
-        
+
         [[UIMenuController sharedMenuController] setMenuItems: @[msgInfo,messageReply,messageForward]];
     }
     [[UIMenuController sharedMenuController] update];
-    
+
 }
 
 -(void) addShadowEffects
@@ -555,7 +555,7 @@
     
     
     
-    if([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT] && self.mMessage.groupId)
+    if([self.mMessage isSentMessage] && self.mMessage.groupId)
     {
         return (self.mMessage.isDownloadRequired? (action == @selector(delete:) || action == @selector(msgInfo:)):(action == @selector(delete:)|| action == @selector(msgInfo:)|| [self isMessageReplyMenuEnabled:action] ||  [self isForwardMenuEnabled:action] ));
     }
@@ -573,13 +573,13 @@
     //serverCall
     [ALMessageService deleteMessage:self.mMessage.key andContactId:self.mMessage.contactIds withCompletion:^(NSString *string, NSError *error) {
         
-        NSLog(@"DELETE MESSAGE ERROR :: %@", error.description);
+        ALSLog(ALLoggerSeverityError, @"DELETE MESSAGE ERROR :: %@", error.description);
     }];
 }
 
 -(void) messageReply:(id)sender
 {
-    NSLog(@"Message forward option is pressed");
+    ALSLog(ALLoggerSeverityInfo, @"Message forward option is pressed");
     [self.delegate processMessageReply:self.mMessage];
     
 }
@@ -612,7 +612,7 @@
 
 -(void) messageForward:(id)sender
 {
-    NSLog(@"Message forward option is pressed");
+    ALSLog(ALLoggerSeverityInfo, @"Message forward option is pressed");
     [self.delegate processForwardMessage:self.mMessage];
         
 }

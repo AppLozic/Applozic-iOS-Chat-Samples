@@ -35,17 +35,17 @@
     if(error == nil)
         
     {
-        NSLog(@"AUDIO SESSION CREATED SUCCESSFULLY");
+        ALSLog(ALLoggerSeverityInfo, @"AUDIO SESSION CREATED SUCCESSFULLY");
     }
     else
     {
-        NSLog(@"AUDIO SESSION FAIL TO CREATE : %@", [error description]);
+        ALSLog(ALLoggerSeverityError, @"AUDIO SESSION FAIL TO CREATE : %@", [error description]);
     }
 }
 
 -(void)playAudio:(NSString *)filePath{
     
-    NSLog(@"starting Audio....");
+    ALSLog(ALLoggerSeverityInfo, @"starting Audio....");
     [self createSession];
     NSString * docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSString * filePath1 = [docDir stringByAppendingPathComponent:filePath];
@@ -59,7 +59,7 @@
 
 -(void)pauseAudio{
     
-    NSLog(@"Audio Paused");
+    ALSLog(ALLoggerSeverityInfo, @"Audio Paused");
     
     [self.timer invalidate];
     [self.audioPlayer pause];
@@ -68,7 +68,7 @@
 
 -(void)resumeAudio{
     
-    NSLog(@"Audio resumed");
+    ALSLog(ALLoggerSeverityInfo, @"Audio resumed");
     
     
     self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(getProgressOfTrack) userInfo:nil repeats:YES];
@@ -83,7 +83,7 @@
 
 
 -(void)playVideo:(NSString *)filePath{
-    NSLog(@"Video is not implimented yet");
+    ALSLog(ALLoggerSeverityInfo, @"Video is not implimented yet");
 }
 
 

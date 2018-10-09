@@ -30,4 +30,6 @@
 @property (nonatomic, retain) NSNumber * deletedAtTime;
 @property (nonatomic, retain) NSString * metadata;
 @property (nonatomic, retain) NSNumber * roleType;
+@property (nonatomic, strong) NSNumber * notificationAfterTime;
+
 @end

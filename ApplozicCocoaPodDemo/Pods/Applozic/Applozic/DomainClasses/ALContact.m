@@ -84,4 +84,11 @@
     
 }
 
+-(BOOL)isNotificationMuted{
+    
+    long secsUtc1970 = [[NSNumber numberWithDouble:[[NSDate date]timeIntervalSince1970] ] longValue ]*1000L;
+    
+     return (_notificationAfterTime && [_notificationAfterTime longValue]> secsUtc1970);
+}
+
 @end

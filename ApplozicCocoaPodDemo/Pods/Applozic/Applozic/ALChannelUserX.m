@@ -21,4 +21,10 @@
     
 }
 
+
+-(BOOL)isAdminUser{
+    
+    return  self.role.intValue == ADMIN;
+}
+
 @end

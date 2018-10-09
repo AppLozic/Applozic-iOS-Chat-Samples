@@ -365,7 +365,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-ApplozicCocoaPodDemo/Pods-ApplozicCocoaPodDemo-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-ApplozicCocoaPodDemo/Pods-ApplozicCocoaPodDemo-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Applozic/Applozic.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework",
 			);
@@ -376,7 +376,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ApplozicCocoaPodDemo/Pods-ApplozicCocoaPodDemo-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ApplozicCocoaPodDemo/Pods-ApplozicCocoaPodDemo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		A3B8C6281C998D8894F48E7E /* [CP] Check Pods Manifest.lock */ = {

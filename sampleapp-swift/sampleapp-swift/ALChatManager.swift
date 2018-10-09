@@ -30,7 +30,7 @@ class ALChatManager: NSObject {
     // This will register your User at applozic server.
     //----------------------
     
-     func registerUser(_ alUser: ALUser) {
+     func connectUser(_ alUser: ALUser) {
         
         let alChatLauncher: ALChatLauncher = ALChatLauncher(applicationId: getApplicationKey() as String)
         ALDefaultChatViewSettings()
@@ -47,18 +47,11 @@ class ALChatManager: NSObject {
             {
                 ALUtilityClass.showAlertMessage("Invalid Password", andTitle: "Oops!!!")
             }
-            else
-            {
-                print("registered")
-                if(ALChatManager.isNilOrEmpty(ALUserDefaultsHandler.getApnDeviceToken() as NSString?))
-                {
-                    alChatLauncher.registerForNotification()
-                }
-            }
+
         })
     }
     
-     func registerUser(_ alUser: ALUser, completion : @escaping (_ response: ALRegistrationResponse?, _ error: NSError?) -> Void) {
+     func connectUserWithCompletion(_ alUser: ALUser, completion : @escaping (_ response: ALRegistrationResponse?, _ error: NSError?) -> Void) {
     
         let alChatLauncher: ALChatLauncher = ALChatLauncher(applicationId: getApplicationKey() as String)
         ALDefaultChatViewSettings()
@@ -79,16 +72,10 @@ class ALChatManager: NSObject {
                 ALUtilityClass.showAlertMessage("Invalid Password", andTitle: "Oops!!!")
                 let errorPass = NSError(domain:"Invalid Password", code:0, userInfo:nil)
                 completion(response , errorPass as NSError?)
-            }
-            else
-            {
-                print("registered")
-                if(ALChatManager.isNilOrEmpty(ALUserDefaultsHandler.getApnDeviceToken() as NSString?))
-                {
-                    alChatLauncher.registerForNotification()
-                }
+            }else{
                 completion(response , error as NSError?)
             }
+
         })
     }
     
@@ -99,7 +86,7 @@ class ALChatManager: NSObject {
     // ----------------------  ------------------------------------------------------/
     
     func launchChat(_ fromViewController:UIViewController){
-        self.registerUserAndLaunchChat(nil, fromController: fromViewController, forUser: nil)
+        self.connectUserAndLaunchChat(nil, fromController: fromViewController, forUser: nil)
     }
     
     // ----------------------  ------------------------------------------------------/
@@ -109,7 +96,7 @@ class ALChatManager: NSObject {
     // ----------------------  ------------------------------------------------------/
     
     func launchChatForUser(_ forUserId : String ,fromViewController:UIViewController){
-        self.registerUserAndLaunchChat(nil, fromController: fromViewController, forUser: forUserId)
+        self.connectUserAndLaunchChat(nil, fromController: fromViewController, forUser: forUserId)
     }
     
     // ----------------------  ------------------------------------------------------/
@@ -117,7 +104,7 @@ class ALChatManager: NSObject {
     //      If user information is not passed, it will try to get user information from getLoggedinUserInformation.
     //-----------------------  ------------------------------------------------------/
     
-    func registerUserAndLaunchChat(_ alUser:ALUser?, fromController:UIViewController,forUser:String?)
+    func connectUserAndLaunchChat(_ alUser:ALUser?, fromController:UIViewController,forUser:String?)
     {
         let alChatLauncher: ALChatLauncher = ALChatLauncher(applicationId: getApplicationKey() as String)
        
@@ -155,9 +142,6 @@ class ALChatManager: NSObject {
                 return;
             } else if(response?.message == "REGISTERD"){
                 print("registered!!!")
-                if(ALChatManager.isNilOrEmpty(ALUserDefaultsHandler.getApnDeviceToken() as NSString?)){
-                    alChatLauncher.registerForNotification()
-                }
                 //let messageClientService: ALMessageClientService = ALMessageClientService()
                 //messageClientService.addWelcomeMessage()
             }
@@ -203,10 +187,6 @@ class ALChatManager: NSObject {
             }
             
             alChatLauncher.launchIndividualChat(nil, withGroupId: groupId, andViewControllerObject: fromController, andWithText: nil)
-
-            if (!(UIApplication.shared.isRegisteredForRemoteNotifications)) {
-                alChatLauncher.registerForNotification();
-            }
         })
     }
     
@@ -438,7 +418,10 @@ func ALDefaultChatViewSettings ()
      
      
      /********************************************** CHAT TYPE SETTINGS  *********************************************/
-     
+
+
+    ALApplozicSettings.showChannelMembersInfo(inNavigationBar: true)
+
      ALApplozicSettings.setContextualChat(true)                                 /*  IF CONTEXTUAL NEEDED    */
      /*  Note: Please uncomment below setter to use app_module_name */
      //   ALUserDefaultsHandler.setAppModuleName("<APP_MODULE_NAME>")

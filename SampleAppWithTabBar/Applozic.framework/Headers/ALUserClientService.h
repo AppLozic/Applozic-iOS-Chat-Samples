@@ -13,6 +13,7 @@
 #import "ALUserDetailListFeed.h"
 #import "AlApplicationInfoFeed.h"
 #import "ALAPIResponse.h"
+#import "ALMuteRequest.h"
 
 @interface ALUserClientService : NSObject
 
@@ -58,4 +59,7 @@
 
 -(void)getListOfUsersWithUserName:(NSString *)userName withCompletion:(void(^)(ALAPIResponse* response, NSError * error))completion;
 
+-(void)getMutedUserListWithCompletion:(void(^)(id theJson, NSError * error))completion;
+
+-(void) muteUser:(ALMuteRequest *)alMuteRequest withCompletion:(void(^)(ALAPIResponse * response, NSError * error))completion;
 @end

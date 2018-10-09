@@ -32,7 +32,7 @@
 }
 
 - (void)open {
-    ALDDLogVerbose(@"[MQTTWebsocketTransport] open");
+    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] open");
     self.state = MQTTTransportOpening;
     
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[self endpointURL]];
@@ -61,7 +61,7 @@
 }
 
 - (BOOL)send:(nonnull NSData *)data {
-    ALDDLogVerbose(@"[MQTTWebsocketTransport] send(%ld):%@", (unsigned long)data.length,
+    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] send(%ld):%@", (unsigned long)data.length,
                  [data subdataWithRange:NSMakeRange(0, MIN(256, data.length))]);
     if (self.websocket.readyState == SR_OPEN) {
         [self.websocket send:data];
@@ -72,7 +72,7 @@
 }
 
 - (void)close {
-    ALDDLogVerbose(@"[MQTTWebsocketTransport] close");
+    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] close");
     self.state = MQTTTransportClosing;
     [self.websocket close];
 }
@@ -82,7 +82,7 @@
     if ([message isKindOfClass:[NSData class]]) {
         data = (NSData *)message;
     }
-    ALDDLogVerbose(@"[MQTTWebsocketTransport] didReceiveMessage(%ld)", (unsigned long)(data ? data.length : -1));
+    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] didReceiveMessage(%ld)", (unsigned long)(data ? data.length : -1));
 
     if (self.delegate) {
         if ([self.delegate respondsToSelector:@selector(mqttTransport:didReceiveMessage:)]) {
@@ -92,7 +92,7 @@
 }
 
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket{
-    ALDDLogVerbose(@"[MQTTWebsocketTransport] connected to websocket");
+    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] connected to websocket");
     self.state = MQTTTransportOpen;
     if (self.delegate) {
         if ([self.delegate respondsToSelector:@selector(mqttTransportDidOpen:)]) {
@@ -102,7 +102,7 @@
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error{
-    ALDDLogInfo(@"[MQTTWebsocketTransport] Failed to connect : %@",[error debugDescription]);
+    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] Failed to connect : %@",[error debugDescription]);
     self.state = MQTTTransportClosed;
     self.websocket.delegate = nil;
     [self.websocket close];
@@ -114,7 +114,7 @@
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean{
-    ALDDLogVerbose(@"[MQTTWebsocketTransport] ConnectionClosed : %@",reason);
+    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] ConnectionClosed : %@",reason);
     self.state = MQTTTransportClosed;
     self.websocket.delegate = nil;
     if (self.delegate) {
@@ -125,7 +125,7 @@
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload{
-    ALDDLogVerbose(@"[MQTTWebsocketTransport] webSocket didReceivePong:%@", pongPayload);
+    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] webSocket didReceivePong:%@", pongPayload);
 }
 
 @end

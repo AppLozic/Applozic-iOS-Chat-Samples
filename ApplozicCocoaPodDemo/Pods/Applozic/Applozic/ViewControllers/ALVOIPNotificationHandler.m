@@ -73,10 +73,10 @@
                                                                     andReceiverId:userId
                                                                    andMessageText:msgText];
     
-    [ALMessageService sendMessages:messageWithMetaData withCompletion:^(NSString *message, NSError *error) {
+    [[ALMessageService sharedInstance] sendMessages:messageWithMetaData withCompletion:^(NSString *message, NSError *error) {
         
-        NSLog(@"AUDIO/VIDEO MSG_RESPONSE :: %@",message);
-        NSLog(@"ERROR IN AUDIO/VIDEO MESSAGE WITH META-DATA : %@", error);
+        ALSLog(ALLoggerSeverityInfo, @"AUDIO/VIDEO MSG_RESPONSE :: %@",message);
+        ALSLog(ALLoggerSeverityError, @"ERROR IN AUDIO/VIDEO MESSAGE WITH META-DATA : %@", error);
     }];
 }
 
@@ -104,7 +104,7 @@
     {
         if(![ALApplozicSettings isAudioVideoEnabled] )
         {
-            NSLog(@" video/audio call not enables  ");
+            ALSLog(ALLoggerSeverityInfo, @" video/audio call not enables  ");
             return;
         }
         
@@ -176,8 +176,8 @@
                                                           repeats:YES];
                 
                 self.backgroundTask = [appObject beginBackgroundTaskWithExpirationHandler:^{
-                    NSLog(@"ALVOIP : BACKGROUND_HANDLER_NO_MORE_TASK_RUNNING.");
-                    [appObject endBackgroundTask:self.backgroundTask];
+                    ALSLog(ALLoggerSeverityInfo, @"ALVOIP : BACKGROUND_HANDLER_NO_MORE_TASK_RUNNING.");
+                    [self->appObject endBackgroundTask:self.backgroundTask];
                     self.backgroundTask = UIBackgroundTaskInvalid;
                 }];
             }
@@ -215,14 +215,14 @@
                                                     andContentType:AV_CALL_CONTENT_THREE
                                                         andMsgText:roomId];
             }
-            NSLog(@"CALL_IS_REJECTED");
+            ALSLog(ALLoggerSeverityInfo, @"CALL_IS_REJECTED");
             [self.baseAV dismissAVViewController:YES];
             [self invalidateCallNotifying];
             [ALNotificationView showNotification:@"Participant Busy"];
         }
         else if ([msgType isEqualToString:@"CALL_MISSED"])
         {
-            NSLog(@"CALL_IS_MISSED");
+            ALSLog(ALLoggerSeverityInfo, @"CALL_IS_MISSED");
             [self.baseAV dismissAVViewController:YES];
             
             // IF APP IS IN BACKGROUND
@@ -235,7 +235,7 @@
 {
     if (count < 60)
     {
-        NSLog(@"BG_TIME_REMAIN : %f",appObject.backgroundTimeRemaining);
+        ALSLog(ALLoggerSeverityInfo, @"BG_TIME_REMAIN : %f",appObject.backgroundTimeRemaining);
         if (IS_OS_EARLIER_THAN_10)
         {
             [appObject presentLocalNotificationNow:localNotification];
@@ -250,7 +250,7 @@
             UNNotificationRequest * request = [UNNotificationRequest requestWithIdentifier:reuqestIdentifier content:content trigger:nil];
             [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
                 if (!error) {
-                    NSLog(@"PUSHKIT : INCOMING_VOIP_APN");
+                    ALSLog(ALLoggerSeverityInfo, @"PUSHKIT : INCOMING_VOIP_APN");
                 }
             }];
             
@@ -294,7 +294,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
     
-    NSLog(@"ALVOIP : DID_RECEIVE_LOCAL_NOTIFICATION");
+    ALSLog(ALLoggerSeverityInfo, @"ALVOIP : DID_RECEIVE_LOCAL_NOTIFICATION");
     [self didReceiveLocalNotification:notification.userInfo];
 }
 
@@ -316,7 +316,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 -(BOOL)isNotificationStale:(ALMessage*)alMessage
 {
-    NSLog(@"[[NSDate date]timeIntervalSince1970] - [alMessage.createdAtTime doubleValue] ::%d", [[NSDate date]timeIntervalSince1970]*1000 - [alMessage.createdAtTime doubleValue]);
+    ALSLog(ALLoggerSeverityInfo, @"[[NSDate date]timeIntervalSince1970] - [alMessage.createdAtTime doubleValue] ::%f", [[NSDate date]timeIntervalSince1970]*1000 - [alMessage.createdAtTime doubleValue]);
     return ( ([[NSDate date] timeIntervalSince1970] - [alMessage.createdAtTime doubleValue]/1000) > 30);
 }
 

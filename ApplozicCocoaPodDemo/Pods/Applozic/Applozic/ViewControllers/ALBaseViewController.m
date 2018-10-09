@@ -95,12 +95,12 @@ static CGFloat const sendTextViewCornerRadius = 15.0f;
     }
     
     NSBundle *bundle = [NSBundle mainBundle];
-    NSLog(@":: BUNDLE_NAME :: %@",bundle.bundleIdentifier);
+    ALSLog(ALLoggerSeverityInfo, @":: BUNDLE_NAME :: %@",bundle.bundleIdentifier);
     NSString *path = [bundle pathForResource:@"restrictWords" ofType:@"txt"];
-    NSLog(@":: FILE_PATH :: %@",path);
+    ALSLog(ALLoggerSeverityInfo, @":: FILE_PATH :: %@",path);
     NSError *error = nil;
     NSString *fileString = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-    NSLog(@"ERROR(IF-ANY) WHILE IMPORT WORD FILE :: %@",error.description);
+    ALSLog(ALLoggerSeverityError, @"ERROR(IF-ANY) WHILE IMPORT WORD FILE :: %@",error.description);
     if (!error)
     {
         self.wordArray = [NSArray arrayWithArray:[fileString componentsSeparatedByString:@","]];

@@ -44,6 +44,7 @@
 #import "ALPushAssist.h"
 #import "ALGroupCreationViewController.h"
 #import "ALMessageClientService.h"
+#import "ALLogger.h"
 
 // Constants
 #define DEFAULT_TOP_LANDSCAPE_CONSTANT -34
@@ -108,7 +109,6 @@
 {
     [super viewDidLoad];
     self.mqttRetryCount = 0;
-    
     [self setUpTableView];
     self.mTableView.allowsMultipleSelectionDuringEditing = NO;
     [self.mActivityIndicator startAnimating];
@@ -119,8 +119,6 @@
 
     self.alMqttConversationService = [ALMQTTConversationService sharedInstance];
     self.alMqttConversationService.mqttConversationDelegate = self;
-    
-    [self.alMqttConversationService subscribeToConversation];
     
     CGFloat navigationHeight = self.navigationController.navigationBar.frame.size.height +
     [UIApplication sharedApplication].statusBarFrame.size.height;
@@ -147,31 +145,10 @@
     [self.dBService getMessages:self.childGroupList];
 }
 
--(void)viewDidDisappear:(BOOL)animated
-{
-    BOOL profileFlag = NO;
-    UIViewController *VC = self.tabBarController.selectedViewController;
-    UINavigationController *navVC = (UINavigationController *)VC;
-    
-    for(UIViewController *VC in navVC.viewControllers)
-    {
-        if([NSStringFromClass([VC class]) isEqualToString:@"ALUserProfileVC"])
-        {
-            profileFlag = YES;
-        }
-    }
-    
-    if (self.navigationController.viewControllers.count == 1 && !profileFlag)
-    {
-        NSLog(@"MSG VC : CLOSING_MQTT_CONNECTIONS");
-        [self.alMqttConversationService unsubscribeToConversation];
-    }
-}
-
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+    [self.alMqttConversationService subscribeToConversation];
     if([ALApplozicSettings isDropShadowInNavigationBarEnabled])
     {
         [self dropShadowInNavigationBar];
@@ -212,7 +189,7 @@
     }
 
     //register for notification
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pushNotificationhandler:) name:@"pushNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pushNotificationhandler:) name:@"pushNotification" object:nil];    
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callLastSeenStatusUpdate)
                                                  name:UIApplicationDidBecomeActiveNotification
@@ -220,11 +197,17 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newMessageHandler:) name:NEW_MESSAGE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadTable:) name:@"reloadTable" object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateChannelSync:)
+                                                 name:@"Update_channel_Info" object:nil];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateLastSeenAtStatusPUSH:) name:@"update_USER_STATUS" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appEntersForegroundIntoListView:) name:@"appCameInForeground" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadMessages:) name:@"CONVERSATION_DELETION" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateCallForUser:) name:@"USER_DETAILS_UPDATE_CALL" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateBroadCastMessages) name:@"BROADCAST_MSG_UPDATE" object:nil];
+     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateConversationUnreadCount:) name:@"Update_unread_count" object:nil];
+    
     
     [self.navigationController.navigationBar setTitleTextAttributes: @{
                                                                        NSForegroundColorAttributeName:[UIColor whiteColor],
@@ -259,6 +242,37 @@
 //    [self.childGroupList addObject:parentChannel];
 }
 
+// Channel details update notification
+-(void)updateChannelSync:(NSNotification*)notification {
+    ALChannel *channel =  notification.object;
+    if(channel){
+        ALContactCell *contactCell = [self getCellForGroup:channel.key];
+        if(contactCell){
+            [self updateProfileImageAndUnreadCount:contactCell WithChannel:channel orChannelId:nil];
+        }
+    }
+}
+
+
+// Update channel/user unread count notification
+-(void)updateConversationUnreadCount:(NSNotification*)notification {
+    NSDictionary *dictionary =  notification.object;
+    if(dictionary){
+        ALContactCell *cell = nil;
+        NSString *userId = [ dictionary objectForKey:@"userId"];
+        if(userId){
+            cell = [self getCell:userId];
+        }else{
+            NSNumber  *channelKey = [ dictionary objectForKey:@"channelKey"];
+            cell = [self getCellForGroup:channelKey];
+        }
+        if(cell){
+            cell.unreadCountLabel.text = @"";
+            [cell.unreadCountLabel setHidden:YES];
+        }
+    }
+}
+
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
@@ -288,8 +302,10 @@
     [self.tabBarController.tabBar setHidden: [ALUserDefaultsHandler isBottomTabBarHidden]];
     //unregister for notification
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"pushNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"Update_channel_Info" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NEW_MESSAGE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"BROADCAST_MSG_UPDATE" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"Update_unread_count" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -362,10 +378,10 @@
         
         if(error)
         {
-            NSLog(@"ERROR: IN REFRESH MSG VC :: %@",error);
+            ALSLog(ALLoggerSeverityError, @"ERROR: IN REFRESH MSG VC :: %@",error);
             return;
         }
-        NSLog(@"REFRESH MSG VC");
+        ALSLog(ALLoggerSeverityInfo, @"REFRESH MSG VC");
     }];
 }
 
@@ -418,7 +434,7 @@
         }
     }
     [self.mTableView reloadData];
-    NSLog(@"GETTING MESSAGE ARRAY");
+    ALSLog(ALLoggerSeverityInfo, @"GETTING MESSAGE ARRAY");
 }
 
 -(void)didUpdateBroadCastMessages {
@@ -537,7 +553,7 @@
                 }
             }
             
-            NSLog(@"contact cell not found ....");
+            ALSLog(ALLoggerSeverityInfo, @"contact cell not found ....");
         }
     }
     if(isreloadRequire)
@@ -1007,7 +1023,7 @@
     if (editingStyle == UITableViewCellEditingStyleDelete)
     {
         
-        NSLog(@"DELETE_PRESSED");
+        ALSLog(ALLoggerSeverityInfo, @"DELETE_PRESSED");
         if(![ALDataNetworkConnection checkDataNetworkAvailable])
         {
             [self noDataNotificationView];
@@ -1024,8 +1040,6 @@
             
             [self.dBService deleteAllMessagesByContact:nil orChannelKey:[alMessageobj getGroupId]];
             [ALChannelService setUnreadCountZeroForGroupID:[alMessageobj getGroupId]];
-            [self subProcessDeleteMessageThread:filteredArray];
-            return;
         }
         
         [ALMessageService deleteMessageThread:alMessageobj.contactIds orChannelKey:[alMessageobj getGroupId]
@@ -1033,7 +1047,7 @@
             
             if(error)
             {
-                NSLog(@"DELETE_FAILED_CONVERSATION_ERROR_DESCRIPTION :: %@", error.description);
+                ALSLog(ALLoggerSeverityError, @"DELETE_FAILED_CONVERSATION_ERROR_DESCRIPTION :: %@", error.description);
                 [ALUtilityClass displayToastWithMessage:@"Delete failed"];
                 return;
             }
@@ -1063,7 +1077,7 @@
 
 -(void)subProcessDeleteMessageThread:(NSArray *)theFilteredArray
 {
-    NSLog(@"GETTING_FILTERED_ARRAY_COUNT :: %lu", (unsigned long)theFilteredArray.count);
+    ALSLog(ALLoggerSeverityInfo, @"GETTING_FILTERED_ARRAY_COUNT :: %lu", (unsigned long)theFilteredArray.count);
     [self.mContactsMessageListArray removeObjectsInArray:theFilteredArray];
     [self emptyConversationAlertLabel];
     [self.mTableView reloadData];
@@ -1076,7 +1090,7 @@
 -(void)updateConversationTableNotification:(NSNotification *)notification
 {
     ALMessage * theMessage = notification.object;
-    NSLog(@"NOTIFICATION_FOR_TABLE_UPDATE :: %@", theMessage.message);
+    ALSLog(ALLoggerSeverityInfo, @"NOTIFICATION_FOR_TABLE_UPDATE :: %@", theMessage.message);
     NSArray * theFilteredArray = [self.mContactsMessageListArray
                                   filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"contactIds = %@", theMessage.contactIds]];
     //check for group id also
@@ -1131,16 +1145,21 @@
 
 -(void)updateUserDetail:(NSString *)userId
 {
-    NSLog(@"ALMSGVC : USER_DETAIL_CHANGED_CALL_UPDATE");
+    ALSLog(ALLoggerSeverityInfo, @"ALMSGVC : USER_DETAIL_CHANGED_CALL_UPDATE");
     [ALUserService updateUserDetail:userId withCompletion:^(ALUserDetail *userDetail) {
         
         [[NSNotificationCenter defaultCenter] postNotificationName:@"USER_DETAIL_OTHER_VC" object:userDetail];
         ALContactCell * contactCell = [self getCell:userId];
         UILabel* nameIcon = (UILabel *)[contactCell viewWithTag:102];
         [nameIcon setText:[ALColorUtility getAlphabetForProfileImage:[userDetail getDisplayName]]];
-       
+        
         if(contactCell)
         {
+            
+            if(userDetail.getDisplayName){
+                contactCell.mUserNameLabel.text = userDetail.getDisplayName;
+            }
+            
             NSURL * URL = [NSURL URLWithString:userDetail.imageLink];
             if(URL)
             {
@@ -1218,7 +1237,7 @@
 
 -(void)updateTypingStatus:(NSString *)applicationKey userId:(NSString *)userId status:(BOOL)status
 {
-    NSLog(@"==== (MSG_VC) Received typing status %d for: %@ ====", status, userId);
+    ALSLog(ALLoggerSeverityInfo, @"==== (MSG_VC) Received typing status %d for: %@ ====", status, userId);
     ALContactDBService *contactDBService = [[ALContactDBService alloc] init];
     ALContact *alContact = [contactDBService loadContactByKey:@"userId" value: userId];
     if((alContact.block || alContact.blockBy) && !self.detailChatViewController.channelKey)
@@ -1280,8 +1299,8 @@
     
     if([ALDataNetworkConnection checkDataNetworkAvailable] && !isBackgroundState)
     {
-        NSLog(@"MQTT connection closed, subscribing again: %lu", (long)_mqttRetryCount);
-        NSLog(@"ALMessageVC subscribing channel again....");
+        ALSLog(ALLoggerSeverityInfo, @"MQTT connection closed, subscribing again: %lu", (long)_mqttRetryCount);
+        ALSLog(ALLoggerSeverityInfo, @"ALMessageVC subscribing channel again....");
         [self.alMqttConversationService subscribeToConversation];
         self.mqttRetryCount++;
     }
@@ -1339,7 +1358,7 @@
     }
     else if([updateUI isEqualToNumber:[NSNumber numberWithInt:APP_STATE_INACTIVE]])
     {
-        NSLog(@"######## IT SHOULD NEVER COME HERE #########");
+        ALSLog(ALLoggerSeverityInfo, @"######## IT SHOULD NEVER COME HERE #########");
         [self createDetailChatViewController: contactId];
 //      [self.detailChatViewController fetchAndRefresh];
         [self.detailChatViewController setRefresh: YES];
@@ -1356,6 +1375,7 @@
 -(void)dealloc
 {
 //    NSLog(@"dealloc called. Unsubscribing with mqtt.");
+    [self.alMqttConversationService unsubscribeToConversation];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"USER_DETAILS_UPDATE_CALL" object:nil];
 }
@@ -1374,12 +1394,12 @@
     if((self.isViewLoaded && self.view.window) ||
        (self.detailChatViewController && self.detailChatViewController.isViewLoaded && self.detailChatViewController.view.window))
     {
-        NSLog(@"VIEW_CONTROLLER IS VISIBLE");
+        ALSLog(ALLoggerSeverityInfo, @"VIEW_CONTROLLER IS VISIBLE");
         return YES;
     }
     else
     {
-        NSLog(@"VIEW_CONTROLLER IS NOT VISIBLE");
+        ALSLog(ALLoggerSeverityInfo, @"VIEW_CONTROLLER IS NOT VISIBLE");
         return NO;
     }
 }
@@ -1436,7 +1456,7 @@
 
 -(void)appWillEnterForeground:(NSNotification *)notification
 {
-    NSLog(@"will enter foreground notification");
+    ALSLog(ALLoggerSeverityInfo, @"will enter foreground notification");
    // [self syncCall:nil];
     //[self callLastSeenStatusUpdate];
 }
@@ -1547,11 +1567,11 @@
 {
     if(self.parentGroupKey && [ALApplozicSettings getSubGroupLaunchFlag])
     {
-        NSLog(@"NOT REQUIRE FOR PARENT GROUP");
+        ALSLog(ALLoggerSeverityInfo, @"NOT REQUIRE FOR PARENT GROUP");
         return;
     }
     
-    NSLog(@"END_SCROCLLING_TRY");
+    ALSLog(ALLoggerSeverityInfo, @"END_SCROCLLING_TRY");
     CGPoint offset = scrollView.contentOffset;
     CGRect bounds = scrollView.bounds;
     CGSize size = scrollView.contentSize;

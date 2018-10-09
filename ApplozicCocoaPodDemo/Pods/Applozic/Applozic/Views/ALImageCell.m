@@ -27,6 +27,7 @@
 #import "ALMessageClientService.h"
 #import "ALConnection.h"
 #import "ALConnectionQueueHandler.h"
+#import "UIImage+animatedGIF.h"
 
 // Constants
 #define MT_INBOX_CONSTANT "4"
@@ -136,6 +137,8 @@ UIViewController * modalCon;
                                                    font:self.imageWithText.font.fontName
                                                fontSize:self.imageWithText.font.pointSize];
     
+    
+    
     [self.mChannelMemberName setHidden:YES];
     [self.mNameLabel setHidden:YES];
     [self.imageWithText setHidden:YES];
@@ -146,7 +149,7 @@ UIViewController * modalCon;
     [self.mUserProfileImageView setUserInteractionEnabled:YES];
     [self.mUserProfileImageView addGestureRecognizer:tapForOpenChat];
     
-    if ([alMessage.type isEqualToString:@MT_INBOX_CONSTANT]) { //@"4" //Recieved Message
+    if ([alMessage isReceivedMessage]) { //@"4" //Recieved Message
         
         [self.contentView bringSubviewToFront:self.mChannelMemberName];
         
@@ -193,7 +196,7 @@ UIViewController * modalCon;
               
             self.mChannelMemberName.frame = CGRectMake(self.mBubleImageView.frame.origin.x + CHANNEL_PADDING_X,
                                                        self.mBubleImageView.frame.origin.y + CHANNEL_PADDING_Y,
-                                                       self.mBubleImageView.frame.size.width + CHANNEL_PADDING_WIDTH, CHANNEL_PADDING_HEIGHT);
+                                                       self.mBubleImageView.frame.size.width, CHANNEL_PADDING_HEIGHT);
             
             requiredHeight = requiredHeight + self.mChannelMemberName.frame.size.height;
             imageViewY = imageViewY +  self.mChannelMemberName.frame.size.height;
@@ -256,7 +259,7 @@ UIViewController * modalCon;
         
         if (alMessage.imageFilePath == NULL)
         {
-            NSLog(@" file path not found making download button visible ....ALImageCell");
+            ALSLog(ALLoggerSeverityInfo, @" file path not found making download button visible ....ALImageCell");
             self.mDowloadRetryButton.alpha = 1;
             [self.mDowloadRetryButton setTitle:[alMessage.fileMeta getTheSize] forState:UIControlStateNormal];
             [self.mDowloadRetryButton setImage:[ALUtilityClass getImageFromFramworkBundle:@"downloadI6.png"] forState:UIControlStateNormal];
@@ -268,7 +271,7 @@ UIViewController * modalCon;
         }
         if (alMessage.inProgress == YES)
         {
-            NSLog(@" In progress making download button invisible ....");
+            ALSLog(ALLoggerSeverityInfo, @" In progress making download button invisible ....");
             self.progresLabel.alpha = 1;
             self.mDowloadRetryButton.alpha = 0;
         }
@@ -380,7 +383,7 @@ UIViewController * modalCon;
         if (alMessage.inProgress == YES)
         {
             self.progresLabel.alpha = 1;
-            NSLog(@"calling you progress label....");
+            ALSLog(ALLoggerSeverityInfo, @"calling you progress label....");
         }
         else if( !alMessage.imageFilePath && alMessage.fileMeta.blobKey)
         {
@@ -402,7 +405,7 @@ UIViewController * modalCon;
                                                 self.mImageView.frame.origin.y + self.mImageView.frame.size.height/2.0 - DOWNLOAD_RETRY_PADDING_Y,
                                                 90, 40);
     
-    if ([alMessage.type isEqualToString:@MT_OUTBOX_CONSTANT])
+    if ([alMessage isSentMessage] && ((self.channel && self.channel.type != OPEN) || self.contact))
     {
         
         self.mMessageStatusImageView.hidden = NO;
@@ -443,7 +446,7 @@ UIViewController * modalCon;
             ALMessageClientService * messageClientService = [[ALMessageClientService alloc]init];
             [messageClientService downloadImageThumbnailUrl:alMessage withCompletion:^(NSString *fileURL, NSError *error) {
              
-                NSLog(@"ATTACHMENT DOWNLOAD URL : %@", fileURL);
+                ALSLog(ALLoggerSeverityInfo, @"ATTACHMENT DOWNLOAD URL : %@", fileURL);
                 if(error == nil){
                     [self.delegate thumbnailDownload:alMessage.key withThumbnailUrl:fileURL];
                 }
@@ -463,33 +466,37 @@ UIViewController * modalCon;
 }
 
 -(void) setInImageView:(NSURL*)url{
-    
-     [self.mImageView sd_setImageWithPreviousCachedImageWithURL:url placeholderImage:nil options:0 progress:nil completed:nil];
-
+    NSString *stringUrl = url.absoluteString;
+    if (stringUrl != nil && [stringUrl localizedCaseInsensitiveContainsString:@"gif"]) { 
+        UIImage *image = [UIImage animatedImageWithAnimatedGIFURL:url];
+        [self.mImageView setImage: image];
+        return;
+    }
+    [self.mImageView sd_setImageWithURL:url placeholderImage:nil options:0];
 }
 
 #pragma mark - Menu option tap Method -
 
 -(void) proccessTapForMenu:(id)tap{
-    
+
     [self processKeyBoardHideTap];
 
     UIMenuItem * messageForward = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"forwardOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Forward", @"") action:@selector(messageForward:)];
     UIMenuItem * messageReply = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"replyOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Reply", @"") action:@selector(messageReply:)];
-    
+
     if ([self.mMessage.type isEqualToString:@MT_INBOX_CONSTANT]){
-        
+
         [[UIMenuController sharedMenuController] setMenuItems: @[messageForward,messageReply]];
-        
+
     }else if ([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT]){
 
-        
+
         UIMenuItem * msgInfo = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"infoOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Info", @"") action:@selector(msgInfo:)];
-        
+
         [[UIMenuController sharedMenuController] setMenuItems: @[msgInfo,messageReply,messageForward]];
     }
     [[UIMenuController sharedMenuController] update];
-    
+
 }
 
 
@@ -587,7 +594,7 @@ UIViewController * modalCon;
 
 -(BOOL) canPerformAction:(SEL)action withSender:(id)sender
 {
-    NSLog(@"Action: %@", NSStringFromSelector(action));
+    ALSLog(ALLoggerSeverityInfo, @"Action: %@", NSStringFromSelector(action));
     
     if(self.mMessage.groupId){
         ALChannelService *channelService = [[ALChannelService alloc] init];
@@ -597,7 +604,7 @@ UIViewController * modalCon;
         }
     }
     
-    if([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT] && self.mMessage.groupId)
+    if([self.mMessage isSentMessage] && self.mMessage.groupId)
     {
         return (self.mMessage.isDownloadRequired? (action == @selector(delete:) || action == @selector(msgInfo:)):(action == @selector(delete:)|| action == @selector(msgInfo:)|| action == @selector(messageForward:) || [self isMessageReplyMenuEnabled:action]));
     }
@@ -609,19 +616,19 @@ UIViewController * modalCon;
 -(void) delete:(id)sender
 {
     //UI
-    NSLog(@"message to deleteUI %@",self.mMessage.message);
+    ALSLog(ALLoggerSeverityInfo, @"message to deleteUI %@",self.mMessage.message);
     [self.delegate deleteMessageFromView:self.mMessage];
     
     //serverCall
     [ALMessageService deleteMessage:self.mMessage.key andContactId:self.mMessage.contactIds withCompletion:^(NSString *string, NSError *error) {
         
-        NSLog(@"DELETE MESSAGE ERROR :: %@", error.description);
+        ALSLog(ALLoggerSeverityError, @"DELETE MESSAGE ERROR :: %@", error.description);
     }];
 }
 
 -(void) messageForward:(id)sender
 {
-    NSLog(@"Message forward option is pressed");
+    ALSLog(ALLoggerSeverityInfo, @"Message forward option is pressed");
     [self.delegate processForwardMessage:self.mMessage];
     
 }
@@ -629,7 +636,7 @@ UIViewController * modalCon;
 
 -(void) messageReply:(id)sender
 {
-    NSLog(@"Message forward option is pressed");
+    ALSLog(ALLoggerSeverityInfo, @"Message forward option is pressed");
     [self.delegate processMessageReply:self.mMessage];
     
 }

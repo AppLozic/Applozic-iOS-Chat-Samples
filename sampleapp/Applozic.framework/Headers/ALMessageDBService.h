@@ -11,7 +11,7 @@
 #import "DB_Message.h"
 #import "ALMessage.h"
 #import "ALFileMetaInfo.h"
-
+#import "ALConnection.h"
 
 @protocol ALMessagesDelegate <NSObject>
 
@@ -33,6 +33,7 @@
 -(NSManagedObject *)getMeesageById:(NSManagedObjectID *)objectID
                              error:(NSError **)error;
 - (NSManagedObject *)getMessageByKey:(NSString *) key value:(NSString*) value;
+
 -(NSMutableArray *)getMessageListForContactWithCreatedAt:(NSString *)contactId
                                            withCreatedAt:(NSNumber*)createdAt
                                            andChannelKey:(NSNumber *)channelKey
@@ -73,9 +74,11 @@
 -(DB_Message *) createMessageEntityForDBInsertionWithMessage:(ALMessage *) theMessage;
 -(DB_FileMetaInfo *) createFileMetaInfoEntityForDBInsertionWithMessage:(ALFileMetaInfo *) fileInfo;
 -(ALMessage *) createMessageEntity:(DB_Message *) theEntity;
-
+-(ALMessage*) getMessageByKey:(NSString*)messageKey;
 
 @property(nonatomic,weak) id <ALMessagesDelegate>delegate;
+
+-(NSMutableArray*)fetchLatestConversationsGroupByContactId :(BOOL) isFetchOnCreatedAtTime ;
 
 -(void)fetchConversationfromServerWithCompletion:(void(^)(BOOL flag))completionHandler;
 
@@ -90,5 +93,14 @@
 
 -(void) updateMessageSentDetails:(NSString*)messageKeyString withCreatedAtTime : (NSNumber *) createdAtTime withDbMessage:(DB_Message *) dbMessage ;
 
+-(void) getLatestMessages:(BOOL)isNextPage withCompletionHandler: (void(^)(NSMutableArray * messageList, NSError *error)) completion;
+
+-(void) getLatestMessages:(BOOL)isNextPage withOnlyGroups:(BOOL)isGroup withCompletionHandler: (void(^)(NSMutableArray * messageList, NSError *error)) completion;
+
+-(ALMessage *)handleMessageFailedStatus:(ALMessage *)message;
+
+-(ALMessage*)writeFileAndUpdateMessageInDb:(ALConnection*)connection withFileFlag:(BOOL)isFile;
+
+-(DB_Message*)addAttachmentMessage:(ALMessage*)message;
 
 @end

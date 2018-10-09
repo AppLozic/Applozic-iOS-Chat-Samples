@@ -7,7 +7,6 @@
 //
 
 #import "ALUserDefaultsHandler.h"
-#define NOTIFICATION_TITLE @"NOTIFICATION_TITLE"
 
 @implementation ALUserDefaultsHandler
 
@@ -81,7 +80,7 @@
 
 +(void) clearAll
 {
-    NSLog(@"CLEARING_USER_DEFAULTS");
+    ALSLog(ALLoggerSeverityInfo, @"CLEARING_USER_DEFAULTS");
     NSDictionary * dictionary = [[NSUserDefaults standardUserDefaults] dictionaryRepresentation];
     NSArray * keyArray = [dictionary allKeys];
     for(NSString * defaultKeyString in keyArray)
@@ -202,7 +201,7 @@
 +(void)setLastSyncTime :( NSNumber *) lstSyncTime
 {
     lstSyncTime = @([lstSyncTime doubleValue] + 1);
-    NSLog(@"saving last Sync time in the preference ...%@" ,lstSyncTime);
+    ALSLog(ALLoggerSeverityInfo, @"saving last Sync time in the preference ...%@" ,lstSyncTime);
     [[NSUserDefaults standardUserDefaults] setDouble:[lstSyncTime doubleValue] forKey:LAST_SYNC_TIME];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
@@ -274,7 +273,7 @@
 
 +(void) setLastSeenSyncTime :(NSNumber*) lastSeenTime
 {
-    NSLog(@"saving last seen time in the preference ...%@" ,lastSeenTime);
+    ALSLog(ALLoggerSeverityInfo, @"saving last seen time in the preference ...%@" ,lastSeenTime);
     [[NSUserDefaults standardUserDefaults] setDouble:[lastSeenTime doubleValue] forKey:LAST_SEEN_SYNC_TIME];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
@@ -317,13 +316,13 @@
 
 +(void)setNotificationTitle:(NSString *)notificationTitle
 {
-    [[NSUserDefaults standardUserDefaults] setValue:notificationTitle forKey:NOTIFICATION_TITLE];
+    [[NSUserDefaults standardUserDefaults] setValue:notificationTitle forKey:NOTIFICATION_TITLE_KEY];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 +(NSString *)getNotificationTitle
 {
-    return [[NSUserDefaults standardUserDefaults] valueForKey:NOTIFICATION_TITLE];
+    return [[NSUserDefaults standardUserDefaults] valueForKey:NOTIFICATION_TITLE_KEY];
 }
 
 +(void)setLastSyncChannelTime:(NSNumber *)lastSyncChannelTime

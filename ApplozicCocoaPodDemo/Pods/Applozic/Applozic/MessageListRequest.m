@@ -34,7 +34,7 @@
         paramString = [NSString stringWithFormat:@"userId=%@&startIndex=%@&pageSize=%@",[self.userId urlEncodeUsingNSUTF8StringEncoding],self.startIndex,self.pageSize];
     }
     
-    if(self.endTimeStamp!=nil && !self.isFirstCall){
+    if(self.endTimeStamp!=nil){
         
         paramString = [paramString stringByAppendingFormat:@"&endTime=%@",self.endTimeStamp.stringValue];
     }
@@ -61,7 +61,7 @@
     
     if(![ALUserDefaultsHandler isServerCallDoneForMSGList:self.userId]){
         paramString = [paramString stringByAppendingString:@"&conversationReq=true"];
-        NSLog(@"adding conversationRequired true :theParamString :%@",paramString );
+        ALSLog(ALLoggerSeverityInfo, @"adding conversationRequired true :theParamString :%@",paramString );
     }
     
     if(self.skipRead){

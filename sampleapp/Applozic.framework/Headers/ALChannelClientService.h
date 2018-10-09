@@ -19,6 +19,7 @@
 #import "ALMuteRequest.h"
 #import "ALAPIResponse.h"
 #import "AlChannelFeedResponse.h"
+#import "ALMuteRequest.h"
 
 #define GROUP_FETCH_BATCH_SIZE @"100"
 

@@ -28,6 +28,7 @@
 @property (nonatomic, strong) NSNumber * deletedAtTime;
 @property (nonatomic, strong) NSNumber * roleType;
 @property (nonatomic,retain) NSMutableDictionary * metadata;
+@property (nonatomic, strong) NSNumber * notificationAfterTime;
 
 -(void)setUserDetails:(NSString *)jsonString;
 
@@ -38,5 +39,7 @@
 -(id)initWithDictonary:(NSDictionary*)messageDictonary;
 
 -(void)parsingDictionaryFromJSON:(NSDictionary *)JSONDictionary;
+
+-(BOOL)isNotificationMuted;
 
 @end

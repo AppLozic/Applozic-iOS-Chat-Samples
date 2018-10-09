@@ -23,9 +23,9 @@
 
 -(instancetype)initWithApplicationKey:(NSString *)applicationKey;
 
--(void)registerUser:(ALUser * )alUser;
+-(void)connectUser:(ALUser * )alUser;
 
--(void)registerUserWithCompletion:(ALUser *)alUser withHandler:(void(^)(ALRegistrationResponse *rResponse, NSError *error))completion;
+-(void)connectUserWithCompletion:(ALUser *)alUser withHandler:(void(^)(ALRegistrationResponse *rResponse, NSError *error))completion;
 
 @property (nonatomic,retain) NSString * userID;
 
@@ -33,7 +33,7 @@
 
 -(void)launchChatForUserWithDefaultText:(NSString * )userId andFromViewController:(UIViewController*)viewController;
 
--(void)registerUserAndLaunchChat:(ALUser *)alUser andFromController:(UIViewController*)viewController forUser:(NSString*)userId withGroupId:(NSNumber*)groupID;
+-(void)connectUserAndLaunchChat:(ALUser *)alUser andFromController:(UIViewController*)viewController forUser:(NSString*)userId withGroupId:(NSNumber*)groupID;
 
 -(void)launchChatForUserWithDisplayName:(NSString * )userId withGroupId:(NSNumber*)groupID andwithDisplayName:(NSString*)displayName andFromViewController:(UIViewController*)fromViewController;
 

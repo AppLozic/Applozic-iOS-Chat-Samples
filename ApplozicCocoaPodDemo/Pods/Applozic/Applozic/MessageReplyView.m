@@ -14,6 +14,7 @@
 #import "ALApplozicSettings.h"
 #import "ALLocationCell.h"
 #import "ALDataNetworkConnection.h"
+#import "ALMessageClientService.h"
 
 #define REPLY_VIEW_PADDING 5
 #define FONT_NAME @"Helvetica"
@@ -246,19 +247,33 @@
             {
                 NSString * docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
                 NSString * filePath = [docDir stringByAppendingPathComponent:replyMessage.imageFilePath];
-                url = [NSURL fileURLWithPath:filePath];
+//                url = [NSURL fileURLWithPath:filePath];
+                [self setImage:[NSURL fileURLWithPath:filePath]];
             }
             else
             {
-                url = [NSURL URLWithString:replyMessage.fileMeta.thumbnailUrl];
+                ALMessageClientService * messageClientService = [[ALMessageClientService alloc]init];
+                [messageClientService downloadImageUrl:replyMessage.fileMeta.thumbnailBlobKey withCompletion:^(NSString *fileURL, NSError *error) {
+                    if(error)
+                    {
+                        ALSLog(ALLoggerSeverityError, @"ERROR GETTING DOWNLOAD URL : %@", error);
+                        return;
+                    }
+                    ALSLog(ALLoggerSeverityInfo, @"ATTACHMENT DOWNLOAD URL : %@", fileURL);
+                    [self setImage:[NSURL URLWithString:fileURL]];
+                }];
+                
+//                url = [NSURL URLWithString:replyMessage.fileMeta.thumbnailUrl];
             }
-            
-            [self.attachmentImage sd_setImageWithURL:url];
         }else{
             [self.attachmentImage setImage:[ALUtilityClass getImageFromFramworkBundle:@"documentReceive.png"]];
         }
     }
 
+}
+
+-(void) setImage:(NSURL *) url{
+    [self.attachmentImage sd_setImageWithURL:url];
 }
 
 -(NSString*)getMessageText:(ALMessage*)replyMessage{

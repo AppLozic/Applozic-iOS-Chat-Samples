@@ -127,7 +127,7 @@
                                                          error:&error];
     
     if (! jsonData) {
-        NSLog(@"Got an error: %@", error);
+        ALSLog(ALLoggerSeverityError, @"Got an error: %@", error);
         return nil;
     } else {
         NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
@@ -195,7 +195,7 @@
         }
         else
         {
-            NSLog(@"inside GEOCODER");
+            ALSLog(ALLoggerSeverityInfo, @"inside GEOCODER");
         }
         
     }];

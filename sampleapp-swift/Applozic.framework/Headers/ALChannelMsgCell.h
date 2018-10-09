@@ -6,7 +6,6 @@
 //  Copyright © 2017 applozic Inc. All rights reserved.
 //
 
-#define CH_MESSAGE_TEXT_SIZE 14
 
 #import <Applozic/Applozic.h>
 

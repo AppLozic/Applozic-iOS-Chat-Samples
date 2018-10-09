@@ -27,6 +27,9 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "ALUIConstant.h"
 #import "MessageReplyView.h"
+#import "ALApplozicSettings.h"
+#import "ALChannel.h"
+#import "ALContact.h"
 
 @protocol ALMediaBaseCellDelegate <NSObject>
 
@@ -68,7 +71,7 @@
 @property (retain, retain) UIView * replyParentView;
 
 
-@property (nonatomic, assign) id <ALMediaBaseCellDelegate> delegate;     
+@property (nonatomic, assign) id <ALMediaBaseCellDelegate> delegate;
 
 -(instancetype)populateCell:(ALMessage*) alMessage viewSize:(CGSize)viewSize;
 @property (retain, nonatomic) MessageReplyView * replyUIView;
@@ -82,5 +85,8 @@
 @property (nonatomic, strong) UILabel *sizeLabel;
 @property (nonatomic, strong) UIView *downloadRetryView;
 -(BOOL)isMessageReplyMenuEnabled:(SEL) action;
+
+@property (nonatomic, strong) ALChannel * channel;
+@property (nonatomic, strong) ALContact * contact;
 
 @end

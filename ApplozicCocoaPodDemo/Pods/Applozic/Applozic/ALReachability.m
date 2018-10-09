@@ -209,7 +209,7 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
         else
         {
 #ifdef DEBUG
-            NSLog(@"SCNetworkReachabilitySetDispatchQueue() failed: %s", SCErrorString(SCError()));
+            ALSLog(ALLoggerSeverityInfo, @"SCNetworkReachabilitySetDispatchQueue() failed: %s", SCErrorString(SCError()));
 #endif
 
             // UH OH - FAILURE - stop any callbacks!
@@ -219,7 +219,7 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
     else
     {
 #ifdef DEBUG
-        NSLog(@"SCNetworkReachabilitySetCallback() failed: %s", SCErrorString(SCError()));
+        ALSLog(ALLoggerSeverityInfo, @"SCNetworkReachabilitySetCallback() failed: %s", SCErrorString(SCError()));
 #endif
     }
 

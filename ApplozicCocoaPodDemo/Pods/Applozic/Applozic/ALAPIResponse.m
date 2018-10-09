@@ -22,8 +22,8 @@
     self.generatedAt = [self getNSNumberFromJsonValue:json[@"generatedAt"]];
     self.response =  [json valueForKey:@"response"];
     self.actualresponse = json;
-    NSLog(@"self.generatedAt : %@",self.generatedAt);
-    NSLog(@"self.status : %@",self.status);
+    ALSLog(ALLoggerSeverityInfo, @"self.generatedAt : %@",self.generatedAt);
+    ALSLog(ALLoggerSeverityInfo, @"self.status : %@",self.status);
 
 }
 

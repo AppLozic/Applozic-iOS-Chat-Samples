@@ -265,18 +265,26 @@ class ALChatManager: NSObject {
 // This will automatically handle unregistered users provided getLoggedinUserInformation is implemented properly.
 // ----------------------  ------------------------------------------------------/
     
-    func createAndLaunchChatWithSellerWithConversationProxy (_ alConversationProxy: ALConversationProxy?, fromViewController: UIViewController) {
-        
-        let alChatLauncher: ALChatLauncher = ALChatLauncher(applicationId: getApplicationKey() as String)
-        
-        let alconversationService : ALConversationService = ALConversationService()
-//        alconversationService.createConversation(alConversationProxy) { (error:NSError?, proxyObject: ALConversationProxy!) -> Void in
-//            
-//            if((error == nil)){
-//                let finalProxy : ALConversationProxy = makeFinalProxyWithGeneratedProxy(alConversationProxy!, responseProxy: proxyObject)
-//                alChatLauncher.launchIndividualContextChat(finalProxy, andViewControllerObject: fromViewController, userDisplayName: "User", andWithText: nil)
-//            }
-//        }
+    func getApplicationBaseUrl() {
+        guard let URLDictionary = Bundle.main.infoDictionary?["APPLOZIC_PRODUCTION"] as? [AnyHashable : Any] else {
+            return
+        }
+
+        if let baseUrl = URLDictionary["AL_KBASE_URL"] as? String {
+            ALUserDefaultsHandler.setBASEURL(baseUrl)
+        }
+
+        if let mqttUrl = URLDictionary["AL_MQTT_URL"] as? String {
+            ALUserDefaultsHandler.setMQTTURL(mqttUrl)
+        }
+
+        if let fileUrl = URLDictionary["AL_FILE_URL"] as? String {
+            ALUserDefaultsHandler.setFILEURL(fileUrl)
+        }
+
+        if let mqttPort = URLDictionary["AL_MQTT_PORT"] as? String {
+            ALUserDefaultsHandler.setMQTTPort(mqttPort)
+        }
     }
 }
 

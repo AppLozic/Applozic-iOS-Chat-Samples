@@ -2,14 +2,14 @@
 Applozic iOS Chat and In-App Messaging Samples
 
 
-#### How to get the apploozic applicationKey ?
+#### How to get the apploozic App ID ?
 
-Signup at https://www.applozic.com/ to get the applicationKey from dashboard 
+Signup at https://www.applozic.com/ to get the App ID from dashboard 
 
 
 #### How to change the applicationKey in sample projects ?
 
-Need to go search tab of of any of below Xcode project  and find for reference of **applozic-sample-app** and replace it with every  occurrence of string with your applicationKey 
+Need to go search tab of of any of below Xcode project  and find for reference of **applozic-sample-app** and replace it with every  occurrence of string with your App ID 
 
 
 **ApplozicCocoaPodDemo :** Sample app using Applozic cocoapods.

@@ -17,11 +17,13 @@
 #import "ALMessageInfoResponse.h"
 #import "ALMQTTConversationService.h"
 #import "ALRealTimeUpdate.h"
+#import "ALConversationProxy.h"
 
 #define NEW_MESSAGE_NOTIFICATION @"newMessageNotification"
 #define CONVERSATION_CALL_COMPLETED @"conversationCallCompleted"
+#define MESSAGE_META_DATA_UPDATE @"messageMetaDataUpdateNotification"
 
-@interface ALMessageService : NSObject <NSURLConnectionDataDelegate>
+@interface ALMessageService : NSObject 
 
 +(ALMessageService *)sharedInstance;
 
@@ -37,18 +39,7 @@
 
 -(void) sendMessages:(ALMessage *)message withCompletion:(void(^)(NSString * message, NSError * error)) completion;
 
-+(void) sendMessage:(ALMessage *)alMessage
-withAttachmentAtLocation:(NSString *)attachmentLocalPath
-     andContentType:(short)contentype
-     withCompletion:(void(^)(NSString * message, NSError * error)) completion;
-
 +(void) getLatestMessageForUser:(NSString *)deviceKeyString withCompletion:(void(^)(NSMutableArray  * message, NSError *error)) completion;
-
-+(void)proessUploadImageForMessage:(ALMessage *)message databaseObj:(DB_FileMetaInfo *)fileMetaInfo uploadURL:(NSString *)uploadURL withdelegate:(id)delegate;
-
-+(void) processImageDownloadforMessage:(ALMessage *) message withdelegate:(id)delegate;
-
-+(void) processImageDownloadforMessage:(ALMessage *) message withDelegate:(id)delegate withCompletionHandler:(void (^)(NSError *))completion;
 
 +(ALMessage*) processFileUploadSucess: (ALMessage *)message;
 
@@ -56,7 +47,7 @@ withAttachmentAtLocation:(NSString *)attachmentLocalPath
 
 +(void )deleteMessage:( NSString * ) keyString andContactId:( NSString * )contactId withCompletion:(void (^)(NSString *, NSError *))completion;
 
-+(void)processPendingMessages;
+-(void)processPendingMessages;
 
 +(ALMessage*)getMessagefromKeyValuePair:(NSString*)key andValue:(NSString*)value;
 
@@ -100,4 +91,8 @@ withAttachmentAtLocation:(NSString *)attachmentLocalPath
 -(ALMessage *)handleMessageFailedStatus:(ALMessage *)message;
 
 -(ALMessage*) getMessageByKey:(NSString*)messageKey;
+
++(void) syncMessageMetaData:(NSString *)deviceKeyString withCompletion:(void (^)( NSMutableArray *, NSError *))completion;
+
+-(void)updateMessageMetadataOfKey:(NSString*) messageKey withMetadata: (NSMutableDictionary *) metadata withCompletion:(void(^)(ALAPIResponse* theJson, NSError *theError)) completion;
 @end

@@ -13,6 +13,7 @@
 #import "MessageListRequest.h"
 #import "ALMessageInfoResponse.h"
 #import "ALMessageService.h"
+#import "ALContactDBService.h"
 
 @interface ALMessageClientService : NSObject
 
@@ -44,7 +45,15 @@
 -(void)getMessageListForUser:(MessageListRequest *)messageListRequest withOpenGroup:(BOOL)isOpenGroup withCompletion:(void (^)(NSMutableArray *, NSError *, NSMutableArray *))completion;
 
 -(void) downloadImageUrl: (NSString *) blobKey withCompletion:(void(^)(NSString * fileURL, NSError *error)) completion;
--(void) downloadImageThumbnailUrl: (ALMessage *) message withCompletion:(void(^)(NSString * fileURL, NSError *error)) completion;
+
+-(void) downloadImageThumbnailUrl:(NSString *) url blobKey:(NSString *) blobKey completion:(void(^)(NSString * fileURL, NSError *error)) completion;
+
+-(void) downloadImageThumbnailUrl: (ALMessage *) message withCompletion:(void(^)(NSString * fileURL, NSError *error)) completion __attribute__((deprecated));
 
 -(void) downloadImageUrlAndSet: (NSString *) blobKey imageView:(UIImageView *) imageView defaultImage:(NSString *) defaultImage;
+
+-(void) getLatestMessageForUser:(NSString *)deviceKeyString withMetaDataSync :(BOOL) isMetaDataUpdate withCompletion:(void (^)( ALSyncMessageFeed *, NSError *))completion;
+
+-(void)updateMessageMetadataOfKey:(NSString*) messageKey withMetadata: (NSMutableDictionary *) metadata withCompletion:(void(^)(id theJson, NSError *theError))completion;
+
 @end

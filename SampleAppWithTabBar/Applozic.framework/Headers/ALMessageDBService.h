@@ -11,7 +11,6 @@
 #import "DB_Message.h"
 #import "ALMessage.h"
 #import "ALFileMetaInfo.h"
-#import "ALConnection.h"
 
 @protocol ALMessagesDelegate <NSObject>
 
@@ -99,8 +98,9 @@
 
 -(ALMessage *)handleMessageFailedStatus:(ALMessage *)message;
 
--(ALMessage*)writeFileAndUpdateMessageInDb:(ALConnection*)connection withFileFlag:(BOOL)isFile;
-
 -(DB_Message*)addAttachmentMessage:(ALMessage*)message;
 
+-(void) updateMessageMetadataOfKey:(NSString*)messageKey withMetadata:(NSMutableDictionary*) metadata ;
+
+-(ALMessage*)writeDataAndUpdateMessageInDb:(NSData*)data withMessageKey:(NSString *)messageKey withFileFlag:(BOOL)isFile;
 @end

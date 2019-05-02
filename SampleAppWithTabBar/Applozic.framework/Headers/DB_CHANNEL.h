@@ -25,5 +25,6 @@
 @property (nonatomic, strong) NSNumber* notificationAfterTime;
 @property (nonatomic, strong) NSNumber* deletedAtTime;
 @property (nonatomic, retain) NSString * metadata;
+@property (nonatomic) short category;
 
 @end

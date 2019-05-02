@@ -23,6 +23,6 @@
 
 -(void)createConversation:(ALConversationProxy *)alConversationProxy withCompletion:(void(^)(NSError *error,ALConversationProxy * proxy ))completion;
 
--(void)fetchTopicDetails:(NSNumber *)alConversationProxyID;
+-(void)fetchTopicDetails:(NSNumber *)alConversationProxyID withCompletion:(void(^)(NSError *error,ALConversationProxy * proxy))completion;
 
 @end

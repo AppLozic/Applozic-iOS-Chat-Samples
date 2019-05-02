@@ -9,7 +9,7 @@
 
 #import <Foundation/Foundation.h>
 #import "ALMessage.h"
-
+#import "ApplozicClient.h"
 @protocol MessageServiceWrapperDelegate <NSObject>
 
 @optional
@@ -22,7 +22,7 @@
 
 @end
 
-@interface ALMessageServiceWrapper : NSObject <NSURLConnectionDataDelegate>
+@interface ALMessageServiceWrapper : NSObject
 
 @property (strong, nonatomic) id <MessageServiceWrapperDelegate> messageServiceDelegate;
 

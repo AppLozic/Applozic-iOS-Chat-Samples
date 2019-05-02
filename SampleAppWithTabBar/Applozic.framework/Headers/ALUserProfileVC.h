@@ -13,6 +13,8 @@
 
 @property (strong, nonatomic) IBOutlet UIButton *uploadImageButton;
 @property (strong, nonatomic) IBOutlet UIImageView *profileImage;
+@property (strong, nonatomic) IBOutlet UIImageView *profileMainImage;
+@property (strong, nonatomic) IBOutlet UIView *profileMainView;
 - (IBAction)uploadImageAction:(id)sender;
 - (IBAction)notificationToggle:(id)sender;
 

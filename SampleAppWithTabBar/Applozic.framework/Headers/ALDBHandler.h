@@ -22,6 +22,10 @@
 
 @property (strong, nonatomic) NSPersistentContainer *persistentContainer;
 
+- (void)savePrivateAndMainContext:(NSManagedObjectContext *)context;
+
+- (NSManagedObjectContext *)privateContext;
+
 - (void)saveContext;
 
 +(ALDBHandler *) sharedInstance;

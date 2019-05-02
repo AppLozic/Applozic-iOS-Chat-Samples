@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		18EBAA0D2108944600603AAF /* Applozic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 469F977D1E7D2AF500103CFE /* Applozic.framework */; };
-		18EBAA0E2108944600603AAF /* Applozic.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 469F977D1E7D2AF500103CFE /* Applozic.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2997194A1C94068E00A897E0 /* LaunchChatFromSimpleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 299719481C94068E00A897E0 /* LaunchChatFromSimpleViewController.m */; };
 		460829631DB68417001B14CF /* restrictWords.txt in Resources */ = {isa = PBXBuildFile; fileRef = 460829621DB68417001B14CF /* restrictWords.txt */; };
 		6D4F28CB1BC58F6C007E7B35 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6D4F28B01BC554D8007E7B35 /* Main.storyboard */; };
@@ -21,6 +19,8 @@
 		6D6DF2071BC551FA00EBA00F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6D6DF2051BC551FA00EBA00F /* LaunchScreen.storyboard */; };
 		6DB75B091C32CD9100077658 /* ALChatManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DB75B081C32CD9100077658 /* ALChatManager.m */; };
 		6DC6C3851D55C05800107430 /* ALParentContainerVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DC6C3841D55C05800107430 /* ALParentContainerVC.m */; };
+		8B68A9CA227AD1B40021638A /* Applozic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B68A9C8227AD1AB0021638A /* Applozic.framework */; };
+		8B68A9CB227AD1B40021638A /* Applozic.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8B68A9C8227AD1AB0021638A /* Applozic.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,7 +30,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				18EBAA0E2108944600603AAF /* Applozic.framework in Embed Frameworks */,
+				8B68A9CB227AD1B40021638A /* Applozic.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -41,7 +41,6 @@
 		299719481C94068E00A897E0 /* LaunchChatFromSimpleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LaunchChatFromSimpleViewController.m; sourceTree = "<group>"; };
 		299719491C94068E00A897E0 /* LaunchChatFromSimpleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaunchChatFromSimpleViewController.h; sourceTree = "<group>"; };
 		460829621DB68417001B14CF /* restrictWords.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = restrictWords.txt; sourceTree = "<group>"; };
-		469F977D1E7D2AF500103CFE /* Applozic.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Applozic.framework; sourceTree = "<group>"; };
 		46B277161DA251150040D927 /* applozicSample.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = applozicSample.entitlements; sourceTree = "<group>"; };
 		6D4F28B01BC554D8007E7B35 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		6D4F28CD1BC6429F007E7B35 /* ApplozicLoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApplozicLoginViewController.h; sourceTree = "<group>"; };
@@ -60,6 +59,7 @@
 		6DB75B081C32CD9100077658 /* ALChatManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ALChatManager.m; sourceTree = "<group>"; };
 		6DC6C3831D55C05800107430 /* ALParentContainerVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ALParentContainerVC.h; sourceTree = "<group>"; };
 		6DC6C3841D55C05800107430 /* ALParentContainerVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ALParentContainerVC.m; sourceTree = "<group>"; };
+		8B68A9C8227AD1AB0021638A /* Applozic.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Applozic.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,7 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				18EBAA0D2108944600603AAF /* Applozic.framework in Frameworks */,
+				8B68A9CA227AD1B40021638A /* Applozic.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,8 +86,8 @@
 		6D6DF1E81BC551FA00EBA00F = {
 			isa = PBXGroup;
 			children = (
-				469F977D1E7D2AF500103CFE /* Applozic.framework */,
 				460829621DB68417001B14CF /* restrictWords.txt */,
+				8B68A9C8227AD1AB0021638A /* Applozic.framework */,
 				6D6DF1F31BC551FA00EBA00F /* applozicdemo */,
 				6D6DF1F21BC551FA00EBA00F /* Products */,
 			);
@@ -200,6 +200,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);

@@ -11,6 +11,4 @@
 @interface NSString (Encode)
 
 -(NSString *)urlEncodeUsingNSUTF8StringEncoding; // Direct UTF8 encoding
--(NSString *)urlEncodeUsingEncoding:(NSStringEncoding)encoding; // Currently used...
-
 @end

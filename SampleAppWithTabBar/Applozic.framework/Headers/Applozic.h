@@ -53,7 +53,6 @@ FOUNDATION_EXPORT const unsigned char ApplozicVersionString[];
 #import <Applozic/ALNotificationView.h>
 #import <Applozic/DB_CONTACT.h>
 #import <Applozic/ALImageCell.h>
-#import <Applozic/ALConnection.h>
 #import <Applozic/ALBaseViewController.h>
 #import <Applozic/ALConnectionQueueHandler.h>
 #import <Applozic/DB_Message.h>

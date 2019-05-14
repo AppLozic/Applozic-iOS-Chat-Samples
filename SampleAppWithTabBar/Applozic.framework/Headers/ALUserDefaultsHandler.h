@@ -61,6 +61,7 @@
 #define AL_USER_ROLE_TYPE @"com.applozic.userdefault.AL_USER_ROLE_TYPE"
 #define AL_USER_PUSH_NOTIFICATION_FORMATE @"com.applozic.userdefault.AL_USER_PUSH_NOTIFICATION_FORMATE"
 #define USER_MQTT_ENCRYPTION_KEY @"com.applozic.userdefault.USER_MQTT_ENCRYPTION_KEY"
+#define LAST_SYNC_TIME_FOR_META_DATA @"com.applozic.userdefault.LAST_SYNC_TIME_FOR_META_DATA"
 static NSString *const NOTIFICATION_TITLE_KEY = @"NOTIFICATION_TITLE";
 
 #import <Foundation/Foundation.h>
@@ -253,5 +254,6 @@ static NSString *const NOTIFICATION_TITLE_KEY = @"NOTIFICATION_TITLE";
 +(void)setUserEncryption:(NSString*)encryptionKey;
 +(NSString*)getUserEncryptionKey;
 
-
++(void)setLastSyncTimeForMetaData :( NSNumber *) metaDataLastSyncTime;
++(NSNumber *)getLastSyncTimeForMetaData;
 @end

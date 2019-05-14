@@ -142,5 +142,6 @@ typedef enum {
 - (instancetype)initWithBuilder:(ALMessageBuilder *)builder ;
 + (instancetype)build:(void (^)(ALMessageBuilder *))builder ;
 -(BOOL)isNotificationDisabled;
+-(BOOL)isLinkMessage;
 
 @end

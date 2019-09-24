@@ -50,6 +50,11 @@
 -(void)updateUserDisplayName:(NSString *)displayName andUserImageLink:(NSString *)imageLink userStatus:(NSString *)status
               withCompletion:(void (^)(id theJson, NSError * error))completionHandler;
 
+-(void)updateUser:(NSString *)phoneNumber
+            email:(NSString *)email
+           ofUser: (NSString *)userId
+   withCompletion:(void(^)(id theJson, NSError *theError))completion;
+
 -(void)subProcessUserDetailServerCallPOST:(ALUserDetailListFeed *)ob withCompletion:(void(^)(NSMutableArray * userDetailArray, NSError * theError))completionMark;
 
 -(void) updateApplicationInfoDeatils:(AlApplicationInfoFeed *)applicationInfoDeatils withCompletion:(void (^)(NSString *json, NSError *error))completion;
@@ -62,4 +67,7 @@
 -(void)getMutedUserListWithCompletion:(void(^)(id theJson, NSError * error))completion;
 
 -(void) muteUser:(ALMuteRequest *)alMuteRequest withCompletion:(void(^)(ALAPIResponse * response, NSError * error))completion;
+
+-(void)reportUserWithMessageKey:(NSString *) messageKey  withCompletion:(void (^)(ALAPIResponse *apiResponse, NSError *error))completion;
+
 @end

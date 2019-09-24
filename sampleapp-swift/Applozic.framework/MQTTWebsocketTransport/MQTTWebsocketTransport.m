@@ -3,7 +3,7 @@
 //  MQTTClient
 //
 //  Created by Christoph Krey on 06.12.15.
-//  Copyright © 2015-2016 Christoph Krey. All rights reserved.
+//  Copyright © 2015-2017 Christoph Krey. All rights reserved.
 //
 
 #import "MQTTWebsocketTransport.h"
@@ -17,26 +17,34 @@
 @implementation MQTTWebsocketTransport
 @synthesize state;
 @synthesize delegate;
-@synthesize runLoop;
-@synthesize runLoopMode;
+@synthesize url;
+@dynamic host;
+@dynamic port;
 
 - (instancetype)init {
     self = [super init];
     self.host = @"localhost";
     self.port = 80;
+    self.url = nil;
     self.path = @"/mqtt";
     self.tls = false;
     self.allowUntrustedCertificates = false;
     self.pinnedCertificates = nil;
+    self.additionalHeaders = @{};
     return self;
 }
 
 - (void)open {
-    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] open");
+    DDLogVerbose(@"[MQTTWebsocketTransport] open");
     self.state = MQTTTransportOpening;
     
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[self endpointURL]];
     urlRequest.SR_SSLPinnedCertificates = self.pinnedCertificates;
+  
+    [self.additionalHeaders enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+      [urlRequest addValue:obj forHTTPHeaderField:key];
+    }];
+  
     NSArray <NSString *> *protocols = @[@"mqtt"];
     
     self.websocket = [[SRWebSocket alloc] initWithURLRequest:urlRequest
@@ -47,7 +55,10 @@
     [self.websocket open];
 }
 
-- (NSURL*) endpointURL {
+- (NSURL*)endpointURL {
+    if (self.url != nil) {
+        return self.url;
+    }
     NSString *protocol = (self.tls) ? @"wss" : @"ws";
     NSString *portString = (self.port == 0) ? @"" : [NSString stringWithFormat:@":%d",(unsigned int)self.port];
     NSString *path = self.path;
@@ -61,7 +72,7 @@
 }
 
 - (BOOL)send:(nonnull NSData *)data {
-    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] send(%ld):%@", (unsigned long)data.length,
+    DDLogVerbose(@"[MQTTWebsocketTransport] send(%ld):%@", (unsigned long)data.length,
                  [data subdataWithRange:NSMakeRange(0, MIN(256, data.length))]);
     if (self.websocket.readyState == SR_OPEN) {
         [self.websocket send:data];
@@ -72,7 +83,7 @@
 }
 
 - (void)close {
-    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] close");
+    DDLogVerbose(@"[MQTTWebsocketTransport] close");
     self.state = MQTTTransportClosing;
     [self.websocket close];
 }
@@ -82,7 +93,7 @@
     if ([message isKindOfClass:[NSData class]]) {
         data = (NSData *)message;
     }
-    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] didReceiveMessage(%ld)", (unsigned long)(data ? data.length : -1));
+    DDLogVerbose(@"[MQTTWebsocketTransport] didReceiveMessage(%ld)", (unsigned long)(data ? data.length : -1));
 
     if (self.delegate) {
         if ([self.delegate respondsToSelector:@selector(mqttTransport:didReceiveMessage:)]) {
@@ -92,7 +103,7 @@
 }
 
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket{
-    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] connected to websocket");
+    DDLogVerbose(@"[MQTTWebsocketTransport] connected to websocket");
     self.state = MQTTTransportOpen;
     if (self.delegate) {
         if ([self.delegate respondsToSelector:@selector(mqttTransportDidOpen:)]) {
@@ -102,7 +113,7 @@
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error{
-    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] Failed to connect : %@",[error debugDescription]);
+    DDLogInfo(@"[MQTTWebsocketTransport] Failed to connect : %@",[error debugDescription]);
     self.state = MQTTTransportClosed;
     self.websocket.delegate = nil;
     [self.websocket close];
@@ -114,7 +125,7 @@
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean{
-    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] ConnectionClosed : %@",reason);
+    DDLogVerbose(@"[MQTTWebsocketTransport] ConnectionClosed : %@",reason);
     self.state = MQTTTransportClosed;
     self.websocket.delegate = nil;
     if (self.delegate) {
@@ -125,7 +136,7 @@
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload{
-    ALSLog(ALLoggerSeverityInfo, @"[MQTTWebsocketTransport] webSocket didReceivePong:%@", pongPayload);
+    DDLogVerbose(@"[MQTTWebsocketTransport] webSocket didReceivePong:%@", pongPayload);
 }
 
 @end

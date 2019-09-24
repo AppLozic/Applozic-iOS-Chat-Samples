@@ -22,5 +22,6 @@
 @property (nonatomic, retain) NSString * size;
 @property (nonatomic, retain) NSString * suUserKeyString;
 @property (nonatomic, retain) NSString * thumbnailUrl;
+@property (nonatomic, retain) NSString * url;
 
 @end

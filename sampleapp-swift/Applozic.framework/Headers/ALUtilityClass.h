@@ -32,8 +32,7 @@
 
 +(NSString*)getLocationUrl:(ALMessage*)almessage size: (CGRect) withSize;
 
-
-+(void)thirdDisplayNotificationTS:(NSString *)toastMessage andForContactId:(NSString *)contactId withGroupId:(NSNumber*) groupID delegate:(id)delegate;
++(void)thirdDisplayNotificationTS:(NSString *)toastMessage andForContactId:(NSString *)contactId withGroupId:(NSNumber*) groupID withConversationId:(NSNumber *)conversationId delegate:(id)delegate;
 
 +(void)thirdDisplayNotificationTS:(NSString *)toastMessage andForContactId:(NSString *)contactId withGroupId:(NSNumber*) groupID completionHandler:(void (^)(BOOL))handler;
 
@@ -62,5 +61,10 @@
 +(void)setImageFromURL:(NSString *)urlString andImageView:(UIImageView *)imageView;
 +(NSString *)stringFromTimeInterval:(NSTimeInterval)interval;
 +(UIImage *)getVOIPMessageImage:(ALMessage *)alMessage;
-
++(NSString *)getFileExtensionWithFileName:(NSString *)fileName;
++(NSURL *)getDocumentDirectory;
++(NSURL *)getAppsGroupDirectory;
++(NSURL *)getAppsGroupDirectoryWithFilePath:(NSString *) path;
++(NSURL *)getApplicationDirectoryWithFilePath:(NSString*) path;
++(NSData *)compressImage:(NSData *) data;
 @end

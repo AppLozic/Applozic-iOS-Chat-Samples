@@ -29,6 +29,7 @@
 @property (nonatomic, strong) NSNumber * roleType;
 @property (nonatomic,retain) NSMutableDictionary * metadata;
 @property (nonatomic, strong) NSNumber * notificationAfterTime;
+@property (nonatomic, strong) NSString * email;
 
 -(void)setUserDetails:(NSString *)jsonString;
 

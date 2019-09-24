@@ -27,6 +27,8 @@
 
 -(void)createDetailChatViewController: (NSString *) contactIds;
 
+-(void)createDetailChatViewControllerWithMessage:(ALMessage *)message;
+
 -(void) syncCall:(ALMessage *) alMessage andMessageList:(NSMutableArray *)messageArray;
 
 -(void)pushNotificationhandler:(NSNotification *) notification;

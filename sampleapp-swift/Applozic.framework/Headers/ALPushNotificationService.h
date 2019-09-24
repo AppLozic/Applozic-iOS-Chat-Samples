@@ -49,7 +49,7 @@
 
 -(BOOL) isApplozicNotification: (NSDictionary *) dictionary;
 
-@property (nonatomic, strong) id<ApplozicUpdatesDelegate>realTimeUpdate;
+@property (nonatomic, weak) id<ApplozicUpdatesDelegate>realTimeUpdate;
 
 -(BOOL) processPushNotification: (NSDictionary *) dictionary updateUI: (NSNumber*) updateUI;
 

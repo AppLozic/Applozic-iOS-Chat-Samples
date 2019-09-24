@@ -17,13 +17,13 @@
 + (CGFloat) getLocationCellHeight:(CGRect)cellFrame;
 + (CGFloat) getDateCellHeight;
 + (CGFloat) getAudioCellHeight;
-+ (CGFloat) getContactCellHeight;
++(CGFloat)getContactCellHeight:(ALMessage*)message;
 + (CGFloat) getDocumentCellHeight;
 
 + (CGFloat) getVideoCellHeight:(ALMessage *)alMessage andCellFrame:(CGRect)cellFrame;
 + (CGFloat) getImageCellHeight:(ALMessage *)alMessage andCellFrame:(CGRect)cellFrame;
 + (CGFloat) getChatCellHeight:(ALMessage *)alMessage andCellFrame:(CGRect)cellFrame;
-
 + (CGFloat) getCellHeight:(ALMessage *)alMessage andCellFrame:(CGRect)cellFrame;
++ (CGFloat) getLinkCelllHeight:(ALMessage *)alMessage andCellFrame:(CGRect)cellFrame;
 
 @end

@@ -60,6 +60,11 @@
 
 +(void)updateUserDetail:(NSString *)userId withCompletion:(void(^)(ALUserDetail *userDetail))completionMark;
 
+-(void)updateUser:(NSString *)phoneNumber
+            email:(NSString *)email
+           ofUser:(NSString *)userId
+   withCompletion:(void (^)(BOOL))completion;
+
 -(void) fetchAndupdateUserDetails:(NSMutableArray *)userArray withCompletion:(void (^)(NSMutableArray * array, NSError *error))completion;
 
 -(void)getUserDetail:(NSString*)userId withCompletion:(void(^)(ALContact *contact))completion;
@@ -82,5 +87,13 @@
 -(void)getMutedUserListWithDelegate: (id<ApplozicUpdatesDelegate>)delegate withCompletion:(void(^)(NSMutableArray* userDetailArray, NSError * error))completion;
 
 -(void) muteUser:(ALMuteRequest *)alMuteRequest withCompletion:(void(^)(ALAPIResponse * response, NSError * error))completion;
+
+/**
+ This method will report the message to admin of the account
+
+ @param messageKey Pass message key of message object
+ @param completion ALAPIResponse repoonse callback if success or error and NSError if any error occurs
+ */
+-(void)reportUserWithMessageKey:(NSString *) messageKey  withCompletion:(void (^)(ALAPIResponse *apiResponse, NSError *error))completion;
 
 @end

@@ -33,7 +33,7 @@
 /**
  onUserDetailsUpdate will be called once the user details updated like name, profile imageUrl, status etc.
 
- @param ALUserDetail for user properties.
+ @param userDetail for user properties.
  */
 -(void) onUserDetailsUpdate:(ALUserDetail *) userDetail;
 

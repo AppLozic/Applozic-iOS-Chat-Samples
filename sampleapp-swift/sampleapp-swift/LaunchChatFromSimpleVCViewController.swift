@@ -42,7 +42,7 @@ class LaunchChatFromSimpleVCViewController: UIViewController {
         alconversationProxy = self.makeupConversationDetails()
         
         let chatManager : ALChatManager =  ALChatManager(applicationKey: "applozic-sample-app")
-        chatManager.createAndLaunchChatWithSellerWithConversationProxy(alconversationProxy, fromViewController:self)
+        chatManager.createAndLaunchChatWith(conversationProxy: alconversationProxy, from: self)
     }
 
     func makeupConversationDetails() -> ALConversationProxy

@@ -47,6 +47,8 @@ extern NSString * const ThirdPartyDetailVCNotificationChannelKey;
 @property (strong, nonatomic) ALMessage * alMessage;
 @property (nonatomic, strong) NSString * contactsGroupId;
 
+@property (nonatomic) BOOL isVisible;
+
 
 @property (nonatomic) BOOL refreshMainView;
 @property (nonatomic) BOOL refresh;
@@ -57,7 +59,7 @@ extern NSString * const ThirdPartyDetailVCNotificationChannelKey;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *tableViewBottomToAttachment;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *tableViewTop2Constraint;
 
-@property (strong, nonatomic) id <ALChatViewControllerDelegate> chatViewDelegate;
+@property (weak, nonatomic) id <ALChatViewControllerDelegate> chatViewDelegate;
 
 -(void)fetchAndRefresh;
 -(void)fetchAndRefresh:(BOOL)flag;

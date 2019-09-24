@@ -11,7 +11,7 @@
 #import "DB_Message.h"
 #import "ALMessage.h"
 #import "ALFileMetaInfo.h"
-#import "ALConnection.h"
+#import "MessageListRequest.h"
 
 @protocol ALMessagesDelegate <NSObject>
 
@@ -34,10 +34,7 @@
                              error:(NSError **)error;
 - (NSManagedObject *)getMessageByKey:(NSString *) key value:(NSString*) value;
 
--(NSMutableArray *)getMessageListForContactWithCreatedAt:(NSString *)contactId
-                                           withCreatedAt:(NSNumber*)createdAt
-                                           andChannelKey:(NSNumber *)channelKey
-                                          conversationId:(NSNumber*)conversationId;
+-(NSMutableArray *)getMessageListForContactWithCreatedAt:(MessageListRequest *)messageListRequest;
 
 -(NSMutableArray *)getAllMessagesWithAttachmentForContact:(NSString *)contactId
                                             andChannelKey:(NSNumber *)channelKey
@@ -99,8 +96,9 @@
 
 -(ALMessage *)handleMessageFailedStatus:(ALMessage *)message;
 
--(ALMessage*)writeFileAndUpdateMessageInDb:(ALConnection*)connection withFileFlag:(BOOL)isFile;
-
 -(DB_Message*)addAttachmentMessage:(ALMessage*)message;
 
+-(void) updateMessageMetadataOfKey:(NSString*)messageKey withMetadata:(NSMutableDictionary*) metadata ;
+
+-(ALMessage*)writeDataAndUpdateMessageInDb:(NSData*)data withMessageKey:(NSString *)messageKey withFileFlag:(BOOL)isFile;
 @end

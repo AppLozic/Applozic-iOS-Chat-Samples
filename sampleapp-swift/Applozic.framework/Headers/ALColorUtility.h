@@ -13,7 +13,6 @@
 
 + (UIImage *)imageWithSize:(CGRect)rect WithHexString:(NSString*)stringToConvert;
 + (UIColor *)colorWithHexString:(NSString *)stringToConvert;
-+ (UIColor *)getColorForAlphabet:(NSString *)alphabet;
 + (NSString *)getAlphabetForProfileImage:(NSString *)actualName;
-
++ (UIColor *)getColorForAlphabet:(NSString *)alphabet colorCodes:(NSMutableDictionary *)dictionary;
 @end

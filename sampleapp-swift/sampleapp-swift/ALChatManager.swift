@@ -228,6 +228,18 @@ class ALChatManager: NSObject {
 
     }
 
+    func createAndLaunchChatWith(conversationProxy: ALConversationProxy, from viewController: UIViewController) {
+        let conversationService = ALConversationService()
+        conversationService.createConversation(conversationProxy) { (error, response) in
+            guard let proxy = response, error == nil else {
+                print("Error creating conversation :: \(String(describing: error))")
+                return
+            }
+            let alConversationProxy = makeFinalProxyWithGeneratedProxy(conversationProxy, responseProxy: proxy)
+            let alChatLauncher : ALChatLauncher = ALChatLauncher(applicationId : getApplicationKey() as String)
+            alChatLauncher.launchIndividualContextChat(alConversationProxy, andViewControllerObject: viewController, userDisplayName: nil, andWithText: nil)
+        }
+    }
 
     // ----------------------  ---------------------------------------------------------------------------------------------//
     //     This method can be used to get app logged-in user's information.

@@ -30,16 +30,17 @@
 #import "ALApplozicSettings.h"
 #import "ALChannel.h"
 #import "ALContact.h"
+#import <AVKit/AVKit.h>
 
 @protocol ALMediaBaseCellDelegate <NSObject>
 
 -(void) downloadRetryButtonActionDelegate:(int) index andMessage:(ALMessage *) message;
--(void) thumbnailDownload:(NSString *) key withThumbnailUrl:(NSString *) thumbnailUrl;
+-(void) thumbnailDownload:(NSString *) key;
 -(void) stopDownloadForIndex:(int)index andMessage:(ALMessage *)message;
 -(void) showFullScreen:(UIViewController *) fullView;
 -(void) deleteMessageFromView:(ALMessage *)message;
 -(void) loadViewForMedia:(UIViewController *)launch;
--(void) showVideoFullScreen:(MPMoviePlayerViewController *)fullView;
+-(void) showVideoFullScreen:(AVPlayerViewController *)fullView;
 -(void) showSuggestionView:(NSURL *)fileURL andFrame:(CGRect)frame;
 -(void) showAnimationForMsgInfo:(BOOL)flag;
 -(void) processTapGesture:(ALMessage *)alMessage;
@@ -69,7 +70,7 @@
 @property (nonatomic, strong) UITextView *imageWithText;
 @property (retain, nonatomic) UILabel *mChannelMemberName;
 @property (retain, retain) UIView * replyParentView;
-
+@property (strong, nonatomic)  NSMutableDictionary *alphabetiColorCodesDictionary;
 
 @property (nonatomic, assign) id <ALMediaBaseCellDelegate> delegate;
 

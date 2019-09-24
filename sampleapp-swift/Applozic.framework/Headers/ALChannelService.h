@@ -107,12 +107,11 @@
 
  Types of the group. PRIVATE = 1,PUBLIC = 2, OPEN = 6
 
- @param metadata extra information you can pass in metadata if you required some other place.
+ @param metaData extra information you can pass in metadata if you required some other place.
 
  @param completion if error is nil then group is created successfully it has ALChannel infomration of channel else some error while creating if error is not nil.
  */
--(void)createChannel:(NSString *)channelName orClientChannelKey:(NSString *)clientChannelKey andMembersList:(NSMutableArray *)memberArray
-        andImageLink:(NSString *)imageLink channelType:(short)type andMetaData:(NSMutableDictionary *)metaData
+-(void)createChannel:(NSString *)channelName orClientChannelKey:(NSString *)clientChannelKey andMembersList:(NSMutableArray *)memberArray andImageLink:(NSString *)imageLink channelType:(short)type andMetaData:(NSMutableDictionary *)metaData
       withCompletion:(void(^)(ALChannel *alChannel, NSError *error))completion;
 
 
@@ -397,7 +396,7 @@
 /**
  This method is used to remove the child keys from parent channelKey where it was added to the parent
 
- @param clientChildKeyList NSMutableArray list of child channelKeys to the parent you want to remove from parentKey
+ @param childKeyList NSMutableArray list of child channelKeys to the parent you want to remove from parentKey
 
  @param parentKey Pass the parent channelKey.
  @param completion if error is nil then its removed successfully.
@@ -409,7 +408,7 @@
 /**
  This method is used to add child keys to client Parent Key.
 
- @param childKeyList NSMutableArray list of client child channelKeys to the parent you want to add
+ @param clientChildKeyList NSMutableArray list of client child channelKeys to the parent you want to add
  @param clientParentKey Pass the client parent channelKey.
  @param completion if an error is nil then its added successfully.
  */

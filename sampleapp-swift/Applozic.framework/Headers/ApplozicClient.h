@@ -15,11 +15,11 @@ typedef NS_ENUM(NSInteger, ApplozicClientError) {
 
 @protocol ApplozicAttachmentDelegate <NSObject>
 
--(void)onUpdateBytesDownloaded:(NSUInteger) bytesReceived withMessage:(ALMessage*)alMessage;
--(void)onUpdateBytesUploaded:(NSUInteger) bytesSent withMessage:(ALMessage*)alMessage;
+-(void)onUpdateBytesDownloaded:(int64_t) bytesReceived withMessage:(ALMessage*)alMessage;
+-(void)onUpdateBytesUploaded:(int64_t) bytesSent withMessage:(ALMessage*)alMessage;
 -(void)onUploadFailed:(ALMessage*)alMessage;
 -(void)onDownloadFailed:(ALMessage*)alMessage;
--(void)onUploadCompleted:(ALMessage *) alMessage;
+-(void)onUploadCompleted:(ALMessage *) alMessage withOldMessageKey:(NSString *)oldMessageKey;
 -(void)onDownloadCompleted:(ALMessage *) alMessage;
 
 @optional
@@ -35,7 +35,7 @@ typedef NS_ENUM(NSInteger, ApplozicClientError) {
 @property (nonatomic, retain) ALChannelService *channelService;
 
 
-@property (nonatomic, strong) id<ApplozicUpdatesDelegate> delegate;
+@property (nonatomic, weak) id<ApplozicUpdatesDelegate> delegate;
 
 
 -(instancetype)initWithApplicationKey:(NSString *)applicationKey;

@@ -78,7 +78,7 @@ FOUNDATION_EXPORT const unsigned char ApplozicVersionString[];
 #import <Applozic/ALImagePickerController.h>
 #import <Applozic/ALLocationCell.h>
 #import <Applozic/ALMessageInfoViewController.h>
-#import <Applozic/ALMultipleAttachmentCell.h>
+#import <Applozic/AlMultipleAttachmentCell.h>
 #import <Applozic/ALReceiverUserProfileVC.h>
 #import <Applozic/ALUserProfileVC.h>
 #import <Applozic/ALChannelInfo.h>
@@ -89,7 +89,6 @@ FOUNDATION_EXPORT const unsigned char ApplozicVersionString[];
 #import <Applozic/ALMultipleAttachmentView.h>
 #import <Applozic/ALPushAssist.h>
 #import <Applozic/ALSendMessageResponse.h>
-#import <Applozic/ALShowImageViewController.h>
 #import <Applozic/ALVideoCell.h>
 #import <Applozic/TSMessage.h>
 #import <Applozic/TSMessageView.h>
@@ -122,3 +121,6 @@ FOUNDATION_EXPORT const unsigned char ApplozicVersionString[];
 #import <Applozic/ALMultimediaData.h>
 #import <Applozic/UIImage+animatedGIF.h>
 #import <Applozic/ALAudioSession.h>
+#import <Applozic/ALChannelOfTwoMetaData.h>
+#import <Applozic/ALNotificationHelper.h>
+#import <Applozic/ALAuthService.h>

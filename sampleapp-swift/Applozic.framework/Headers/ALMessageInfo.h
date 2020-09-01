@@ -12,9 +12,7 @@
 @interface ALMessageInfo : ALJson
 
 @property (nonatomic, strong) NSString *userId;
-@property (nonatomic) short messageStatus;
-@property (nonatomic, strong) NSNumber * deliveredAtTime;
-@property (nonatomic, strong) NSNumber * readAtTime;
+@property (nonatomic) short status;
 
 -(id)initWithDictonary:(NSDictionary *)messageDictonary;
 -(void)parseMessage:(id) messageJson;

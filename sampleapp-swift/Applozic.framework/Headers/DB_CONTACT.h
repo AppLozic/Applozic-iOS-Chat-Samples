@@ -31,5 +31,6 @@
 @property (nonatomic, retain) NSString * metadata;
 @property (nonatomic, retain) NSNumber * roleType;
 @property (nonatomic, strong) NSNumber * notificationAfterTime;
+@property (nonatomic, strong) NSNumber *status;
 
 @end

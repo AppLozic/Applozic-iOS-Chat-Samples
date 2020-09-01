@@ -28,6 +28,7 @@
 @property NSString *roleName;
 @property short roleType;
 @property NSString * userEncryptionKey;
+@property NSString * authToken;
 
 -(BOOL)isRegisteredSuccessfully;
 

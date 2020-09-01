@@ -29,11 +29,11 @@
 
 -(void)createDetailChatViewControllerWithMessage:(ALMessage *)message;
 
+-(void)createDetailChatViewControllerWithUserId:(NSString *)contactId withGroupId:(NSNumber *)groupId withConversationId:(NSNumber *)conversationId;
+
 -(void) syncCall:(ALMessage *) alMessage andMessageList:(NSMutableArray *)messageArray;
 
 -(void)pushNotificationhandler:(NSNotification *) notification;
-
--(void)displayAttachmentMediaType:(ALMessage *)message andContactCell:(ALContactCell *)contactCell;
 
 @property (weak, nonatomic) IBOutlet UITableView *mTableView;
 

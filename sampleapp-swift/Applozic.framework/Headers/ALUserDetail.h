@@ -30,6 +30,7 @@
 @property (nonatomic,retain) NSMutableDictionary * metadata;
 @property (nonatomic, strong) NSNumber * notificationAfterTime;
 @property (nonatomic, strong) NSString * email;
+@property (nonatomic, strong) NSNumber *status;
 
 -(void)setUserDetails:(NSString *)jsonString;
 
@@ -42,5 +43,10 @@
 -(void)parsingDictionaryFromJSON:(NSDictionary *)JSONDictionary;
 
 -(BOOL)isNotificationMuted;
+
+-(BOOL)isChatDisabled;
+
+-(NSMutableDictionary *)getMetaDataDictionary:(NSString *)string;
+-(NSMutableDictionary *)appendMetadataIn:(NSString *) metadataString;
 
 @end

@@ -27,9 +27,6 @@
 @property (weak, nonatomic) IBOutlet UIButton *pauseButton;
 
 @property (weak, nonatomic) NSTimer * timer;
-
-@property (weak, nonatomic) NSString * outputFilePath;
-
 @property (weak, nonatomic) id <ALAudioAttachmentDelegate> audioAttchmentDelegate;
 
 - (IBAction)pauseButtonAction:(id)sender;

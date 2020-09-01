@@ -6,6 +6,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ALChannel.h"
+#import "ALContact.h"
+#import "ALMessage.h"
 
 @interface ALContactCell : UITableViewCell
 
@@ -28,4 +31,11 @@
 @property (weak, nonatomic) IBOutlet UILabel *L;
 
 @property (strong, nonatomic) IBOutlet UILabel *unreadCountLabel;
+
+-(void)updateWithMessage:(ALMessage*) message  withColourDictionary:(NSMutableDictionary *)colourDictionary;
+
+-(void)updateProfileImageAndUnreadCountWithChannel:(ALChannel*) alChannel orContact:(ALContact*)contact
+                              withColourDictionary:(NSMutableDictionary *)colourDictionary;
+
+-(void)displayAttachmentMediaType:(ALMessage *)message;
 @end

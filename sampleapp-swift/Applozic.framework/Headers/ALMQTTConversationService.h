@@ -64,4 +64,5 @@
 -(void) retryConnection;
 -(void) retryConnectionWithTopic:(NSString *)topic;
 
+-(void)subscribeToConversationWithTopic:(NSString *)topic withCompletionHandler:(void (^)(BOOL subscribed, NSError * error))completion;
 @end

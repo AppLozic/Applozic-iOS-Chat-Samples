@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "ALJson.h"
 
-#define RESPONSE_SUCCESS @"success"
+static NSString *const AL_RESPONSE_SUCCESS = @"success";
 
 @interface ALAPIResponse : ALJson
 

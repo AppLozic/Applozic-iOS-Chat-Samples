@@ -29,8 +29,6 @@
 
 -(BOOL)addListOfContacts:(NSArray *)contacts;
 
--(void)addListOfContactsInBackground:(NSArray *)contacts completionHandler:(void(^)(BOOL))response;
-
 -(BOOL)addContact:(ALContact *)userContact;
 
 -(void) updateConnectedStatus: (NSString *) userId lastSeenAt:(NSNumber *) lastSeenAt  connected: (BOOL) connected;
@@ -64,4 +62,5 @@
 -(void)addUserDetailsWithoutUnreadCount:(NSMutableArray *)userDetails;
 -(ALUserDetail *)updateMuteAfterTime:(NSNumber*)notificationAfterTime andUserId:(NSString*)userId;
 -(NSMutableArray *)addMuteUserDetailsWithDelegate:(id<ApplozicUpdatesDelegate>)delegate withNSDictionary :(NSDictionary *)jsonNSDictionary;
+-(BOOL)addOrUpdateMetadataWithUserId:(NSString *) userId withMetadataKey:(NSString *) key withMetadataValue:(NSString *) value;
 @end

@@ -6,15 +6,6 @@
 //  Copyright (c) 2015 AppLogic. All rights reserved.
 //
 
-#define REGULAR_CONTACTS 0
-#define GROUP_CREATION 1
-#define GROUP_ADDITION 2
-#define IMAGE_SHARE 3
-#define LAUNCH_GROUP_OF_TWO 4
-#define BROADCAST_GROUP_CREATION 5
-#define SHOW_CONTACTS 101
-#define SHOW_GROUP 102
-
 #import <UIKit/UIKit.h>
 #import "ALChannelService.h"
 #import "ALMessageDBService.h"

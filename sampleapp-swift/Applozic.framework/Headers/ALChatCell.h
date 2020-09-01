@@ -63,8 +63,6 @@
 
 @property (nonatomic, strong) ALChannel * channel;
 
-@property (nonatomic, strong) ALContact * contact;
-
 @property (strong, nonatomic)  NSMutableDictionary *colourDictionary;
 
 @end

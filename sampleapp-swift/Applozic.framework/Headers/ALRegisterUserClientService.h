@@ -5,9 +5,9 @@
 //  Created by devashish on 18/09/2015.
 //  Copyright (c) 2015 AppLogic. All rights reserved.
 //
-#define INVALID_APPLICATIONID @"INVALID_APPLICATIONID"
-#define VERSION_CODE @"111"
-#define LOGOUT_URL @"/rest/ws/device/logout"
+static NSString *const AL_INVALID_APPLICATIONID = @"INVALID_APPLICATIONID";
+static short AL_VERSION_CODE = 112;
+static NSString *const AL_LOGOUT_URL = @"/rest/ws/device/logout";
 
 #import <Foundation/Foundation.h>
 #import "ALRegistrationResponse.h"
@@ -32,4 +32,7 @@
 
 -(void)syncAccountStatus;
 
+-(void)syncAccountStatusWithCompletion:(void(^)(ALRegistrationResponse * response, NSError *error)) completion;
+
+-(void)updateUser:(ALUser *)alUser withCompletion:(void(^)(ALRegistrationResponse * response, NSError *error)) completion;
 @end

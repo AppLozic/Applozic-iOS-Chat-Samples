@@ -19,19 +19,15 @@
 #import "ALRealTimeUpdate.h"
 #import "ALConversationProxy.h"
 
-#define NEW_MESSAGE_NOTIFICATION @"newMessageNotification"
-#define CONVERSATION_CALL_COMPLETED @"conversationCallCompleted"
-#define MESSAGE_META_DATA_UPDATE @"messageMetaDataUpdateNotification"
+static NSString *const NEW_MESSAGE_NOTIFICATION = @"newMessageNotification";
+static NSString *const CONVERSATION_CALL_COMPLETED = @"conversationCallCompleted";
+static NSString *const AL_MESSAGE_META_DATA_UPDATE = @"messageMetaDataUpdateNotification";
 
 @interface ALMessageService : NSObject 
 
 +(ALMessageService *)sharedInstance;
 
 @property (nonatomic, weak) id<ApplozicUpdatesDelegate> delegate;
-
-+(void) processLatestMessagesGroupByContact;
-
-+(void) processLatestMessagesGroupByContactWithCompletion:(void(^)(void))completion;
 
 -(void) getMessageListForUser:(MessageListRequest*)messageListRequest withCompletion:(void(^)(NSMutableArray * messages, NSError * error, NSMutableArray *userDetailArray)) completion;
 
@@ -95,4 +91,7 @@
 +(void) syncMessageMetaData:(NSString *)deviceKeyString withCompletion:(void (^)( NSMutableArray *, NSError *))completion;
 
 -(void)updateMessageMetadataOfKey:(NSString*) messageKey withMetadata: (NSMutableDictionary *) metadata withCompletion:(void(^)(ALAPIResponse* theJson, NSError *theError)) completion;
+
+- (void) fetchReplyMessages:(NSMutableArray<NSString *> *) keys withCompletion: (void(^)(NSMutableArray<ALMessage *>* messages))completion;
+
 @end

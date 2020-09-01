@@ -6,8 +6,6 @@
 //  Copyright © 2016 applozic Inc. All rights reserved.
 //
 
-#define RESPONSE_SUCCESS @"success"
-
 #import "ALAPIResponse.h"
 #import "ALUserBlocked.h"
 

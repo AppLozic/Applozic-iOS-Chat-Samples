@@ -20,16 +20,10 @@ typedef enum
 
 typedef enum
 {
-    DEVELOPMENT = 0,
-    DISTRIBUTION = 1,
+    AL_DEVELOPMENT = 0,
+    AL_DISTRIBUTION = 1,
 
 } deviceApnsType;
-
-
-#define AV_FEATURE_ARRAY  [NSArray arrayWithObjects: @"101",@"102",nil]
-
-
-
 
 @interface ALUser : ALJson
 
@@ -44,7 +38,7 @@ typedef enum
 @property short prefContactAPI;
 @property Boolean emailVerified;
 @property NSString *timezone;
-@property NSString *appVersionCode;
+@property short appVersionCode;
 @property NSString *roleName;
 @property short deviceType;
 @property NSString *imageLink;

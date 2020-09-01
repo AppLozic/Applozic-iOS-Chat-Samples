@@ -9,10 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "ALMessage.h"
 
-#define MESSAGE_REPLY_WIDTH 100
-#define MESSAGE_REPLY_SUPER_VIEW_PADDING 10
-
-
 @interface MessageReplyView : UIView
 
 @property (retain, nonatomic) IBOutlet UILabel *contactName;

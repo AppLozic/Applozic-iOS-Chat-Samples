@@ -346,9 +346,9 @@ func ALDefaultChatViewSettings ()
      ALApplozicSettings.setColorForNavigationItem(UIColor.white)
      ALApplozicSettings.hideRefreshButton(false)
      ALUserDefaultsHandler.setNavigationRightButtonHidden(false)
-     ALUserDefaultsHandler.setBottomTabBarHidden(false)
+     ALUserDefaultsHandler.setBottomTabBarHidden(true)
      ALApplozicSettings.setTitleForConversationScreen("Chats")
-     ALApplozicSettings.setCustomNavRightButtonMsgVC(false)               /*  SET VISIBILITY FOR REFRESH BUTTON (COMES FROM TOP IN MSG VC)   */
+     ALApplozicSettings.enableRefreshChatButton(inMsgVc: false)               /*  SET VISIBILITY FOR REFRESH BUTTON (COMES FROM TOP IN MSG VC)   */
      ALApplozicSettings.setTitleForBackButtonMsgVC("Back")                /*  SET BACK BUTTON FOR MSG VC  */
      ALApplozicSettings.setTitleForBackButtonChatVC("Back")               /*  SET BACK BUTTON FOR CHAT VC */
      /****************************************************************************************************************/

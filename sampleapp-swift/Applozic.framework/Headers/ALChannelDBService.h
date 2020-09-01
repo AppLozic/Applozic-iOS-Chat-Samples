@@ -19,8 +19,6 @@
 
 @interface ALChannelDBService : NSObject
 
--(void)createChannel:(ALChannel *)channel;
-
 -(void)addMemberToChannel:(NSString *)userId andChannelKey:(NSNumber *)channelKey;
 
 -(void)insertChannel:(NSMutableArray *)channelList;
@@ -50,8 +48,6 @@
 -(void)updateChannel:(NSNumber *)channelKey andNewName:(NSString *)newName orImageURL:(NSString *)imageURL orChildKeys:(NSMutableArray *)childKeysList isUpdatingMetaData:(BOOL)flag  orChannelUsers:(NSMutableArray *)channelUsers;
 
 -(void)updateChannelMetaData:(NSNumber *)channelKey metaData:(NSMutableDictionary *)newMetaData;
-
--(void)createChannelsAndUpdateInfo:(NSMutableArray *)channelArray withDelegate:(id<ApplozicUpdatesDelegate>)delegate;
 
 -(NSMutableArray *)getListOfAllUsersInChannel:(NSNumber *)key;
 //New Added...
@@ -103,10 +99,13 @@
 -(DB_CHANNEL *)getContactsGroupChannelByName:(NSString *)channelName;
 -(NSMutableArray *) getGroupUsersInChannel:(NSNumber *)key;
 
--(void)saveDataInBackgroundWithContext:(NSManagedObjectContext *) nsContext withChannel:(ALChannel *)channel;
-
 -(void)fetchChannelMembersAsyncWithChannelKey:(NSNumber*)channelKey witCompletion:(void(^)(NSMutableArray *membersArray))completion;
 
 -(void) getUserInSupportGroup:(NSNumber *) channelKey withCompletion:(void(^)(NSString *userId)) completion;
+
+
+-(DB_CHANNEL_USER_X *)createChannelUserXEntity:(ALChannelUserX *)channelUserX  withContext:(NSManagedObjectContext *) context;
+
+-(void)deleteMembers:(NSNumber *)key;
 
 @end

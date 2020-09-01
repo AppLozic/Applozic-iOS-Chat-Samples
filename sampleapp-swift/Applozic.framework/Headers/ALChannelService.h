@@ -6,14 +6,14 @@
 //  Copyright © 2016 applozic Inc. All rights reserved.
 //
 
-#define AL_CREATE_GROUP_MESSAGE @"CREATE_GROUP_MESSAGE"
-#define AL_REMOVE_MEMBER_MESSAGE @"REMOVE_MEMBER_MESSAGE"
-#define AL_ADD_MEMBER_MESSAGE @"ADD_MEMBER_MESSAGE"
-#define AL_JOIN_MEMBER_MESSAGE @"JOIN_MEMBER_MESSAGE"
-#define AL_GROUP_NAME_CHANGE_MESSAGE @"GROUP_NAME_CHANGE_MESSAGE"
-#define AL_GROUP_ICON_CHANGE_MESSAGE @"GROUP_ICON_CHANGE_MESSAGE"
-#define AL_GROUP_LEFT_MESSAGE @"GROUP_LEFT_MESSAGE"
-#define AL_DELETED_GROUP_MESSAGE @"DELETED_GROUP_MESSAGE"
+static NSString *const AL_CREATE_GROUP_MESSAGE = @"CREATE_GROUP_MESSAGE";
+static NSString *const AL_REMOVE_MEMBER_MESSAGE = @"REMOVE_MEMBER_MESSAGE";
+static NSString *const AL_ADD_MEMBER_MESSAGE = @"ADD_MEMBER_MESSAGE";
+static NSString *const AL_JOIN_MEMBER_MESSAGE = @"JOIN_MEMBER_MESSAGE";
+static NSString *const AL_GROUP_NAME_CHANGE_MESSAGE = @"GROUP_NAME_CHANGE_MESSAGE";
+static NSString *const AL_GROUP_ICON_CHANGE_MESSAGE = @"GROUP_ICON_CHANGE_MESSAGE";
+static NSString *const AL_GROUP_LEFT_MESSAGE = @"GROUP_LEFT_MESSAGE";
+static NSString *const AL_DELETED_GROUP_MESSAGE = @"DELETED_GROUP_MESSAGE";
 
 #import <Foundation/Foundation.h>
 #import "ALChannelFeed.h"
@@ -25,8 +25,13 @@
 #import "ALRealTimeUpdate.h"
 #import "ALChannelInfo.h"
 
-
 @interface ALChannelService : NSObject
+
+extern NSString *const AL_CHANNEL_MEMBER_SAVE_STATUS;
+extern NSString *const AL_Updated_Group_Members;
+extern NSString *const AL_CHANNEL_MEMBER_CALL_COMPLETED;
+extern NSString *const AL_MESSAGE_LIST;
+extern NSString *const AL_MESSAGE_SYNC;
 
 +(ALChannelService *)sharedInstance;
 
@@ -642,4 +647,7 @@
 
 -(void)createChannelWithChannelInfo:(ALChannelInfo*)channelInfo withCompletion:(void(^)(ALChannelCreateResponse *response, NSError *error))completion;
 
+-(void)createChannelEntry:(ALChannel*)channel fromMessageList:(BOOL) isFromMessageList;
+
+- (void)saveChannelUsersAndChannelDetails:(NSMutableArray <ALChannel *>*) channelFeedsList calledFromMessageList:(BOOL)isFromMessageList;
 @end

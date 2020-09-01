@@ -13,24 +13,24 @@
 #import "ALMessageBuilder.h"
 #import "ALConstant.h"
 
-#define ALMESSAGE_CONTENT_DEFAULT 0
-#define ALMESSAGE_CONTENT_ATTACHMENT 1
-#define ALMESSAGE_CONTENT_LOCATION 2
-#define ALMESSAGE_CONTENT_TEXT_HTML 3
-#define ALMESSAGE_CONTENT_PRICE 4
-#define ALMESSAGE_CONTENT_TEXT_URL 5
-#define ALMESSAGE_CONTENT_VCARD 7
-#define ALMESSAGE_CONTENT_AUDIO 8
-#define ALMESSAGE_CONTENT_CAMERA_RECORDING 9
-#define ALMESSAGE_CHANNEL_NOTIFICATION 10
-#define ALMESSAGE_CONTENT_CUSTOM 101
-#define ALMESSAGE_CONTENT_HIDDEN 11
-#define CATEGORY_PUSHNNOTIFICATION @"PUSHNOTIFICATION"
-#define CATEGORY_HIDDEN @"HIDDEN"
-#define AL_MESSAGE_REPLY_KEY @"AL_REPLY"
-#define OUT_BOX @"5"
-#define IN_BOX  @"4"
-
+static int const ALMESSAGE_CONTENT_DEFAULT = 0;
+static int const ALMESSAGE_CONTENT_ATTACHMENT = 1;
+static int const ALMESSAGE_CONTENT_LOCATION = 2;
+static int const ALMESSAGE_CONTENT_TEXT_HTML = 3;
+static int const ALMESSAGE_CONTENT_PRICE = 4;
+static int const ALMESSAGE_CONTENT_TEXT_URL = 5;
+static int const ALMESSAGE_CONTENT_VCARD = 7;
+static int const ALMESSAGE_CONTENT_AUDIO = 8;
+static int const ALMESSAGE_CONTENT_CAMERA_RECORDING = 9;
+static int const ALMESSAGE_CHANNEL_NOTIFICATION = 10;
+static int const ALMESSAGE_CONTENT_CUSTOM = 101;
+static int const ALMESSAGE_CONTENT_HIDDEN = 11;
+static NSString *const AL_CATEGORY_PUSHNNOTIFICATION = @"PUSHNOTIFICATION";
+static NSString *const AL_CATEGORY_HIDDEN = @"HIDDEN";
+static NSString *const AL_MESSAGE_REPLY_KEY = @"AL_REPLY";
+static NSString *const AL_OUT_BOX = @"5";
+static NSString *const AL_IN_BOX = @"4";
+static NSString * const AL_RESET_UNREAD_COUNT = @"AL_RESET_UNREAD_COUNT";
 
 typedef enum {
     AL_NOT_A_REPLY,
@@ -117,7 +117,7 @@ typedef enum {
 
 -(NSString *)getCreatedAtTimeChat:(BOOL)today;
 -(NSNumber *)getGroupId;
--(NSString *)getNotificationText;
+-(NSString *)getLastMessage;
 -(NSMutableDictionary *)getMetaDataDictionary:(NSString *)string;
 -(NSString *)getVOIPMessageText;
 -(BOOL)isMsgHidden;
@@ -143,5 +143,7 @@ typedef enum {
 + (instancetype)build:(void (^)(ALMessageBuilder *))builder ;
 -(BOOL)isNotificationDisabled;
 -(BOOL)isLinkMessage;
+-(BOOL)isResetUnreadCountMessage;
+-(BOOL)hasAttachment;
 
 @end

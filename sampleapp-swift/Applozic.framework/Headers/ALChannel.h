@@ -11,13 +11,11 @@
 #import "ALJson.h"
 #import "ALConversationProxy.h"
 
-#define CHANNEL_SPECIAL_CASE 7
-#define CHANNEL_DEFAULT_MUTE @"MUTE"
-#define CHANNEL_CONVERSATION_STATUS @"CONVERSATION_STATUS"
-
+static NSString *const AL_CHANNEL_DEFAULT_MUTE = @"MUTE";
+static NSString *const AL_CHANNEL_CONVERSATION_STATUS = @"CONVERSATION_STATUS";
 static NSString *const AL_CATEGORY = @"AL_CATEGORY";
-static NSString * const AL_CONTEXT_BASED_CHAT = @"AL_CONTEXT_BASED_CHAT";
-static NSString * const CONVERSATION_ASSIGNEE = @"CONVERSATION_ASSIGNEE";
+static NSString *const AL_CONTEXT_BASED_CHAT = @"AL_CONTEXT_BASED_CHAT";
+static NSString *const AL_CONVERSATION_ASSIGNEE = @"CONVERSATION_ASSIGNEE";
 
 /*********************
  type = 7 SPECIAL CASE
@@ -76,6 +74,10 @@ typedef enum {
 -(BOOL) isConversationClosed;
 -(BOOL) isContextBasedChat;
 -(BOOL) isBroadcastGroup;
+-(BOOL) isOpenGroup;
+-(BOOL)isGroupOfTwo;
+-(BOOL)isDeleted;
+
 -(NSString*)getReceiverIdInGroupOfTwo;
 
 -(NSMutableDictionary *)getMetaDataDictionary:(NSString *)string;

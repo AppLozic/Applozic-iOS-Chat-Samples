@@ -11,11 +11,7 @@
 #import "DB_CONTACT.h"
 #import "ALUserDetail.h"
 
-
-
 @interface ALContactService : NSObject
-
-
 
 -(BOOL)purgeListOfContacts:(NSArray *)contacts;
 
@@ -28,8 +24,6 @@
 -(BOOL)updateContact:(ALContact *)contact;
 
 -(BOOL)addListOfContacts:(NSArray *)contacts;
-
--(void)addListOfContactsInBackground:(NSArray *)contacts completionHandler:(void(^)(BOOL))response;
 
 -(BOOL)addContact:(ALContact *)userContact;
 

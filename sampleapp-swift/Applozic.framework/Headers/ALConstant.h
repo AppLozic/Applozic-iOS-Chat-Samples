@@ -7,25 +7,16 @@
 
 #import "ALUserDefaultsHandler.h"
 
-#define APPLOZIC_SDK_VERSION @"4.0.2"
-
 #define KBASE_URL ([ALUserDefaultsHandler getBASEURL])
 #define MQTT_URL ([ALUserDefaultsHandler getMQTTURL])
 #define KBASE_FILE_URL ([ALUserDefaultsHandler getFILEURL])
 #define MQTT_PORT ([ALUserDefaultsHandler getMQTTPort])
 
-#define GREY_COLOR ([UIColor colorWithWhite:0.7 alpha:0.1])
-#define TEXT_VIEW_TO_MESSAGE_VIEW_RATIO 1.4 // Proper scolling.... 
-
-#define FORWARD_STATUS @"5"
-#define REPLIED_STATUS @"4"
-#define DEFAULT_FONT_NAME @"Helvetica-Bold"
-
-#define APPLOZIC_TOPBAR_COLOR @"ApplozicTopbarColor"
-#define APPLOZIC_CHAT_BACKGROUND_COLOR @"ApplozicChatBackgroundColor"
-#define APPLOZIC_CHAT_FONTNAME @"ApplozicChatFontName"
-#define APPLOGIC_TOPBAR_TITLE_COLOR @"ApplozicTopbarTitleColor"
-#define APPLOGIC_IMAGEDOWNLOAD_BASEURL @"https://applozic.appspot.com/rest/ws/file"
+static NSString *const APPLOZIC_TOPBAR_COLOR = @"ApplozicTopbarColor";
+static NSString *const APPLOZIC_CHAT_BACKGROUND_COLOR = @"ApplozicChatBackgroundColor";
+static NSString *const APPLOZIC_CHAT_FONTNAME = @"ApplozicChatFontName";
+static NSString *const APPLOGIC_TOPBAR_TITLE_COLOR = @"ApplozicTopbarTitleColor";
+static NSString *const APPLOGIC_IMAGEDOWNLOAD_BASEURL = @"https://applozic.appspot.com/rest/ws/file";
 
 #define IS_OS_8_OR_LATER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
 #define IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
@@ -40,18 +31,14 @@
 #define IS_OS_9_OR_LATER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 9.0)
 #define IS_OS_EARLIER_THAN_10 ([[[UIDevice currentDevice] systemVersion] floatValue] < 10.0)
 
-#define CONNECTION_TYPE_USER_IMG_UPLOAD @"CONNECTION_TYPE_USER_IMG_UPLOAD"
-#define CONNECTION_TYPE_GROUP_IMG_UPLOAD @"CONNECTION_TYPE_GROUP_UPLOAD"
-#define IMAGE_UPLOAD_URL @"/rest/ws/upload/file"
-#define IMAGE_UPLOAD_ENDPOINT @"/files/upload/"
-#define CUSTOM_STORAGE_IMAGE_UPLOAD_ENDPOINT @"/rest/ws/upload/image?aclsPrivate=true"
-#define GOOGLE_CLOUD_STORAGE_IMAGE_UPLOAD_ENDPOINT @"/rest/ws/upload/image"
-#define IMAGE_THUMBNAIL_ENDPOIT @"/files/"
-#define IMAGE_DOWNLOAD_ENDPOINT @"/files/get/"
-#define AL_EMPTY_JSON_STRING @"\"EMPTY_LIST\""
-
-
-#define SOURCE_IOS 3
+static NSString *const AL_IMAGE_UPLOAD_URL = @"/rest/ws/upload/file";
+static NSString *const AL_IMAGE_UPLOAD_ENDPOINT = @"/files/upload/";
+static NSString *const AL_CUSTOM_STORAGE_IMAGE_UPLOAD_ENDPOINT = @"/rest/ws/upload/image?aclsPrivate=true";
+static NSString *const AL_GOOGLE_CLOUD_STORAGE_IMAGE_UPLOAD_ENDPOINT = @"/rest/ws/upload/image";
+static NSString *const AL_IMAGE_THUMBNAIL_ENDPOIT = @"/files/";
+static NSString *const AL_IMAGE_DOWNLOAD_ENDPOINT = @"/files/get/";
+static NSString *const AL_EMPTY_JSON_STRING = @"\"EMPTY_LIST\"";
+static int const AL_SOURCE_IOS = 3;
 
 typedef enum {
     //outbox
@@ -68,15 +55,15 @@ typedef enum {
 // USER TYPE FOR INTERNAL USE
 
 typedef enum {
-    BOT  = 1,
-    APPLICATION_ADMIN =   2,
-    USER_ROLE  =  3,
-    ADMIN_ROLE  = 4,
-    BUSINESS =  5,
-    APPLICATION_BROADCASTER =  6,
-    SUPPORT  = 7,
-    APPLICATION_WEB_ADMIN =8
-} USER_ROLE_TYPE;
+    AL_BOT  = 1,
+    AL_APPLICATION_ADMIN =   2,
+    AL_USER_ROLE  =  3,
+    AL_ADMIN_ROLE  = 4,
+    AL_BUSINESS =  5,
+    AL_APPLICATION_BROADCASTER =  6,
+    AL_SUPPORT  = 7,
+    AL_APPLICATION_WEB_ADMIN =8
+} ALUSER_ROLE_TYPE;
 
 
 typedef enum {
@@ -86,19 +73,18 @@ typedef enum {
 } APP_TRI_STATE;
 
 typedef enum {
-    NOTIFICATION_ENABLE_SOUND = 0,
-    NOTIFICATION_DISABLE_SOUND = 1,
-    NOTIFICATION_ENABLE = 0,
-    NOTIFICATION_DISABLE = 2
-} NOTIFICATION_TYPE_MODE;
+    AL_NOTIFICATION_ENABLE_SOUND = 0,
+    AL_NOTIFICATION_DISABLE_SOUND = 1,
+    AL_NOTIFICATION_ENABLE = 0,
+    AL_NOTIFICATION_DISABLE = 2
+} AL_NOTIFICATION_TYPE_MODE;
 
 typedef enum {
-    
-    CLOSED = -1,
-    BETA = 0,
-    STARTER = 1,
-    LAUNCH = 2,
-    GROWTH = 3,
-    ENTERPRISE = 4,
-    SUSPENDED = 6
-} PRICING_PACKAGE;
+    AL_CLOSED = -1,
+    AL_BETA = 0,
+    AL_STARTER = 1,
+    AL_LAUNCH = 2,
+    AL_GROWTH = 3,
+    AL_ENTERPRISE = 4,
+    AL_SUSPENDED = 6
+} AL_PRICING_PACKAGE;

@@ -21,7 +21,7 @@
 #import "AlChannelFeedResponse.h"
 #import "ALMuteRequest.h"
 
-#define GROUP_FETCH_BATCH_SIZE @"100"
+static NSString *const GROUP_FETCH_BATCH_SIZE = @"100";
 
 @interface ALChannelClientService : NSObject
 

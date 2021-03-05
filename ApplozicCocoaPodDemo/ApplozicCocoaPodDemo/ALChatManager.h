@@ -8,12 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import <Applozic/ALChatLauncher.h>
-#import <Applozic/ALUser.h>
-#import <Applozic/ALConversationService.h>
-#import <Applozic/ALRegisterUserClientService.h>
+#import <ApplozicCore/ApplozicCore.h>
 
-#define APPLICATION_ID @"applozic-sample-app"
-
+static NSString *const APPLICATION_ID = @"applozic-sample-app";
 
 @interface ALChatManager : NSObject
 
@@ -23,9 +20,9 @@
 
 -(instancetype)initWithApplicationKey:(NSString *)applicationKey;
 
--(void)registerUser:(ALUser * )alUser;
+-(void)connectUser:(ALUser * )alUser;
 
--(void)registerUserWithCompletion:(ALUser *)alUser withHandler:(void(^)(ALRegistrationResponse *rResponse, NSError *error))completion;
+-(void)connectUserWithCompletion:(ALUser *)alUser withHandler:(void(^)(ALRegistrationResponse *rResponse, NSError *error))completion;
 
 @property (nonatomic,retain) NSString * userID;
 
@@ -33,7 +30,7 @@
 
 -(void)launchChatForUserWithDefaultText:(NSString * )userId andFromViewController:(UIViewController*)viewController;
 
--(void)registerUserAndLaunchChat:(ALUser *)alUser andFromController:(UIViewController*)viewController forUser:(NSString*)userId withGroupId:(NSNumber*)groupID;
+-(void)connectUserAndLaunchChat:(ALUser *)alUser andFromController:(UIViewController*)viewController forUser:(NSString*)userId withGroupId:(NSNumber*)groupID;
 
 -(void)launchChatForUserWithDisplayName:(NSString * )userId withGroupId:(NSNumber*)groupID andwithDisplayName:(NSString*)displayName andFromViewController:(UIViewController*)fromViewController;
 
@@ -50,5 +47,11 @@
 -(NSString *)getApplicationKey;
 
 -(void)launchChatListWithParentKey:(NSNumber *)parentGroupKey andFromViewController:(UIViewController *)viewController;
+
+-(void)launchGroupOfTwoWithClientId:(NSString *)userIdOfReceiver
+                         withItemId:(NSString *)itemId
+                       withMetaData:(NSMutableDictionary *)metadata
+                        andWithUser:(NSString *)userId
+              andFromViewController:(UIViewController *)viewController;
 
 @end

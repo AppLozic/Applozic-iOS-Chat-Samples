@@ -40,7 +40,7 @@
     
     if(!self.userIdTxtField.text.length || !self.paswordField.text.length)
     {
-        [ALUtilityClass showAlertMessage:@"Invalid userId/Password" andTitle:@"Oops!!!"];
+        [ALUIUtilityClass showAlertMessage:@"Invalid userId/Password" andTitle:@"Oops!!!"];
         return;
     }
     
@@ -56,16 +56,19 @@
     [ALUserDefaultsHandler setEmailId:user.email];
     
     ALChatManager *manager = [[ALChatManager alloc] initWithApplicationKey:@"applozic-sample-app"]; // SET APPLICATION ID
-    [manager registerUserWithCompletion:user withHandler:^(ALRegistrationResponse *rResponse, NSError *error) {
-        
-        UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-        ChatOptionVC * chatOptionVC = [storyBoard instantiateViewControllerWithIdentifier:@"ChatOptionVC"];
-        
-        chatOptionVC.alUser = user;
-        [self.activityIndicator stopAnimating];
-        [self presentViewController:chatOptionVC animated:YES completion:nil];
-    }];
+    [manager connectUserWithCompletion:user withHandler:^(ALRegistrationResponse *rResponse, NSError *error) {
 
+        if (!error) {
+            UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+            ChatOptionVC * chatOptionVC = [storyBoard instantiateViewControllerWithIdentifier:@"ChatOptionVC"];
+
+            chatOptionVC.alUser = user;
+            [self.activityIndicator stopAnimating];
+            [self presentViewController:chatOptionVC animated:YES completion:nil];
+        } else {
+            NSLog(@"Failed to login");
+        }
+    }];
 }
 
 

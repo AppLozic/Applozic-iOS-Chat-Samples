@@ -1,0 +1,105 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.3.2 (swiftlang-1200.0.45 clang-1200.0.32.28)
+// swift-module-flags: -target armv7-apple-ios10.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -Onone -module-name ApplozicCore
+@_exported import ApplozicCore
+import Foundation
+import Security
+import Swift
+public protocol ALJWTProtocol {
+  var header: [Swift.String : Any] { get }
+  var body: [Swift.String : Any] { get }
+  var signature: Swift.String? { get }
+  var string: Swift.String { get }
+  var expiresAt: Foundation.Date? { get }
+  var issuer: Swift.String? { get }
+  var subject: Swift.String? { get }
+  var audience: [Swift.String]? { get }
+  var issuedAt: Foundation.Date? { get }
+  var notBefore: Foundation.Date? { get }
+  var identifier: Swift.String? { get }
+  var expired: Swift.Bool { get }
+}
+extension ALJWTProtocol {
+  public func claim(name: Swift.String) -> ApplozicCore.ALJWTClaim
+}
+public func decode(jwt: Swift.String) throws -> ApplozicCore.ALJWTProtocol
+public struct ALJWTClaim {
+  public var rawValue: Any? {
+    get
+  }
+  public var string: Swift.String? {
+    get
+  }
+  public var double: Swift.Double? {
+    get
+  }
+  public var integer: Swift.Int? {
+    get
+  }
+  public var date: Foundation.Date? {
+    get
+  }
+  public var array: [Swift.String]? {
+    get
+  }
+}
+public enum ALJWTDecodeError : Foundation.LocalizedError {
+  case invalidBase64Url(Swift.String)
+  case invalidJSON(Swift.String)
+  case invalidPartCount(Swift.String, Swift.Int)
+  public var localizedDescription: Swift.String {
+    get
+  }
+}
+@objc public class SecureStore : ObjectiveC.NSObject {
+  @objc public init(secureStoreQueryable: ApplozicCore.SecureStoreQueryable)
+  @objc public func setValue(_ value: Swift.String, for userAccount: Swift.String) throws
+  @objc public func getValue(for userAccount: Swift.String) throws -> Swift.String
+  @objc public func removeValue(for userAccount: Swift.String) throws
+  @objc public func removeAllValues() throws
+  @objc deinit
+  @objc override dynamic public init()
+}
+public enum SecureStoreError : Swift.Error {
+  case string2DataConversionError
+  case data2StringConversionError
+  case unhandledError(message: Swift.String)
+}
+extension SecureStoreError : Foundation.LocalizedError {
+  public var errorDescription: Swift.String? {
+    get
+  }
+}
+@objc public protocol SecureStoreQueryable {
+  @objc var query: [Swift.String : Any] { get }
+}
+@objc public class PasswordQueryable : ObjectiveC.NSObject {
+  @objc public init(service: Swift.String)
+  @objc deinit
+  @objc override dynamic public init()
+}
+extension PasswordQueryable : ApplozicCore.SecureStoreQueryable {
+  @objc dynamic public var query: [Swift.String : Any] {
+    @objc get
+  }
+}
+@_hasMissingDesignatedInitializers @objc(ALJWT) public class _JWT : ObjectiveC.NSObject {
+  @objc public var header: [Swift.String : Any] {
+    @objc get
+  }
+  @objc public var body: [Swift.String : Any] {
+    @objc get
+  }
+  @objc public var signature: Swift.String? {
+    @objc get
+  }
+  @objc public var expiresAt: Foundation.Date? {
+    @objc get
+  }
+  @objc public var expired: Swift.Bool {
+    @objc get
+  }
+  @objc public class func decode(jwt jwtValue: Swift.String) throws -> ApplozicCore._JWT
+  @objc deinit
+  @objc override dynamic public init()
+}

@@ -23,6 +23,7 @@ class ALChatManager: NSObject {
     init(applicationKey: NSString) {
         
         ALUserDefaultsHandler.setApplicationKey(applicationKey as String)
+        ALDefaultChatViewSettings()
     }
     
     // ----------------------
@@ -30,52 +31,62 @@ class ALChatManager: NSObject {
     // This will register your User at applozic server.
     //----------------------
     
-     func connectUser(_ alUser: ALUser) {
+    func connectUser(_ alUser: ALUser) {
         
-        let alChatLauncher: ALChatLauncher = ALChatLauncher(applicationId: getApplicationKey() as String)
+        let _: ALChatLauncher = ALChatLauncher(applicationId: getApplicationKey() as String)
         ALDefaultChatViewSettings()
         alUser.applicationId = getApplicationKey() as String
         alUser.appModuleName = ALUserDefaultsHandler.getAppModuleName()
         let registerUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
         registerUserClientService.initWithCompletion(alUser, withCompletion: { (response, error) in
-            
-            if (error != nil)
-            {
+
+            guard error == nil else {
                 print("error while registering to applozic");
+                return
             }
-            else if(!(response?.isRegisteredSuccessfully())!)
-            {
-                ALUtilityClass.showAlertMessage("Invalid Password", andTitle: "Oops!!!")
+
+            guard let response = response else {
+                print("Api error while registering to applozic");
+                return
+            }
+
+            guard response.isRegisteredSuccessfully() else {
+                let message = response.message ?? "Api error while registering to applozic"
+                print("Api error while registering to applozic %@", message);
+                return
             }
 
         })
     }
     
-     func connectUserWithCompletion(_ alUser: ALUser, completion : @escaping (_ response: ALRegistrationResponse?, _ error: NSError?) -> Void) {
-    
-        let alChatLauncher: ALChatLauncher = ALChatLauncher(applicationId: getApplicationKey() as String)
+    func connectUserWithCompletion(_ alUser: ALUser, completion : @escaping (_ response: ALRegistrationResponse?, _ error: NSError?) -> Void) {
+
+        let _: ALChatLauncher = ALChatLauncher(applicationId: getApplicationKey() as String)
         ALDefaultChatViewSettings()
         alUser.applicationId = getApplicationKey() as String
         alUser.appModuleName = ALUserDefaultsHandler.getAppModuleName()
         let registerUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
-    
+
         registerUserClientService.initWithCompletion(alUser, withCompletion: { (response, error) in
-    
-            if (error != nil)
-            {
-                print("Error while registering to applozic");
-                let errorPass = NSError(domain:"Error while registering to applozic", code:0, userInfo:nil)
-                completion(response , errorPass as NSError?)
-            }
-            else if(!(response?.isRegisteredSuccessfully())!)
-            {
-                ALUtilityClass.showAlertMessage("Invalid Password", andTitle: "Oops!!!")
-                let errorPass = NSError(domain:"Invalid Password", code:0, userInfo:nil)
-                completion(response , errorPass as NSError?)
-            }else{
-                completion(response , error as NSError?)
+
+            guard error == nil else {
+                completion(nil, error as NSError?)
+                return
             }
 
+            guard let response = response else {
+                let apiError = NSError(domain: "Applozic", code: 0, userInfo: [NSLocalizedDescriptionKey: "Api error while registering to applozic"])
+                completion(nil, apiError as NSError?)
+                return
+            }
+
+            guard response.isRegisteredSuccessfully() else {
+                let message = response.message ?? "Api error while registering to applozic"
+                let errorResponse = NSError(domain: "Applozic", code: 0, userInfo: [NSLocalizedDescriptionKey: message])
+                completion(nil, errorResponse)
+                return
+            }
+            completion(response, nil)
         })
     }
     
@@ -107,7 +118,7 @@ class ALChatManager: NSObject {
     func connectUserAndLaunchChat(_ alUser:ALUser?, fromController:UIViewController,forUser:String?)
     {
         let alChatLauncher: ALChatLauncher = ALChatLauncher(applicationId: getApplicationKey() as String)
-       
+
         if(!ALChatManager.isNilOrEmpty(ALUserDefaultsHandler.getDeviceKeyString() as NSString?))
         {
             if (ALChatManager.isNilOrEmpty(forUser as NSString?))
@@ -162,7 +173,7 @@ class ALChatManager: NSObject {
         if(!ALChatManager.isNilOrEmpty(ALUserDefaultsHandler.getDeviceKeyString() as NSString?)) {
             
             alChatLauncher.launchIndividualChat(nil, withGroupId: groupId, andViewControllerObject: fromController, andWithText: nil)
-             return;
+            return;
         }
         
         let alUser : ALUser = ALChatManager.getUserDetail()
@@ -170,20 +181,22 @@ class ALChatManager: NSObject {
         alUser.appModuleName = ALUserDefaultsHandler.getAppModuleName()
         let alRegisterUser  = ALRegisterUserClientService()
         alRegisterUser.initWithCompletion(alUser, withCompletion: { (rResponse, error) in
-            
-            print("USER_REGISTRATION_RESPONSE :: \(rResponse)");
-            if (error != nil) {
-                print("REGISTRATION_ERROR :: \(error?.localizedDescription)")
-                ALUtilityClass.showAlertMessage(rResponse?.message, andTitle:"Response: Cant Register User Client")
-                return
-            }
-            if (rResponse?.message.isEqual("PASSWORD_INVALID"))! {
-                ALUtilityClass.showAlertMessage("INAVALID PASSWORD", andTitle:"ALERT!!!")
+
+            guard error == nil else {
+                print("Launch Chat For Group:: \(String(describing: error?.localizedDescription))")
                 return
             }
 
-            if (rResponse?.message.isEqual("REGISTERED"))! {
-                
+
+            guard let response = rResponse else {
+                print("Launch Chat For Group: Api error while registering to applozic")
+                return
+            }
+
+            guard response.isRegisteredSuccessfully() else {
+                let message = response.message ?? "Api error while registering to applozic"
+                print("Launch Chat For Group: \(message)")
+                return
             }
             
             alChatLauncher.launchIndividualChat(nil, withGroupId: groupId, andViewControllerObject: fromController, andWithText: nil)
@@ -202,12 +215,12 @@ class ALChatManager: NSObject {
             guard let alChannel = alChannel else {
 
                 channelService.createChannel(clientGroupId, orClientChannelKey: clientGroupId, andMembersList: [userId], andImageLink: nil, channelType: Int16(GROUP_OF_TWO.rawValue), andMetaData: metadata, withCompletion: { alChannelInRespose, error in
-                        if let aKey = alChannelInRespose?.key {
-                            print(" group of two id \(aKey)")
-                        }
-                        self.launchChatForGroup((alChannelInRespose?.key)!, fromController: viewController!)
+                    if let aKey = alChannelInRespose?.key {
+                        print(" group of two id \(aKey)")
+                    }
+                    self.launchChatForGroup((alChannelInRespose?.key)!, fromController: viewController!)
 
-                    })
+                })
                 return;
             }
 
@@ -256,12 +269,12 @@ class ALChatManager: NSObject {
         user.applicationId = ALChatManager.applicationId
         user.email = ALUserDefaultsHandler.getEmailId()
         user.password = ALUserDefaultsHandler.getPassword()
-//        user.displayName = ALUserDefaultsHandler.getDisplayName()
+        //        user.displayName = ALUserDefaultsHandler.getDisplayName()
         
         return user;
         
     }
-  
+
     class func isNilOrEmpty(_ string: NSString?) -> Bool {
         
         switch string {
@@ -271,11 +284,11 @@ class ALChatManager: NSObject {
         }
     }
     
-// ----------------------  ------------------------------------------------------/
-// convenient method to directly launch individual context-based user chat screen. UserId parameter define users for which it intented to launch chat screen.
-//
-// This will automatically handle unregistered users provided getLoggedinUserInformation is implemented properly.
-// ----------------------  ------------------------------------------------------/
+    // ----------------------  ------------------------------------------------------/
+    // convenient method to directly launch individual context-based user chat screen. UserId parameter define users for which it intented to launch chat screen.
+    //
+    // This will automatically handle unregistered users provided getLoggedinUserInformation is implemented properly.
+    // ----------------------  ------------------------------------------------------/
     
     func getApplicationBaseUrl() {
         guard let URLDictionary = Bundle.main.infoDictionary?["APPLOZIC_PRODUCTION"] as? [AnyHashable : Any] else {
@@ -300,7 +313,7 @@ class ALChatManager: NSObject {
     }
 }
 
- func getApplicationKey() -> NSString {
+func getApplicationKey() -> NSString {
     
     let appKey = ALUserDefaultsHandler.getApplicationKey() as NSString?
     let applicationKey = (appKey != nil) ? appKey : ALChatManager.applicationId as NSString?
@@ -330,178 +343,184 @@ func makeFinalProxyWithGeneratedProxy (_ generatedProxy:ALConversationProxy, res
 func ALDefaultChatViewSettings ()
 {
     
-     //////////////////////////   SET AUTHENTICATION-TYPE-ID FOR INTERNAL USAGE ONLY ////////////////////////
-     ALUserDefaultsHandler.setUserAuthenticationTypeId(TYPE_APPLOZIC)
-     ////////////////////////// ////////////////////////// ////////////////////////// ///////////////////////
+    //////////////////////////   SET AUTHENTICATION-TYPE-ID FOR INTERNAL USAGE ONLY ////////////////////////
+    ALUserDefaultsHandler.setUserAuthenticationTypeId(TYPE_APPLOZIC)
+    ////////////////////////// ////////////////////////// ////////////////////////// ///////////////////////
 
-     
-     /*********************************************  NAVIGATION SETTINGS  ********************************************/
-     
-     ALApplozicSettings.setStatusBarBGColor(UIColor(red:66.0/255, green:173.0/255, blue:247.0/255, alpha:1))
-     ALApplozicSettings.setStatusBarStyle(.lightContent)
-     /* BY DEFAULT Black:UIStatusBarStyleDefault IF REQ. White: UIStatusBarStyleLightContent  */
-     /* ADD property in info.plist "View controller-based status bar appearance" type: BOOLEAN value: NO */
-     
-     ALApplozicSettings.setColorForNavigation(UIColor(red:66.0/255, green:173.0/255, blue:247.0/255, alpha:1))
-     ALApplozicSettings.setColorForNavigationItem(UIColor.white)
-     ALApplozicSettings.hideRefreshButton(false)
-     ALUserDefaultsHandler.setNavigationRightButtonHidden(false)
-     ALUserDefaultsHandler.setBottomTabBarHidden(true)
-     ALApplozicSettings.setTitleForConversationScreen("Chats")
-     ALApplozicSettings.enableRefreshChatButton(inMsgVc: false)               /*  SET VISIBILITY FOR REFRESH BUTTON (COMES FROM TOP IN MSG VC)   */
-     ALApplozicSettings.setTitleForBackButtonMsgVC("Back")                /*  SET BACK BUTTON FOR MSG VC  */
-     ALApplozicSettings.setTitleForBackButtonChatVC("Back")               /*  SET BACK BUTTON FOR CHAT VC */
-     /****************************************************************************************************************/
-     
-     
-     /***************************************  SEND RECEIVE MESSAGES SETTINGS  ***************************************/
-     
-     ALApplozicSettings.setSendMsgTextColor(UIColor.white)
-     ALApplozicSettings.setReceiveMsgTextColor(UIColor.gray)
-     ALApplozicSettings.setColorForReceiveMessages(UIColor(red:255/255, green:255/255, blue:255/255, alpha:1))
-     ALApplozicSettings.setColorForSendMessages(UIColor (red:66.0/255, green:173.0/255, blue:247.0/255, alpha:1))
-     
-     //****************** DATE COLOUR : AT THE BOTTOM OF MESSAGE BUBBLE ******************/
+
+    /*********************************************  NAVIGATION SETTINGS  ********************************************/
+
+    ALApplozicSettings.setStatusBarBGColor(UIColor(red:66.0/255, green:173.0/255, blue:247.0/255, alpha:1))
+    ALApplozicSettings.setStatusBarStyle(.lightContent)
+    /* BY DEFAULT Black:UIStatusBarStyleDefault IF REQ. White: UIStatusBarStyleLightContent  */
+    /* ADD property in info.plist "View controller-based status bar appearance" type: BOOLEAN value: NO */
+
+    ALApplozicSettings.setColorForNavigation(UIColor(red:66.0/255, green:173.0/255, blue:247.0/255, alpha:1))
+    ALApplozicSettings.setColorForNavigationItem(UIColor.white)
+    ALApplozicSettings.hideRefreshButton(false)
+    ALUserDefaultsHandler.setNavigationRightButtonHidden(false)
+    ALUserDefaultsHandler.setBottomTabBarHidden(true)
+    ALApplozicSettings.setTitleForConversationScreen("Chats")
+    ALApplozicSettings.enableRefreshChatButton(inMsgVc: false)               /*  SET VISIBILITY FOR REFRESH BUTTON (COMES FROM TOP IN MSG VC)   */
+    ALApplozicSettings.setTitleForBackButtonMsgVC("Back")                /*  SET BACK BUTTON FOR MSG VC  */
+    ALApplozicSettings.setTitleForBackButtonChatVC("Back")               /*  SET BACK BUTTON FOR CHAT VC */
+    /****************************************************************************************************************/
+
+
+    /***************************************  SEND RECEIVE MESSAGES SETTINGS  ***************************************/
+
+    ALApplozicSettings.setSendMsgTextColor(UIColor.white)
+    ALApplozicSettings.setReceiveMsgTextColor(UIColor.gray)
+    ALApplozicSettings.setColorForReceiveMessages(UIColor(red:255/255, green:255/255, blue:255/255, alpha:1))
+    ALApplozicSettings.setColorForSendMessages(UIColor (red:66.0/255, green:173.0/255, blue:247.0/255, alpha:1))
+
+    //****************** DATE COLOUR : AT THE BOTTOM OF MESSAGE BUBBLE ******************/
     
-     ALApplozicSettings.setDateColor(UIColor(red:51.0/255, green:51.0/255, blue:51.0/255, alpha:0.5))
-     
-     //****************** MESSAGE SEPERATE DATE COLOUR : DATE MESSAGE ******************/
+    ALApplozicSettings.setDateColor(UIColor(red:51.0/255, green:51.0/255, blue:51.0/255, alpha:0.5))
+
+    //****************** MESSAGE SEPERATE DATE COLOUR : DATE MESSAGE ******************/
     
-     ALApplozicSettings.setMsgDateColor(UIColor.black)
-     
-     /***************  SEND MESSAGE ABUSE CHECK  ******************/
-     
-     ALApplozicSettings.setAbuseWarningText("AVOID USE OF ABUSE WORDS")
-     ALApplozicSettings.setMessageAbuseMode(true)
-     
-     //****************** SHOW/HIDE RECEIVER USER PROFILE ******************/
+    ALApplozicSettings.setMsgDateColor(UIColor.black)
+
+    /***************  SEND MESSAGE ABUSE CHECK  ******************/
+
+    ALApplozicSettings.setAbuseWarningText("AVOID USE OF ABUSE WORDS")
+    ALApplozicSettings.setMessageAbuseMode(true)
+
+    //****************** SHOW/HIDE RECEIVER USER PROFILE ******************/
     
-     ALApplozicSettings.setReceiverUserProfileOption(false)
-     
-     /****************************************************************************************************************/
-     
-     
-     /**********************************************  IMAGE SETTINGS  ************************************************/
-     
-     ALApplozicSettings.setMaxCompressionFactor(0.1)
-     ALApplozicSettings.setMaxImageSizeForUploadInMB(3)
-     ALApplozicSettings.setMultipleAttachmentMaxLimit(5)
-     /****************************************************************************************************************/
-     
-     
-     /**********************************************  GROUP SETTINGS  ************************************************/
-     
-     ALApplozicSettings.setGroupOption(true)
-     ALApplozicSettings.setGroupExitOption(true)
-     ALApplozicSettings.setGroupMemberAddOption(true)
-     ALApplozicSettings.setGroupMemberRemoveOption(true)
+    ALApplozicSettings.setReceiverUserProfileOption(false)
+
+    /****************************************************************************************************************/
+
+
+    /**********************************************  IMAGE SETTINGS  ************************************************/
+
+    ALApplozicSettings.setMaxCompressionFactor(0.1)
+    ALApplozicSettings.setMaxImageSizeForUploadInMB(3)
+    ALApplozicSettings.setMultipleAttachmentMaxLimit(5)
+    /****************************************************************************************************************/
+
+
+    /**********************************************  GROUP SETTINGS  ************************************************/
+
+    ALApplozicSettings.setGroupOption(true)
+    ALApplozicSettings.setGroupExitOption(true)
+    ALApplozicSettings.setGroupMemberAddOption(true)
+    ALApplozicSettings.setGroupMemberRemoveOption(true)
     
-     ALApplozicSettings.setGroupInfoDisabled(false)
-     ALApplozicSettings.setGroupInfoEditDisabled(false)
+    ALApplozicSettings.setGroupInfoDisabled(false)
+    ALApplozicSettings.setGroupInfoEditDisabled(false)
 
     
-     /****************************************************************************************************************/
-     
-     
-     /******************************************** NOTIIFCATION SETTINGS  ********************************************/
-     
-     //ALUserDefaultsHandler.setDeviceApnsType(APNS_TYPE_DEVELOPMENT)
-     //For Distribution CERT::
-     //ALUserDefaultsHandler.setDeviceApnsType(APNS_TYPE_DISTRIBUTION)
-     
-     let appName = Bundle.main.infoDictionary!["CFBundleName"]
-     ALApplozicSettings.setNotificationTitle((appName as AnyObject).string)
-     
-     ALApplozicSettings.enableNotification() //0
-     //    ALApplozicSettings.disableNotification() //2
-     //    ALApplozicSettings.disableNotificationSound() //1                /*  IF NOTIFICATION SOUND NOT NEEDED  */
-     //    ALApplozicSettings.enableNotificationSound() //0                   /*  IF NOTIFICATION SOUND NEEDED    */
-     /****************************************************************************************************************/
-     
-     
-     /********************************************* CHAT VIEW SETTINGS  **********************************************/
-     
-     ALApplozicSettings.setVisibilityForNoMoreConversationMsgVC(false)               /*  SET VISIBILITY NO MORE CONVERSATION (COMES FROM TOP IN MSG VC)  */
-     ALApplozicSettings.setEmptyConversationText("You have no conversations yet")    /*  SET TEXT FOR EMPTY CONVERSATION    */
-     ALApplozicSettings.setVisibilityForOnlineIndicator(true)                        /*  SET VISIBILITY FOR ONLINE INDICATOR */
+    /****************************************************************************************************************/
+
+
+    /******************************************** NOTIIFCATION SETTINGS  ********************************************/
+
+    //ALUserDefaultsHandler.setDeviceApnsType(APNS_TYPE_DEVELOPMENT)
+    //For Distribution CERT::
+    //ALUserDefaultsHandler.setDeviceApnsType(APNS_TYPE_DISTRIBUTION)
+
+    let appName = Bundle.main.infoDictionary!["CFBundleName"]
+    ALApplozicSettings.setNotificationTitle((appName as AnyObject).string)
+
+    ALApplozicSettings.enableNotification() //0
+    //    ALApplozicSettings.disableNotification() //2
+    //    ALApplozicSettings.disableNotificationSound() //1                /*  IF NOTIFICATION SOUND NOT NEEDED  */
+    //    ALApplozicSettings.enableNotificationSound() //0                   /*  IF NOTIFICATION SOUND NEEDED    */
+    /****************************************************************************************************************/
+
+
+    /********************************************* CHAT VIEW SETTINGS  **********************************************/
+
+    ALApplozicSettings.setVisibilityForNoMoreConversationMsgVC(false)               /*  SET VISIBILITY NO MORE CONVERSATION (COMES FROM TOP IN MSG VC)  */
+    ALApplozicSettings.setEmptyConversationText("You have no conversations yet")    /*  SET TEXT FOR EMPTY CONVERSATION    */
+    ALApplozicSettings.setVisibilityForOnlineIndicator(true)                        /*  SET VISIBILITY FOR ONLINE INDICATOR */
     
-     let sendButtonColor = UIColor(red:66.0/255, green:173.0/255, blue:247.0/255, alpha:1)   /*  SET COLOR FOR SEND BUTTON   */
-     ALApplozicSettings.setColorForSendButton(sendButtonColor)
+    let sendButtonColor = UIColor(red:66.0/255, green:173.0/255, blue:247.0/255, alpha:1)   /*  SET COLOR FOR SEND BUTTON   */
+    ALApplozicSettings.setColorForSendButton(sendButtonColor)
     
-     ALApplozicSettings.setColorForTypeMsgBackground(UIColor.clear)             /*  SET COLOR FOR TYPE MESSAGE OUTER VIEW */
-     ALApplozicSettings.setMsgTextViewBGColor(UIColor.lightGray)                /*  SET BG COLOR FOR MESSAGE TEXT VIEW */
-     ALApplozicSettings.setPlaceHolderColor(UIColor.gray)                       /*  SET COLOR FOR PLACEHOLDER TEXT */
-     ALApplozicSettings.setVisibilityNoConversationLabelChatVC(true)            /*  SET NO CONVERSATION LABEL IN CHAT VC    */
-     ALApplozicSettings.setBGColorForTypingLabel(UIColor(red:242/255.0, green:242/255.0, blue:242/255.0, alpha:1))   /*  SET COLOR FOR TYPING LABEL  */
-     ALApplozicSettings.setTextColorForTypingLabel(UIColor(red:51.0/255, green:51.0/255, blue:51.0/255, alpha:0.5))  /*  SET COLOR FOR TEXT TYPING LABEL  */
-     /****************************************************************************************************************/
-     
-     
-     /********************************************** CHAT TYPE SETTINGS  *********************************************/
+    ALApplozicSettings.setColorForTypeMsgBackground(UIColor.clear)             /*  SET COLOR FOR TYPE MESSAGE OUTER VIEW */
+    ALApplozicSettings.setMsgTextViewBGColor(UIColor.lightGray)                /*  SET BG COLOR FOR MESSAGE TEXT VIEW */
+    ALApplozicSettings.setPlaceHolderColor(UIColor.gray)                       /*  SET COLOR FOR PLACEHOLDER TEXT */
+    ALApplozicSettings.setVisibilityNoConversationLabelChatVC(true)            /*  SET NO CONVERSATION LABEL IN CHAT VC    */
+    ALApplozicSettings.setBGColorForTypingLabel(UIColor(red:242/255.0, green:242/255.0, blue:242/255.0, alpha:1))   /*  SET COLOR FOR TYPING LABEL  */
+    ALApplozicSettings.setTextColorForTypingLabel(UIColor(red:51.0/255, green:51.0/255, blue:51.0/255, alpha:0.5))  /*  SET COLOR FOR TEXT TYPING LABEL  */
+    /****************************************************************************************************************/
+
+
+    /********************************************** CHAT TYPE SETTINGS  *********************************************/
 
 
     ALApplozicSettings.showChannelMembersInfo(inNavigationBar: true)
 
-     ALApplozicSettings.setContextualChat(true)                                 /*  IF CONTEXTUAL NEEDED    */
-     /*  Note: Please uncomment below setter to use app_module_name */
-     //   ALUserDefaultsHandler.setAppModuleName("<APP_MODULE_NAME>")
-     //   ALUserDefaultsHandler.setAppModuleName("SELLER")
-     /****************************************************************************************************************/
-     
-     
-     /*********************************************** CONTACT SETTINGS  **********************************************/
-     
-     ALApplozicSettings.setFilterContactsStatus(true)                           /*  IF NEEDED ALL REGISTERED CONTACTS   */
-     ALApplozicSettings.setOnlineContactLimit(0)                                /*  IF NEEDED ONLINE USERS WITH LIMIT   */
-     ALApplozicSettings.setSubGroupLaunchFlag(false)                            /*  IF NEEDED SUB GROUP LAUNCH   */
-     /****************************************************************************************************************/
-     
-     
-     /***************************************** TOAST + CALL OPTION SETTINGS  ****************************************/
-     
-     ALApplozicSettings.setColorForToastText(UIColor.black)                     /*  SET COLOR FOR TOAST TEXT    */
-     ALApplozicSettings.setColorForToastBackground(UIColor.gray)                /*  SET COLOR FOR TOAST BG      */
-     ALApplozicSettings.setCallOption(true)                                     /*  IF CALL OPTION NEEDED   */
-     /****************************************************************************************************************/
-     
-     
-     /********************************************* DEMAND/MISC SETTINGS  ********************************************/
-     
-     ALApplozicSettings.setUnreadCountLabelBGColor(UIColor.purple)
-     ALApplozicSettings.setCustomClassName("ALChatManager")                     /*  SET 3rd Party Class Name OR ALChatManager */
-     ALUserDefaultsHandler.setFetchConversationPageSize(20)                     /*  SET MESSAGE LIST PAGE SIZE  */ // DEFAULT VALUE 20
-     ALUserDefaultsHandler.setUnreadCountType(1)                                /*  SET UNRAED COUNT TYPE   */ // DEFAULT VALUE 0
-     ALApplozicSettings.setMaxTextViewLines(4)
-     ALUserDefaultsHandler.setDebugLogsRequire(true)                            /*   ENABLE / DISABLE LOGS   */
-     ALUserDefaultsHandler.setLoginUserConatactVisibility(false)
-     ALApplozicSettings.setUserProfileHidden(false)
-     ALApplozicSettings.setFontFace("Helvetica")
-     ALApplozicSettings.setChatWallpaperImageName("<WALLPAPER NAME>")
-     ALApplozicSettings.showChannelMembersInfo(inNavigationBar: true)
+    ALApplozicSettings.setContextualChat(true)                                 /*  IF CONTEXTUAL NEEDED    */
+    /*  Note: Please uncomment below setter to use app_module_name */
+    //   ALUserDefaultsHandler.setAppModuleName("<APP_MODULE_NAME>")
+    //   ALUserDefaultsHandler.setAppModuleName("SELLER")
+    /****************************************************************************************************************/
+
+
+    /*********************************************** CONTACT SETTINGS  **********************************************/
+
+    ALApplozicSettings.setFilterContactsStatus(true)                           /*  IF NEEDED ALL REGISTERED CONTACTS   */
+    ALApplozicSettings.setOnlineContactLimit(0)                                /*  IF NEEDED ONLINE USERS WITH LIMIT   */
+    ALApplozicSettings.setSubGroupLaunchFlag(false)                            /*  IF NEEDED SUB GROUP LAUNCH   */
+    /****************************************************************************************************************/
+
+
+    /***************************************** TOAST + CALL OPTION SETTINGS  ****************************************/
+
+    ALApplozicSettings.setColorForToastText(UIColor.black)                     /*  SET COLOR FOR TOAST TEXT    */
+    ALApplozicSettings.setColorForToastBackground(UIColor.gray)                /*  SET COLOR FOR TOAST BG      */
+    ALApplozicSettings.setCallOption(true)                                     /*  IF CALL OPTION NEEDED   */
+    /****************************************************************************************************************/
+
+
+    /********************************************* DEMAND/MISC SETTINGS  ********************************************/
+
+    /// List of VCs
+    ALApplozicSettings.setListOfViewControllers([ALMessagesViewController.description(),
+                                                 ALChatViewController.description(),
+                                                 ALGroupDetailViewController.description(),
+                                                 ALNewContactsViewController.description(),
+                                                 ALUserProfileVC.description()])
+
+
+    ALApplozicSettings.setUnreadCountLabelBGColor(UIColor.purple)
+    ALApplozicSettings.setCustomClassName("ALChatManager")                     /*  SET 3rd Party Class Name OR ALChatManager */
+    ALUserDefaultsHandler.setFetchConversationPageSize(20)                     /*  SET MESSAGE LIST PAGE SIZE  */ // DEFAULT VALUE 20
+    ALUserDefaultsHandler.setUnreadCountType(1)                                /*  SET UNRAED COUNT TYPE   */ // DEFAULT VALUE 0
+    ALApplozicSettings.setMaxTextViewLines(4)
+    ALUserDefaultsHandler.setDebugLogsRequire(true)                            /*   ENABLE / DISABLE LOGS   */
+    ALUserDefaultsHandler.setLoginUserConatactVisibility(false)
+    ALApplozicSettings.setUserProfileHidden(false)
+    ALApplozicSettings.setFontFace("Helvetica")
+    ALApplozicSettings.setChatWallpaperImageName("<WALLPAPER NAME>")
+    ALApplozicSettings.showChannelMembersInfo(inNavigationBar: true)
     
-     /****************************************************************************************************************/
-     
-     
-     /***************************************** APPLICATION URL CONFIGURATION + ENCRYPTION  ***************************************/
+    /****************************************************************************************************************/
+
+
+    /***************************************** APPLICATION URL CONFIGURATION + ENCRYPTION  ***************************************/
     
-     ALUserDefaultsHandler.setEnableEncryption(false)                            /* Note: PLEASE DO YES (IF NEEDED)  */
-     /****************************************************************************************************************/
+    ALUserDefaultsHandler.setEnableEncryption(false)                            /* Note: PLEASE DO YES (IF NEEDED)  */
+    /****************************************************************************************************************/
     
-     ALUserDefaultsHandler.setGoogleMapAPIKey("AIzaSyBnWMTGs1uTFuf8fqQtsmLk-vsWM7OrIXk")  /*Note: REPLEACE WITH YOUR GOOGLE MAP KEY  */
-    
-     ALApplozicSettings.setMsgContainerVC("sampleapp_swift.DVChatViewController")  // appname.ClassName i.e. sampleapp_swift.DVChatViewController
-    
+    ALUserDefaultsHandler.setGoogleMapAPIKey("AIzaSyBnWMTGs1uTFuf8fqQtsmLk-vsWM7OrIXk")  /*Note: REPLEACE WITH YOUR GOOGLE MAP KEY  */
+
     /**********************************************************************************************************************/
     
-     ALApplozicSettings.setUserDeletedText("User has been deleted")            /*  SET DELETED USER NOTIFICATION TITLE   */
+    ALApplozicSettings.setUserDeletedText("User has been deleted")            /*  SET DELETED USER NOTIFICATION TITLE   */
     
     
     /******************************************** CUSTOM TAB BAR ITEM : ICON && TEXT ************************************************/
-     ALApplozicSettings.setChatListTabIcon("")
-     ALApplozicSettings.setProfileTabIcon("")
+    ALApplozicSettings.setChatListTabIcon("")
+    ALApplozicSettings.setProfileTabIcon("")
     
-     ALApplozicSettings.setChatListTabTitle("")
-     ALApplozicSettings.setProfileTabTitle("")
+    ALApplozicSettings.setChatListTabTitle("")
+    ALApplozicSettings.setProfileTabTitle("")
     
 }
 

@@ -85,9 +85,8 @@ class LaunchChatFromSimpleVCViewController: UIViewController {
     {
         let registerUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
         registerUserClientService.logout { (response, error) in
-            
+            self.dismiss(animated: false, completion: nil)
         }
-        self.dismiss(animated: false, completion: nil)
     }
     
     func getUserDetail() -> ALUser {

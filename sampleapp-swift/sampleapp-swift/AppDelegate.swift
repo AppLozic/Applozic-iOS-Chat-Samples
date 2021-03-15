@@ -24,6 +24,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let alApplocalNotificationHnadler : ALAppLocalNotifications =  ALAppLocalNotifications.appLocalNotificationHandler();
         alApplocalNotificationHnadler.dataConnectionNotificationHandler();
+
+        let pushNotificationHandler = ALPushNotificationHandler.shared()
+        pushNotificationHandler.dataConnectionNotificationHandler()
+
         
         if (ALUserDefaultsHandler.isLoggedIn())
         {
@@ -31,7 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let viewController:UIViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "LaunchChatFromSimpleViewController") as UIViewController
             self.window?.makeKeyAndVisible();
             self.window?.rootViewController!.present(viewController, animated:true, completion: nil)
-           
+
         }
         
         if (launchOptions != nil)
@@ -52,7 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
             }
         }
-    
+
         return true
     }
     
@@ -91,28 +95,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data)
     {
-        
-        print("DEVICE_TOKEN_DATA :: \(deviceToken.description)")  // (SWIFT = 3) : TOKEN PARSING
-        
+
+        NSLog("Device token data :: \(deviceToken.description)")
+
         var deviceTokenString: String = ""
         for i in 0..<deviceToken.count
         {
             deviceTokenString += String(format: "%02.2hhx", deviceToken[i] as CVarArg)
         }
-        
-//        let characterSet: CharacterSet = CharacterSet(charactersIn: "<>")   // (SWIFT < 3) : TOKEN PARSING
-//        
-//        let deviceTokenString: String = (deviceToken.description as NSString)
-//            .trimmingCharacters( in: characterSet )
-//            .replacingOccurrences(of: " ", with: "") as String
-//        
-        print("DEVICE_TOKEN_STRING :: \(deviceTokenString)")
-        
+
+        NSLog("Device token :: \(deviceTokenString)")
+
         if (ALUserDefaultsHandler.getApnDeviceToken() != deviceTokenString)
         {
             let alRegisterUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
             alRegisterUserClientService.updateApnDeviceToken(withCompletion: deviceTokenString, withCompletion: { (response, error) in
-                print ("REGISTRATION_RESPONSE :: \(response)")
             })
         }
     }
@@ -122,27 +119,46 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("Couldn’t register: \(error)")
     }
     
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any])
-    {
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
         print("Received notification :: \(userInfo.description)")
         let alPushNotificationService: ALPushNotificationService = ALPushNotificationService()
-        
-//        let appState: NSNumber = NSNumber(value: 0 as Int32)                        // APP_STATE_INACTIVE
-//        alPushNotificationService.processPushNotification(userInfo, updateUI: appState)
         alPushNotificationService.notificationArrived(to: application, with: userInfo)
     }
-    
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler
-        completionHandler: @escaping (UIBackgroundFetchResult) -> Void)
-    {
+
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+
         print("Received notification With Completion :: \(userInfo.description)")
         let alPushNotificationService: ALPushNotificationService = ALPushNotificationService()
-        
-//        let appState: NSNumber = NSNumber(value: -1 as Int32)                       // APP_STATE_BACKGROUND
-//        alPushNotificationService.processPushNotification(userInfo, updateUI: appState)
+
         alPushNotificationService.notificationArrived(to: application, with: userInfo)
         completionHandler(UIBackgroundFetchResult.newData)
     }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+
+        let pushNotificationService = ALPushNotificationService()
+        let userInfo = notification.request.content.userInfo
+
+        if pushNotificationService.isApplozicNotification(userInfo) {
+            pushNotificationService.notificationArrived(to: UIApplication.shared, with: userInfo)
+            completionHandler([])
+            return
+        }
+        completionHandler([.alert, .badge, .sound])
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+
+        let pushNotificationService = ALPushNotificationService()
+        let userInfo = response.notification.request.content.userInfo
+        if pushNotificationService.isApplozicNotification(userInfo) {
+            pushNotificationService.notificationArrived(to: UIApplication.shared, with: userInfo)
+            completionHandler()
+            return
+        }
+        completionHandler()
+    }
+
     
     func registerForNotification() {
         if #available(iOS 10.0, *) {

@@ -1,0 +1,221 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.3.2 (swiftlang-1200.0.45 clang-1200.0.32.28)
+// swift-module-flags: -target arm64-apple-ios10.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -Onone -module-name Applozic
+import AVFoundation
+@_exported import Applozic
+import Foundation
+import Photos
+import PhotosUI
+import Swift
+import UIKit
+@_hasMissingDesignatedInitializers @objc public class ALLoadingIndicator : UIKit.UIStackView {
+  @objc public init(frame: CoreGraphics.CGRect, color: UIKit.UIColor = .black)
+  @objc public func startLoading(loadText: Swift.String)
+  @objc public func stopLoading()
+  @objc public func set(_ color: UIKit.UIColor)
+  @objc deinit
+  @objc override dynamic public init(frame: CoreGraphics.CGRect)
+}
+@objc @_inheritsConvenienceInitializers public class ALBaseNavigationViewController : UIKit.UINavigationController {
+  @objc override dynamic public func viewDidLoad()
+  @objc override dynamic public func didReceiveMemoryWarning()
+  @objc override dynamic public var preferredStatusBarStyle: UIKit.UIStatusBarStyle {
+    @objc get
+  }
+  @objc deinit
+  @available(iOS 5.0, *)
+  @objc override dynamic public init(navigationBarClass: Swift.AnyClass?, toolbarClass: Swift.AnyClass?)
+  @objc override dynamic public init(rootViewController: UIKit.UIViewController)
+  @objc override dynamic public init(nibName nibNameOrNil: Swift.String?, bundle nibBundleOrNil: Foundation.Bundle?)
+  @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+}
+@objc public protocol ALCustomPickerDelegate : AnyObject {
+  @objc func multimediaSelected(_ list: [Applozic.ALMultimediaData])
+}
+@_inheritsConvenienceInitializers @objc public class ALCustomPickerViewController : UIKit.UIViewController {
+  @objc override dynamic public func viewDidLoad()
+  @objc override dynamic public func viewWillAppear(_ animated: Swift.Bool)
+  @objc public static func makeInstanceWith(delegate: Applozic.ALCustomPickerDelegate) -> Applozic.ALBaseNavigationViewController?
+  @objc deinit
+  @objc override dynamic public init(nibName nibNameOrNil: Swift.String?, bundle nibBundleOrNil: Foundation.Bundle?)
+  @objc required dynamic public init?(coder: Foundation.NSCoder)
+}
+extension ALCustomPickerViewController : UIKit.UICollectionViewDelegate, UIKit.UICollectionViewDataSource, UIKit.UICollectionViewDelegateFlowLayout {
+  @objc dynamic public func collectionView(_ collectionView: UIKit.UICollectionView, didSelectItemAt indexPath: Foundation.IndexPath)
+  @objc dynamic public func collectionView(_ collectionView: UIKit.UICollectionView, numberOfItemsInSection section: Swift.Int) -> Swift.Int
+  @objc dynamic public func collectionView(_ collectionView: UIKit.UICollectionView, cellForItemAt indexPath: Foundation.IndexPath) -> UIKit.UICollectionViewCell
+  @objc dynamic public func numberOfSections(in collectionView: UIKit.UICollectionView) -> Swift.Int
+  @objc dynamic public func collectionView(_ collectionView: UIKit.UICollectionView, layout collectionViewLayout: UIKit.UICollectionViewLayout, minimumLineSpacingForSectionAt section: Swift.Int) -> CoreGraphics.CGFloat
+  @objc dynamic public func collectionView(_ collectionView: UIKit.UICollectionView, layout collectionViewLayout: UIKit.UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Swift.Int) -> CoreGraphics.CGFloat
+  @objc dynamic public func collectionView(_ collectionView: UIKit.UICollectionView, layout collectionViewLayout: UIKit.UICollectionViewLayout, insetForSectionAt section: Swift.Int) -> UIKit.UIEdgeInsets
+}
+@_inheritsConvenienceInitializers @objc open class ALTemplateMessageCell : UIKit.UICollectionViewCell {
+  final public let textLabel: UIKit.UILabel
+  final public let leftPadding: CoreGraphics.CGFloat
+  final public let rightPadding: CoreGraphics.CGFloat
+  @objc override dynamic public init(frame: CoreGraphics.CGRect)
+  @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+  open func update(text: Swift.String)
+  @objc deinit
+}
+@objc public protocol ALAudioRecorderProtocol : AnyObject {
+  @objc func moveButton(location: CoreGraphics.CGPoint)
+  @objc func finishRecordingAudioWith(filePath: Swift.String)
+  @objc func startAudioRecord()
+  @objc func cancelAudioRecord()
+  @objc func permissionNotGranted()
+}
+@_inheritsConvenienceInitializers @objc public class ALAudioRecordButton : UIKit.UIButton {
+  public enum ALKSoundRecorderState {
+    case Recording
+    case None
+    public static func == (a: Applozic.ALAudioRecordButton.ALKSoundRecorderState, b: Applozic.ALAudioRecordButton.ALKSoundRecorderState) -> Swift.Bool
+    public var hashValue: Swift.Int {
+      get
+    }
+    public func hash(into hasher: inout Swift.Hasher)
+  }
+  public var states: Applozic.ALAudioRecordButton.ALKSoundRecorderState {
+    get
+    set(value)
+  }
+  @objc public func setAudioRecDelegate(recorderDelegate: Applozic.ALAudioRecorderProtocol)
+  @objc override dynamic public init(frame: CoreGraphics.CGRect)
+  @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+  @objc override dynamic open var intrinsicContentSize: CoreGraphics.CGSize {
+    @objc get
+  }
+  @objc public func cancelAudioRecord()
+  @objc deinit
+}
+extension ALAudioRecordButton : AVFoundation.AVAudioRecorderDelegate {
+  @objc dynamic public func audioRecorderDidFinishRecording(_ recorder: AVFoundation.AVAudioRecorder, successfully flag: Swift.Bool)
+}
+@_hasMissingDesignatedInitializers @objc public class ALCustomSearchBar : UIKit.UIView {
+  @objc final public let searchBar: UIKit.UISearchBar
+  @objc public init(searchBar: UIKit.UISearchBar)
+  @objc override dynamic public func layoutSubviews()
+  @objc public func show(_ show: Swift.Bool)
+  @discardableResult
+  @objc override dynamic public func becomeFirstResponder() -> Swift.Bool
+  @discardableResult
+  @objc override dynamic public func resignFirstResponder() -> Swift.Bool
+  @objc deinit
+  @objc override dynamic public init(frame: CoreGraphics.CGRect)
+}
+@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class ALPreviewPhotoViewController : UIKit.UIViewController {
+  @objc required public init(image: UIKit.UIImage, pathExtension: Swift.String)
+  @objc override dynamic public func viewDidLoad()
+  @objc override dynamic public func viewWillAppear(_ animated: Swift.Bool)
+  @objc deinit
+}
+extension ALPreviewPhotoViewController : UIKit.UIScrollViewDelegate {
+  @objc dynamic public func viewForZooming(in scrollView: UIKit.UIScrollView) -> UIKit.UIView?
+  @objc dynamic public func scrollViewDidZoom(_ scrollView: UIKit.UIScrollView)
+}
+@objc open class ALTemplateMessageModel : ObjectiveC.NSObject {
+  @objc open var identifier: Swift.String
+  @objc open var text: Swift.String
+  @objc open var messageToSend: Swift.String?
+  @objc open var showInAllCases: Swift.Bool
+  @objc open var onlyShowWhenLastMessageIsText: Swift.Bool
+  @objc open var onlyShowWhenLastMessageIsImage: Swift.Bool
+  @objc open var onlyShowWhenLastMessageIsVideo: Swift.Bool
+  @objc open var sendMessageOnSelection: Swift.Bool
+  @objc public init(identifier: Swift.String, text: Swift.String)
+  @objc deinit
+  @objc override dynamic public init()
+}
+extension ALTemplateMessageModel {
+  public convenience init?(json: [Swift.String : Any])
+}
+@_inheritsConvenienceInitializers @objc public class ALVideoCoder : ObjectiveC.NSObject {
+  @objc public func convert(phAssets: [Photos.PHAsset], range: CoreMedia.CMTimeRange, baseVC: UIKit.UIViewController, completion: @escaping ([Swift.String]?) -> Swift.Void)
+  @objc public func convert(avAssets: [AVFoundation.AVURLAsset], range: CoreMedia.CMTimeRange, baseVC: UIKit.UIViewController, completion: @escaping ([Swift.String]?) -> Swift.Void)
+  @objc deinit
+  @objc override dynamic public init()
+}
+@objc open class ALTemplateMessagesView : UIKit.UIView {
+  @objc open var viewModel: Applozic.ALTemplateMessagesViewModel!
+  @objc final public let collectionView: UIKit.UICollectionView
+  @objc open var messageSelected: ((Swift.String) -> ())?
+  @objc public init(frame: CoreGraphics.CGRect, viewModel: Applozic.ALTemplateMessagesViewModel)
+  @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+  @objc deinit
+  @objc override dynamic public init(frame: CoreGraphics.CGRect)
+}
+extension ALTemplateMessagesView : UIKit.UICollectionViewDelegate, UIKit.UICollectionViewDataSource, UIKit.UICollectionViewDelegateFlowLayout {
+  @objc dynamic public func numberOfSections(in collectionView: UIKit.UICollectionView) -> Swift.Int
+  @objc dynamic public func collectionView(_ collectionView: UIKit.UICollectionView, numberOfItemsInSection section: Swift.Int) -> Swift.Int
+  @objc dynamic public func collectionView(_ collectionView: UIKit.UICollectionView, cellForItemAt indexPath: Foundation.IndexPath) -> UIKit.UICollectionViewCell
+  @objc dynamic public func collectionView(_ collectionView: UIKit.UICollectionView, didSelectItemAt indexPath: Foundation.IndexPath)
+  @objc dynamic public func collectionView(_ collectionView: UIKit.UICollectionView, layout collectionViewLayout: UIKit.UICollectionViewLayout, sizeForItemAt indexPath: Foundation.IndexPath) -> CoreGraphics.CGSize
+}
+@_inheritsConvenienceInitializers @objc public class ALSearchViewModel : ObjectiveC.NSObject {
+  @objc override dynamic public init()
+  @objc public func numberOfSections() -> Swift.Int
+  @objc public func numberOfRowsInSection() -> Swift.Int
+  @objc public func clear()
+  @objc public func messageAtIndexPath(indexPath: Foundation.IndexPath) -> ApplozicCore.ALMessage?
+  @objc public func searchMessage(with key: Swift.String, _ completion: @escaping ((Swift.Bool) -> Swift.Void))
+  @objc deinit
+}
+@objc public class ALPhotoPicker : ObjectiveC.NSObject {
+  @objc weak public var delegate: Applozic.ALCustomPickerDelegate?
+  @objc public init(selectionLimit: Swift.Int, loadingTitle: Swift.String)
+  @available(iOS 14, *)
+  @objc public func openGallery(from controller: UIKit.UIViewController)
+  @objc deinit
+  @objc override dynamic public init()
+}
+@available(iOS 14, *)
+extension ALPhotoPicker : PhotosUI.PHPickerViewControllerDelegate {
+  public func picker(_ picker: PhotosUI.PHPickerViewController, didFinishPicking results: [PhotosUI.PHPickerResult])
+}
+@objc public protocol ALSoundRecorderProtocol {
+  @objc func finishRecordingAudio(fileUrl: Foundation.NSString)
+  @objc func startRecordingAudio()
+  @objc func cancelRecordingAudio()
+  @objc func permissionNotGrant()
+}
+@_inheritsConvenienceInitializers @objc public class ALSoundRecorderButton : UIKit.UIButton {
+  public var delegate: Applozic.ALSoundRecorderProtocol!
+  @objc override dynamic public init(frame: CoreGraphics.CGRect)
+  public init(frame: CoreGraphics.CGRect, recorderDelegate: Applozic.ALSoundRecorderProtocol)
+  @objc public func show()
+  @objc public func hide()
+  @objc public func setSoundRecDelegate(recorderDelegate: Applozic.ALSoundRecorderProtocol)
+  @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+  @objc deinit
+}
+extension ALSoundRecorderButton : AVFoundation.AVAudioRecorderDelegate {
+  @objc dynamic public func audioRecorderDidFinishRecording(_ recorder: AVFoundation.AVAudioRecorder, successfully flag: Swift.Bool)
+}
+@objc open class ALTemplateMessagesViewModel : ObjectiveC.NSObject {
+  @objc open var messageTemplates: [Applozic.ALTemplateMessageModel]
+  public var leftRightPadding: CoreGraphics.CGFloat
+  public var height: CoreGraphics.CGFloat
+  public var textFont: UIKit.UIFont?
+  @objc public init(messageTemplates: [Applozic.ALTemplateMessageModel])
+  @objc open func getNumberOfItemsIn(section: Swift.Int) -> Swift.Int
+  @objc open func getTextForItemAt(row: Swift.Int) -> Swift.String?
+  @objc open func getSizeForItemAt(row: Swift.Int) -> CoreGraphics.CGSize
+  open func getTemplateForItemAt(row: Swift.Int) -> Swift.String?
+  @objc open func updateLast(message: ApplozicCore.ALMessage)
+  @objc deinit
+  @objc override dynamic public init()
+}
+@objc public protocol ALAudioRecorderViewProtocol {
+  @objc func cancelAudioRecording()
+}
+@_inheritsConvenienceInitializers @available(iOS 9.0, *)
+@objc public class ALAudioRecorderView : UIKit.UIView {
+  @objc public func setAudioRecViewDelegate(recorderDelegate: Applozic.ALAudioRecorderViewProtocol)
+  @objc override dynamic public init(frame: CoreGraphics.CGRect)
+  @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+  @objc public func userDidStartRecording()
+  @objc public func userDidStopRecording()
+  @objc public func isRecordingTimeSufficient() -> Swift.Bool
+  @objc public func moveView(location: CoreGraphics.CGPoint)
+  @objc deinit
+}

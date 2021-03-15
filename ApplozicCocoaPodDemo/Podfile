@@ -5,12 +5,8 @@ target 'ApplozicCocoaPodDemo' do
     # Add use_frameworks for applozic
     use_frameworks!
 
-   pod 'Applozic', :git => 'https://github.com/AppLozic/Applozic-Chat-iOS-Framework.git', :branch => 'release-8.0.0'
-
-    # added the core as this not released yet
-   pod 'ApplozicCore', :git => 'https://github.com/AppLozic/Applozic-Chat-iOS-Framework.git', :branch => 'release-8.0.0'
-
   # Pods for ApplozicCocoaPodDemo
+  pod 'Applozic'
 
   target 'ApplozicCocoaPodDemoTests' do
     inherit! :search_paths

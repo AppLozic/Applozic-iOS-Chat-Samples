@@ -368,11 +368,13 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ApplozicCocoaPodDemo/Pods-ApplozicCocoaPodDemo-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Applozic/Applozic.framework",
+				"${BUILT_PRODUCTS_DIR}/ApplozicCore/ApplozicCore.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Applozic.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ApplozicCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;

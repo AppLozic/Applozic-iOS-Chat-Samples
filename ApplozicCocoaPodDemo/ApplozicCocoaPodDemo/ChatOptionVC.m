@@ -38,7 +38,11 @@
 - (IBAction)LaunchMsgList:(id)sender
 {
     ALChatManager *manager = [[ALChatManager alloc] initWithApplicationKey:@"applozic-sample-app"]; // SET APPLICATION ID
-    [manager registerUserAndLaunchChat:self.alUser andFromController:self forUser:nil withGroupId:nil];
+
+    ALUser *user = [[ALUser alloc] init];
+    [user setUserId:[ALUserDefaultsHandler getUserId]];
+    [user setEmail:[ALUserDefaultsHandler getEmailId]];
+    [manager connectUserAndLaunchChat:user andFromController:self forUser:nil withGroupId:nil];
 }
 
 - (IBAction)LaunchIndividualChat:(id)sender

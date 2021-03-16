@@ -4,8 +4,9 @@ platform :ios, '10.0'
 target 'ApplozicCocoaPodDemo' do
     # Add use_frameworks for applozic
     use_frameworks!
-    pod 'Applozic', "~> 7.13.0"
+
   # Pods for ApplozicCocoaPodDemo
+  pod 'Applozic'
 
   target 'ApplozicCocoaPodDemoTests' do
     inherit! :search_paths
